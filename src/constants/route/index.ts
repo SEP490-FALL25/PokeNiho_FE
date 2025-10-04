@@ -1,11 +1,11 @@
 const AUTH = {
-    LOGIN: '/login',
-    REGISTER: '/register',
-    FORGOT_PASSWORD: '/forgot-password',
-    RESET_PASSWORD: '/reset-password',
-    VERIFY_EMAIL: '/verify-email',
-    UNAUTHORIZED: '/unauthorized',
-    LOGOUT: '/logout',
+    LOGIN: '/auth/login',
+    REGISTER: '/auth/register',
+    FORGOT_PASSWORD: '/auth/forgot-password',
+    RESET_PASSWORD: '/auth/reset-password',
+    VERIFY_EMAIL: '/auth/verify-email',
+    UNAUTHORIZED: '/auth/unauthorized',
+    LOGOUT: '/auth/logout',
 };
 
 const PUBLIC = {

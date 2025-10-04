@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { vi } from "date-fns/locale"
 import { format, addYears, subYears, setMonth, getYear, getMonth } from "date-fns"
 import type { Locale } from "date-fns"
-import { cn } from "@helpers/CN"
+import { cn } from "@utils/CN"
 import { Button } from "@components/Atoms/Button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../Select"
 

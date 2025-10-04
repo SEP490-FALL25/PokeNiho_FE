@@ -17,6 +17,7 @@ export default defineConfig({
       '@atoms': path.resolve(__dirname, './src/components/Atoms'),
       '@molecules': path.resolve(__dirname, './src/components/Molecules'),
       '@organisms': path.resolve(__dirname, './src/components/Organisms'),
+      '@ui': path.resolve(__dirname, './src/components/ui'),
       '@configs': path.resolve(__dirname, './src/configs'),
       '@constants': path.resolve(__dirname, './src/constants'),
       '@layouts': path.resolve(__dirname, './src/layouts'),

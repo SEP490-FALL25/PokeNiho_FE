@@ -1,101 +1,29 @@
-@import "./styles/variables.css";
 @import "tailwindcss";
 
-/* Custom utilities */
-@layer utilities {
-
-    .text-primary {
-        color: var(--color-primary);
-    }
-
-    .text-secondary {
-        color: var(--color-secondary);
-    }
-
-    .text-tertiary {
-        color: var(--color-tertiary);
-    }
-
-    .text-gradient {
-        background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    .bg-primary {
-        background-color: var(--color-secondary);
-    }
-
-    .bg-secondary {
-        background-color: var(--color-secondary);
-    }
-
-    .bg-tertiary {
-        background-color: var(--color-tertiary);
-    }
-
-    /* .bg-gradient-primary {
-        background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
-    }
-
-    .bg-gradient-secondary {
-        background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-dark));
-    }
-
-    .bg-gradient-tertiary {
-        background: linear-gradient(135deg, var(--color-tertiary), var(--color-tertiary-dark));
-    } */
-
-    .shadow-custom {
-        box-shadow: var(--shadow-lg);
-    }
-
-    .transition-smooth {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+:root {
+    --primary: #22C55E;
+    --primary-light: #D1FADF;
+    --primary-dark: #16A34A;
+    --secondary: #6FAFB2;
+    --secondary-light: #E1F5F5;
+    --secondary-dark: #529496;
+    --faded: rgba(113, 113, 122, 0.2);
+    --error: rgb(228, 3, 3);
 }
 
-/* Base styles */
-/* @layer base {
-    html {
-        font-family: system-ui, sans-serif;
-    }
+@theme inline {
+    --color-primary: var(--primary);
+    --color-primary-light: var(--primary-light);
+    --color-primary-dark: var(--primary-dark);
+    --color-secondary: var(--secondary);
+    --color-secondary-light: var(--secondary-light);
+    --color-secondary-dark: var(--secondary-dark);
+    --color-faded: var(--faded);
+    --color-error: var(--error);
+}
 
-    body {
-        @apply bg-primary text-gray-900;
-    }
-
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        @apply font-bold;
-    }
-
-    h1 {
-        @apply text-4xl;
-    }
-
-    h2 {
-        @apply text-3xl;
-    }
-
-    h3 {
-        @apply text-2xl;
-    }
-
-    h4 {
-        @apply text-xl;
-    }
-
-    h5 {
-        @apply text-lg;
-    }
-
-    h6 {
-        @apply text-base;
-    }
-} */
+.input-error {
+    border: 1px solid var(--error);
+    border-radius: 11px;
+    margin-bottom: 0;
+}

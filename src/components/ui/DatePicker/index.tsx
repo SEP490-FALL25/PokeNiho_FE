@@ -5,7 +5,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { DayPicker, type DayPickerProps } from 'react-day-picker';
 import { motion, AnimatePresence } from 'framer-motion';
 import 'react-day-picker/dist/style.css';
-import { cn } from '@helpers/CN';
+import { cn } from '@utils/CN';
 
 // Custom styles for the calendar
 const calendarStyles = `

@@ -11,7 +11,7 @@ import {
   FormProvider,
   useFormContext,
 } from "react-hook-form"
-import { cn } from "@helpers/CN"
+import { cn } from "@utils/CN"
 
 
 const Form = FormProvider

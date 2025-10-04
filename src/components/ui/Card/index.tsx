@@ -1,4 +1,4 @@
-import { cn } from "@helpers/CN"
+import { cn } from "@utils/CN"
 import * as React from "react"
 
 
