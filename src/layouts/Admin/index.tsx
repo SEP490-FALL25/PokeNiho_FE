@@ -3,17 +3,18 @@ import { LayoutDashboard, Users, BookOpen, Languages, BarChart3, Settings, LogOu
 import { useState } from "react"
 import { Button } from "@ui/Button"
 import { cn } from "@utils/CN"
+import { ROUTES } from "@constants/route"
 
 const AdminLayout = () => {
     const location = useLocation()
     const [isSidebarOpen, setIsSidebarOpen] = useState(true)
 
     const navigation = [
-        { name: "Tổng quan", href: "/admin", icon: LayoutDashboard },
-        { name: "Quản lý người dùng", href: "/admin/users", icon: Users },
-        { name: "Quản lý bài học", href: "/admin/lessons", icon: BookOpen },
-        { name: "Quản lý từ vựng", href: "/admin/vocabulary", icon: Languages },
-        { name: "Thống kê", href: "/admin/analytics", icon: BarChart3 },
+        { name: "Tổng quan", href: ROUTES.ADMIN.ROOT, icon: LayoutDashboard },
+        { name: "Quản lý người dùng", href: ROUTES.ADMIN.USERS, icon: Users },
+        { name: "Quản lý bài học", href: ROUTES.ADMIN.LESSONS, icon: BookOpen },
+        { name: "Quản lý từ vựng", href: ROUTES.ADMIN.VOCABULARY, icon: Languages },
+        { name: "Thống kê", href: ROUTES.ADMIN.ANALYTICS, icon: BarChart3 },
     ]
 
     return (
@@ -63,10 +64,10 @@ const AdminLayout = () => {
                 {/* Bottom Actions */}
                 <div className="border-t border-border p-4 space-y-1">
                     <Link
-                        to="/admin/settings"
+                        to={ROUTES.ADMIN.SETTINGS}
                         className={cn(
                             "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                            location.pathname === "/admin/settings"
+                            location.pathname === ROUTES.ADMIN.SETTINGS
                                 ? "bg-sidebar-primary text-sidebar-primary-foreground"
                                 : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                         )}
@@ -74,7 +75,7 @@ const AdminLayout = () => {
                         <Settings className="h-5 w-5 flex-shrink-0" />
                         {isSidebarOpen && <span>Cài đặt</span>}
                     </Link>
-                    <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
+                    <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors cursor-pointer">
                         <LogOut className="h-5 w-5 flex-shrink-0" />
                         {isSidebarOpen && <span>Đăng xuất</span>}
                     </button>

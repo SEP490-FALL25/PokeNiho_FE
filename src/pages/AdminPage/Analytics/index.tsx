@@ -1,4 +1,5 @@
 
+import HeaderAdmin from "@organisms/Header/Admin"
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/Card"
 import { TrendingUp, Users, BookOpen, Award, ArrowUp, ArrowDown } from "lucide-react"
 import {
@@ -57,10 +58,7 @@ const AnalyticsDashboard = () => {
     return (
         <div className="p-8">
             {/* Header */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-foreground">Phân tích & Thống kê</h1>
-                <p className="text-muted-foreground mt-2">Tổng quan về hiệu suất và hoạt động của hệ thống</p>
-            </div>
+            <HeaderAdmin title="Phân tích & Thống kê" description="Tổng quan về hiệu suất và hoạt động của hệ thống" />
 
             {/* Key Metrics */}
             <div className="grid gap-6 md:grid-cols-4 mb-8">

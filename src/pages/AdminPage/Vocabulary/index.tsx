@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ui/Select"
 import { Search, Plus, Edit, Trash2, Volume2, ImageIcon } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/Tabs"
+import HeaderAdmin from "@organisms/Header/Admin"
 
 interface Vocabulary {
     id: string
@@ -137,10 +138,7 @@ const VocabularyManagement = () => {
     return (
         <div className="p-8">
             {/* Header */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-foreground">Quản lý từ vựng</h1>
-                <p className="text-muted-foreground mt-2">Quản lý tất cả từ vựng trong hệ thống</p>
-            </div>
+            <HeaderAdmin title="Quản lý từ vựng" description="Quản lý tất cả từ vựng trong hệ thống" />
 
             {/* Stats Cards */}
             <div className="grid gap-6 md:grid-cols-5 mb-8">
