@@ -21,6 +21,7 @@ export default defineConfig({
       '@configs': path.resolve(__dirname, './src/configs'),
       '@constants': path.resolve(__dirname, './src/constants'),
       '@layouts': path.resolve(__dirname, './src/layouts'),
+      '@models': path.resolve(__dirname, './src/models'),
       '@redux': path.resolve(__dirname, './src/redux'),
       '@routes': path.resolve(__dirname, './src/routes'),
       '@pages': path.resolve(__dirname, './src/pages'),
