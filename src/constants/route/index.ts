@@ -18,6 +18,7 @@ const ADMIN = {
     LESSONS: '/admin/lessons',
     VOCABULARY: '/admin/vocabulary',
     ANALYTICS: '/admin/analytics',
+    SETTINGS: '/admin/settings',
 };
 
 const ROLE = {

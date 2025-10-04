@@ -57,10 +57,10 @@ const AnalyticsDashboard = () => {
     return (
         <div className="p-8">
             {/* Header */}
-            <div className="mb-8">
+            <header className="mb-8">
                 <h1 className="text-3xl font-bold text-foreground">Phân tích & Thống kê</h1>
                 <p className="text-muted-foreground mt-2">Tổng quan về hiệu suất và hoạt động của hệ thống</p>
-            </div>
+            </header>
 
             {/* Key Metrics */}
             <div className="grid gap-6 md:grid-cols-4 mb-8">
