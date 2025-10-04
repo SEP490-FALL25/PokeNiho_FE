@@ -1,0 +1,9 @@
+.lucide-spin {
+    animation: lucide-spin 1s linear infinite;
+}
+
+@keyframes lucide-spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}

@@ -8,7 +8,7 @@ import { jwtDecode, JwtPayload } from 'jwt-decode';
  * @returns JWTPayload | null
  */
 export const decodeJWT = () => {
-    const token = CookiesService.get();
+    const token = CookiesService.get('accessToken');
     try {
         if (!token) {
             return null;
