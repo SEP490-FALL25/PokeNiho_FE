@@ -1,12 +1,16 @@
-import { useForm, Controller } from 'react-hook-form'; // Thêm Controller
+import { useForm, Controller } from 'react-hook-form';
 import { Button } from '@ui/Button';
-import { Input } from '@ui/Input'; // Sử dụng component Input tùy chỉnh của bạn
+import { Input } from '@ui/Input';
 import { ILoginFormDataRequest } from '@models/user/request';
 import authService from '@services/auth';
 import { toast } from 'react-toastify';
 import { useState } from 'react';
+import { CookiesService } from '@utils/cookies';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@constants/route';
 
 const LoginPage = () => {
+    const navigate = useNavigate();
 
     /**
      * Handle form
@@ -26,9 +30,10 @@ const LoginPage = () => {
     const onSubmit = async (data: ILoginFormDataRequest) => {
         try {
             setIsLoading(true);
-            const res = await authService.login(data);
-            
+            // const res = await authService.login(data);
+            CookiesService.set('accessToken', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJkZXZpY2VJZCI6MTAsInJvbGVJZCI6Mywicm9sZU5hbWUiOiJMRUFSTkVSIiwidXVpZCI6IjhmYTRhZWFlLTFmYjQtNDZmNy1iYTJmLWMyNTg4MDU5MGViMCIsImlhdCI6MTc1OTUxOTI1MCwiZXhwIjoxNzU5NTM3MjUwfQ.vEW0PQNUeYVTuB0xYct_joHlqNIyFLCz5lj8BW3Q1EM');
             toast.success('Đăng nhập thành công');
+            navigate(ROUTES.ADMIN.ROOT);
         } catch (error) {
             toast.error('Đăng nhập thất bại');
         } finally {

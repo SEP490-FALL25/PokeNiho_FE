@@ -9,12 +9,12 @@ const PersistToken = () => {
     const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
 
-    const accessToken = CookiesService.get();
+    const accessToken = CookiesService.get('accessToken');
 
     useEffect(() => {
         const checkAccessToken = () => {
             if (!accessToken || isTokenExpired(accessToken)) {
-                CookiesService.remove();
+                CookiesService.remove('accessToken');
                 navigate(ROUTES.AUTH.LOGIN);
             } else {
                 setIsLoading(false);

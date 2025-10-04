@@ -5,7 +5,7 @@ import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cva, type VariantProps } from "class-variance-authority"
 import { X, XCircle, CheckCircle } from "lucide-react"
 
-import { cn } from "@/utils/helpers/CN"
+import { cn } from "@utils/CN"
 
 const ToastProvider = ToastPrimitives.Provider
 

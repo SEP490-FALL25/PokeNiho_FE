@@ -1,15 +1,15 @@
 import Cookies from "js-cookie"
 
 export const CookiesService = {
-    get: () => {
-        let dataJson = Cookies.get("USER_INFO");
+    get: (key: string) => {
+        let dataJson = Cookies.get(key);
         return dataJson ? JSON.parse(dataJson) : null;
     },
-    set: (userInfo: any) => {
+    set: (key: string, userInfo: any) => {
         let dataJson = JSON.stringify(userInfo);
-        Cookies.set("USER_INFO", dataJson, { expires: 1 });
+        Cookies.set(key, dataJson, { expires: 1 });
     },
-    remove: () => {
-        Cookies.remove("USER_INFO");
+    remove: (key: string) => {
+        Cookies.remove(key);
     }
 }

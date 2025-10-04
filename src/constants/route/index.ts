@@ -13,7 +13,11 @@ const PUBLIC = {
 }
 
 const ADMIN = {
-    DASHBOARD: '/admin',
+    ROOT: '/admin',
+    USERS: '/admin/users',
+    LESSONS: '/admin/lessons',
+    VOCABULARY: '/admin/vocabulary',
+    ANALYTICS: '/admin/analytics',
 };
 
 const ROLE = {
