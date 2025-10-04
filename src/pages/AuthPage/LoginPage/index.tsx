@@ -1,16 +1,17 @@
-import { useForm, SubmitHandler, Controller } from 'react-hook-form'; // Thêm Controller
+import { useForm, Controller } from 'react-hook-form'; // Thêm Controller
 import { Button } from '@ui/Button';
 import { Input } from '@ui/Input'; // Sử dụng component Input tùy chỉnh của bạn
 import { ILoginFormDataRequest } from '@models/user/request';
 import authService from '@services/auth';
-
-// Định nghĩa kiểu dữ liệu cho form
-type Inputs = {
-    email: string;
-    password: string;
-};
+import { toast } from 'react-toastify';
+import { useState } from 'react';
 
 const LoginPage = () => {
+
+    /**
+     * Handle form
+     */
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const {
         control,
         handleSubmit,
@@ -23,9 +24,18 @@ const LoginPage = () => {
     });
 
     const onSubmit = async (data: ILoginFormDataRequest) => {
-        console.log(data);
-        const res = await authService.login(data);
+        try {
+            setIsLoading(true);
+            const res = await authService.login(data);
+            
+            toast.success('Đăng nhập thành công');
+        } catch (error) {
+            toast.error('Đăng nhập thất bại');
+        } finally {
+            setIsLoading(false);
+        }
     };
+    //-------------------------------End-------------------------------//
 
     return (
         <>
@@ -81,6 +91,7 @@ const LoginPage = () => {
 
                 <Button
                     type="submit"
+                    disabled={isLoading}
                     className="w-full px-4 py-3 font-bold text-white bg-secondary rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary"
                 >
                     Đăng nhập
