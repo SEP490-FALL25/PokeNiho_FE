@@ -75,7 +75,7 @@ const AdminLayout = () => {
                         <Settings className="h-5 w-5 flex-shrink-0" />
                         {isSidebarOpen && <span>Cài đặt</span>}
                     </Link>
-                    <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
+                    <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors cursor-pointer">
                         <LogOut className="h-5 w-5 flex-shrink-0" />
                         {isSidebarOpen && <span>Đăng xuất</span>}
                     </button>

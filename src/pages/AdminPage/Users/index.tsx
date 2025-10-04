@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ui/Select"
 import { Search, Plus, Edit, Trash2, MoreVertical } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@ui/DropdownMenu"
+import HeaderAdmin from "@organisms/Header/Admin"
 
 interface User {
     id: string
@@ -92,10 +93,7 @@ const UsersManagement = () => {
     return (
         <div className="p-8">
             {/* Header */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-foreground">Quản lý người dùng</h1>
-                <p className="text-muted-foreground mt-2">Quản lý tất cả người dùng trong hệ thống</p>
-            </div>
+            <HeaderAdmin title="Quản lý người dùng" description="Quản lý tất cả người dùng trong hệ thống" />
 
             {/* Stats Cards */}
             <div className="grid gap-6 md:grid-cols-4 mb-8">

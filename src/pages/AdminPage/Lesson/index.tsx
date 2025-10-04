@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ui/Select"
 import { Search, Plus, Edit, Trash2, Eye, Copy } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/Tabs"
+import HeaderAdmin from "@organisms/Header/Admin"
 
 interface Lesson {
     id: string
@@ -118,10 +119,7 @@ const LessonsManagement = () => {
     return (
         <div className="p-8">
             {/* Header */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-foreground">Quản lý bài học</h1>
-                <p className="text-muted-foreground mt-2">Quản lý tất cả bài học và khóa học trong hệ thống</p>
-            </div>
+            <HeaderAdmin title="Quản lý bài học" description="Quản lý tất cả bài học và khóa học trong hệ thống" />
 
             {/* Stats Cards */}
             <div className="grid gap-6 md:grid-cols-4 mb-8">
