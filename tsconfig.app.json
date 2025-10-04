@@ -32,6 +32,7 @@
       "@configs/*": ["src/configs/*"],
       "@constants/*": ["src/constants/*"],
       "@layouts/*": ["src/layouts/*"],
+      "@models/*": ["src/models/*"],
       "@pages/*": ["src/pages/*"],
       "@redux/*": ["src/redux/*"],
       "@routes/*": ["src/routes/*"],

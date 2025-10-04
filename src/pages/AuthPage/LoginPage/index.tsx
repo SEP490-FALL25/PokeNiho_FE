@@ -1,48 +1,84 @@
-import { ROUTES } from "@constants/route";
-import { Link } from "react-router-dom";
-import { Button } from "@ui/Button";
+import { useForm, SubmitHandler, Controller } from 'react-hook-form'; // Thêm Controller
+import { Button } from '@ui/Button';
+import { Input } from '@ui/Input'; // Sử dụng component Input tùy chỉnh của bạn
+import { ILoginFormDataRequest } from '@models/user/request';
+import authService from '@services/auth';
+
+// Định nghĩa kiểu dữ liệu cho form
+type Inputs = {
+    email: string;
+    password: string;
+};
 
 const LoginPage = () => {
+    const {
+        control,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<ILoginFormDataRequest>({
+        defaultValues: {
+            email: '',
+            password: '',
+        },
+    });
+
+    const onSubmit = async (data: ILoginFormDataRequest) => {
+        console.log(data);
+        const res = await authService.login(data);
+    };
+
     return (
         <>
             <div className="text-center">
-                <h1 className="text-3xl font-bold text-secondary">
-                    Đăng nhập
-                </h1>
+                <h1 className="text-3xl font-bold text-secondary">Đăng nhập</h1>
             </div>
-            <form className="space-y-6">
-                <div>
-                    <label
-                        htmlFor="email"
-                        className="block mb-2 text-sm font-medium text-gray-700"
-                    >
-                        Email
-                    </label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        placeholder="Nhập email của bạn"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                        required
-                    />
-                </div>
-                <div>
-                    <label
-                        htmlFor="password"
-                        className="block mb-2 text-sm font-medium text-gray-700"
-                    >
-                        Mật khẩu
-                    </label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder="Nhập mật khẩu của bạn"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                        required
-                    />
-                </div>
+
+            <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+                <Controller
+                    name="email"
+                    control={control}
+                    rules={{
+                        required: 'Email là bắt buộc',
+                        pattern: {
+                            value: /^\S+@\S+$/i,
+                            message: 'Email không hợp lệ',
+                        },
+                    }}
+                    render={({ field }) => (
+                        <Input
+                            {...field}
+                            label="Email"
+                            id="email"
+                            placeholder="Nhập email của bạn"
+                            error={errors.email?.message}
+                            variant="original"
+                        />
+                    )}
+                />
+
+                <Controller
+                    name="password"
+                    control={control}
+                    rules={{
+                        required: 'Mật khẩu là bắt buộc',
+                        minLength: {
+                            value: 6,
+                            message: 'Mật khẩu phải có ít nhất 6 ký tự',
+                        },
+                    }}
+                    render={({ field }) => (
+                        <Input
+                            {...field}
+                            label="Mật khẩu"
+                            id="password"
+                            placeholder="Nhập mật khẩu của bạn"
+                            isPassword
+                            error={errors.password?.message}
+                            variant="original"
+                        />
+                    )}
+                />
+
                 <Button
                     type="submit"
                     className="w-full px-4 py-3 font-bold text-white bg-secondary rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary"
@@ -50,17 +86,24 @@ const LoginPage = () => {
                     Đăng nhập
                 </Button>
             </form>
-            <div className="flex items-center justify-between text-sm">
-                <Link to={ROUTES.AUTH.FORGOT_PASSWORD} className="font-medium text-tertiary hover:underline">
+
+            {/* <div className="flex items-center justify-between text-sm">
+                <Link
+                    to={ROUTES.AUTH.FORGOT_PASSWORD}
+                    className="font-medium text-tertiary hover:underline"
+                >
                     Quên mật khẩu?
                 </Link>
                 <div className="flex items-center">
                     <span className="text-gray-500">Chưa có tài khoản?</span>
-                    <Link to={ROUTES.AUTH.REGISTER} className="ml-1 font-medium text-tertiary hover:underline">
+                    <Link
+                        to={ROUTES.AUTH.REGISTER}
+                        className="ml-1 font-medium text-tertiary hover:underline"
+                    >
                         Đăng ký
                     </Link>
                 </div>
-            </div>
+            </div> */}
         </>
     );
 };
