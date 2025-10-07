@@ -33,17 +33,3 @@ export const KanjiWithMeaningRequest = z.object({
 });
 export type IKanjiWithMeaningRequest = z.infer<typeof KanjiWithMeaningRequest>;
 //-----------------End-Login-Request-----------------//
-
-/**
- * Kanji list query (flexible)
- */
-export const QueryRequest = z
-    .object({
-        page: z.number().optional(),
-        limit: z.number().optional(),
-        search: z.string().optional(),
-        sortOrder: z.string().optional(),
-    })
-    .catchall(z.any());
-
-export type IQueryRequest = z.infer<typeof QueryRequest>;
