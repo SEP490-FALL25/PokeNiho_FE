@@ -1,10 +1,21 @@
-import { axiosClient } from "@configs/axios";
-import { IKanjiWithMeaningRequest } from "@models/kanji/request";
+import { axiosPrivate } from "@configs/axios";
+import { IQueryRequest, IKanjiWithMeaningRequest } from "@models/kanji/request";
 
 const kanjiService = {
+    getKanjiList: async ({ page, limit, search, sortOrder, ...rest }: IQueryRequest = {}) => {
+        return axiosPrivate.get('/kanji', {
+            params: {
+                page,
+                limit,
+                search,
+                sortOrder,
+                ...rest,
+            },
+        });
+    },
     createKanjiWithMeaning: async (data: IKanjiWithMeaningRequest) => {
-        return axiosClient.post('/kanji/with-meanings', data)
-    }
-}
+        return axiosPrivate.post('/kanji/with-meanings', data);
+    },
+};
 
 export default kanjiService;
