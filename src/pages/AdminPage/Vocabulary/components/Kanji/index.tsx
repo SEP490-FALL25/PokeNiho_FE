@@ -7,12 +7,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@ui/Input";
 import { Edit, Plus, Trash2 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/Tabs";
-import useKanjiList from "@hooks/useKanji";
+import { useKanjiListManagement } from "@hooks/useKanji";
 import { useState } from "react";
-import { Kanji } from "@models/kanji/entity";
+import { KanjiManagement } from "@models/kanji/entity";
 import { EnhancedPagination as Pagination } from "@ui/Pagination";
 import { Skeleton } from "@ui/Skeleton";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useFieldArray } from "react-hook-form";
 import { IKanjiWithMeaningRequest } from "@models/kanji/request";
 import kanjiService from "@services/kanji";
 import { toast } from "react-toastify";
@@ -28,7 +28,7 @@ interface KanjiVocabulary {
     setMeanings: (value: { vi: string; en: string }[]) => void;
 }
 
-const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen, onyomiReadings, setOnyomiReadings, kunyomiReadings, setKunyomiReadings, meanings, setMeanings }: KanjiVocabulary) => {
+const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: KanjiVocabulary) => {
 
     /**
      * Pagination
@@ -40,7 +40,7 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen, onyomi
     /**
      * Kanji List
      */
-    const { data, isLoading } = useKanjiList({
+    const { data, isLoading } = useKanjiListManagement({
         page,
         limit,
         search: "",
@@ -59,30 +59,30 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen, onyomi
     const [isAddKanjiLoading, setIsAddKanjiLoading] = useState<boolean>(false);
     const { register, handleSubmit, control } = useForm<IKanjiWithMeaningRequest>({
         defaultValues: {
-            kanji: {
-                id: 0,
-                character: "",
-                meaningKey: "",
-                strokeCount: 0,
-                jlptLevel: 0,
-                createdAt: "",
-                updatedAt: "",
-            },
+            character: "",
+            strokeCount: 0,
+            jlptLevel: 0,
+            image: null,
             readings: [],
             meanings: [],
         },
     });
 
+    const { fields: readingsFields, append: appendReading, remove: removeReading } = useFieldArray({ control, name: "readings" });
+    const { fields: meaningFields, append: appendMeaning, remove: removeMeaning } = useFieldArray({ control, name: "meanings" });
+
     const onSubmit = async (data: IKanjiWithMeaningRequest) => {
         try {
             setIsAddKanjiLoading(true);
             const res = await kanjiService.createKanjiWithMeaning(data);
-            if (res.data.statusCode === 200) {
-                toast.success('Thêm Kanji thành công');
+            
+            if (res.data.statusCode === 201) {                
+                toast.success(res.data.message);
                 setIsAddKanjiDialogOpen(false);
             }
-        } catch (error) {
-            toast.error('Thêm Kanji thất bại');
+        } catch (error: any) {
+            console.log('error', error);
+            toast.error(error.response.data.message);
         }
         finally {
             setIsAddKanjiLoading(false);
@@ -120,18 +120,18 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen, onyomi
                                                 <CardContent className="space-y-6 pt-6">
                                                     <div className="space-y-2">
                                                         <label className="text-sm font-medium text-gray-700">Ký tự Kanji</label>
-                                                        <Input placeholder="日" className="bg-gray-50 border-gray-300 text-gray-800 rounded-lg" {...register("kanji.character", { required: true })} />
+                                                        <Input placeholder="日" className="bg-gray-50 border-gray-300 text-gray-800 rounded-lg" {...register("character", { required: true })} />
                                                     </div>
                                                     <div className="grid grid-cols-2 gap-4">
                                                         <div className="space-y-2">
                                                             <label className="text-sm font-medium text-gray-700">Số nét</label>
-                                                            <Input type="number" placeholder="4" className="bg-gray-50 border-gray-300 text-gray-800 rounded-lg" {...register("kanji.strokeCount", { valueAsNumber: true })} />
+                                                            <Input type="number" placeholder="4" className="bg-gray-50 border-gray-300 text-gray-800 rounded-lg" {...register("strokeCount", { valueAsNumber: true })} />
                                                         </div>
                                                         <div className="space-y-2">
                                                             <label className="text-sm font-medium text-gray-700">Cấp độ JLPT</label>
                                                             <Controller
                                                                 control={control}
-                                                                name="kanji.jlptLevel"
+                                                                name="jlptLevel"
                                                                 render={({ field }) => (
                                                                     <Select onValueChange={(v) => field.onChange(Number(v))}>
                                                                         <SelectTrigger className="bg-gray-50 border-gray-300 text-gray-800 rounded-lg">
@@ -156,23 +156,30 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen, onyomi
                                         <TabsContent value="readings">
                                             <Card className="border-none shadow-none">
                                                 <CardContent className="space-y-6 pt-6">
-                                                    {/* Onyomi Readings */}
-                                                    {onyomiReadings.map((reading: string, index: number) => (
-                                                        <div key={`onyomi-${index}`} className="flex items-center gap-2">
-                                                            <Input placeholder={`Onyomi ${index + 1}`} className="bg-gray-50 border-gray-300" />
-                                                            {index === onyomiReadings.length - 1 && <Button variant="ghost" size="icon" onClick={() => setOnyomiReadings([...onyomiReadings, ""])}><Plus className="w-5 h-5 text-green-500" /></Button>}
-                                                            {onyomiReadings.length > 1 && <Button variant="ghost" size="icon" onClick={() => setOnyomiReadings(onyomiReadings.filter((_, i) => i !== index))}><Trash2 className="w-5 h-5 text-red-500" /></Button>}
+                                                    {/* Readings (combined onyomi/kunyomi) */}
+                                                    {readingsFields.map((field, index) => (
+                                                        <div key={field.id} className="grid grid-cols-2 gap-2 items-center">
+                                                            <Select defaultValue={field.readingType}>
+                                                                <SelectTrigger className="bg-gray-50 border-gray-300 text-gray-800 rounded-lg">
+                                                                    <SelectValue placeholder="Loại đọc" />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    <SelectItem value="onyomi">Onyomi</SelectItem>
+                                                                    <SelectItem value="kunyomi">Kunyomi</SelectItem>
+                                                                </SelectContent>
+                                                            </Select>
+                                                            <Input placeholder={`Đọc #${index + 1}`} className="bg-gray-50 border-gray-300" {...register(`readings.${index}.reading` as const)} />
+                                                            <input type="hidden" {...register(`readings.${index}.readingType` as const)} defaultValue={field.readingType || "onyomi"} />
+                                                            <div className="flex justify-end">
+                                                                <Button type="button" variant="ghost" size="icon" onClick={() => removeReading(index)}><Trash2 className="w-5 h-5 text-red-500" /></Button>
+                                                            </div>
                                                         </div>
                                                     ))}
-                                                    <div className="border-t border-gray-200 my-4"></div>
-                                                    {/* Kunyomi Readings */}
-                                                    {kunyomiReadings.map((reading, index) => (
-                                                        <div key={`kunyomi-${index}`} className="flex items-center gap-2">
-                                                            <Input placeholder={`Kunyomi ${index + 1}`} className="bg-gray-50 border-gray-300" />
-                                                            {index === kunyomiReadings.length - 1 && <Button variant="ghost" size="icon" onClick={() => setKunyomiReadings([...kunyomiReadings, ""])}><Plus className="w-5 h-5 text-green-500" /></Button>}
-                                                            {kunyomiReadings.length > 1 && <Button variant="ghost" size="icon" onClick={() => setKunyomiReadings(kunyomiReadings.filter((_, i) => i !== index))}><Trash2 className="w-5 h-5 text-red-500" /></Button>}
-                                                        </div>
-                                                    ))}
+                                                    <div className="flex justify-end">
+                                                        <Button type="button" variant="outline" onClick={() => appendReading({ readingType: "onyomi", reading: "" })}>
+                                                            <Plus className="h-4 w-4 mr-2" /> Thêm cách đọc
+                                                        </Button>
+                                                    </div>
                                                 </CardContent>
                                             </Card>
                                         </TabsContent>
@@ -180,23 +187,26 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen, onyomi
                                         <TabsContent value="meanings">
                                             <Card className="border-none shadow-none">
                                                 <CardContent className="space-y-4 pt-6">
-                                                    {meanings.map((meaning, index) => (
-                                                        <div key={index} className="p-4 border rounded-lg bg-gray-50 space-y-4 relative">
+                                                    {meaningFields.map((field, index) => (
+                                                        <div key={field.id} className="p-4 border rounded-lg bg-gray-50 space-y-4 relative">
                                                             <div className="space-y-2">
                                                                 <label className="text-sm font-medium text-gray-700">Tiếng Việt</label>
-                                                                <Input placeholder="VD: mặt trời" className="bg-white border-gray-300" />
+                                                                <Input placeholder="VD: mặt trời" className="bg-white border-gray-300" {...register(`meanings.${index}.translations.vi` as const)} />
                                                             </div>
                                                             <div className="space-y-2">
                                                                 <label className="text-sm font-medium text-gray-700">Tiếng Anh</label>
-                                                                <Input placeholder="VD: sun" className="bg-white border-gray-300" />
+                                                                <Input placeholder="VD: sun" className="bg-white border-gray-300" {...register(`meanings.${index}.translations.en` as const)} />
                                                             </div>
-                                                            {meanings.length > 1 && <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => setMeanings(meanings.filter((_, i) => i !== index))}><Trash2 className="w-4 h-4 text-red-500" /></Button>}
+                                                            <div className="flex justify-end">
+                                                                <Button type="button" variant="ghost" size="icon" onClick={() => removeMeaning(index)}><Trash2 className="w-4 h-4 text-red-500" /></Button>
+                                                            </div>
                                                         </div>
                                                     ))}
-                                                    <Button variant="outline" className="w-full mt-4 border-dashed" onClick={() => setMeanings([...meanings, { vi: "", en: "" }])}>
-                                                        <Plus className="h-4 w-4 mr-2" />
-                                                        Thêm ý nghĩa
-                                                    </Button>
+                                                    <div className="flex justify-end">
+                                                        <Button type="button" variant="outline" className="mt-2 border-dashed" onClick={() => appendMeaning({ translations: { vi: "", en: "" } as any })}>
+                                                            <Plus className="h-4 w-4 mr-2" /> Thêm ý nghĩa
+                                                        </Button>
+                                                    </div>
                                                 </CardContent>
                                             </Card>
                                         </TabsContent>
@@ -246,15 +256,15 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen, onyomi
                                 </TableRow>
                             ))
                         ) : (
-                            kanjiList?.results?.map((k: Kanji) => (
+                            kanjiList?.results?.map((k: KanjiManagement) => (
                                 console.log('k', k),
                                 <TableRow key={k.id}>
-                                    <TableCell className="text-2xl font-bold">{k.character}</TableCell>
-                                    {/* <TableCell>{k.meaning || ''}</TableCell> */}<TableCell>{''}</TableCell>
-                                    <TableCell>{k.strokeCount}</TableCell>
+                                    <TableCell className="text-2xl font-bold">{k.kanji}</TableCell>
+                                    <TableCell>{k.meaning || ''}</TableCell>
+                                    <TableCell>{k.strokeCount || ''}</TableCell>
                                     <TableCell><Badge>N{k.jlptLevel}</Badge></TableCell>
-                                    {/* <TableCell>{k.onyomi.join(', ')}</TableCell>*/}<TableCell>{''}</TableCell>
-                                    {/* <TableCell>{k.kunyomi.join(', ')}</TableCell>*/}<TableCell>{''}</TableCell>
+                                    <TableCell>{k.onyomi}</TableCell>
+                                    <TableCell>{k.kunyomi}</TableCell>
                                     <TableCell className="text-right">
                                         <Button variant="ghost" size="icon"><Edit className="w-4 h-4" /></Button>
                                         <Button variant="ghost" size="icon"><Trash2 className="w-4 h-4 text-red-500" /></Button>

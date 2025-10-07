@@ -1,8 +1,9 @@
 import { IQueryRequest } from "@models/common/request";
+import { IKanjiWithMeaningRequest } from "@models/kanji/request";
 import kanjiService from "@services/kanji";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-const useKanjiList = (params: IQueryRequest) => {
+export const useKanjiList = (params: IQueryRequest) => {
     const { data, isLoading, error } = useQuery({
         queryKey: ["kanji-list", params],
         queryFn: () => kanjiService.getKanjiList(params),
@@ -11,4 +12,12 @@ const useKanjiList = (params: IQueryRequest) => {
     return { data: data?.data, isLoading, error };
 };
 
-export default useKanjiList;
+export const useKanjiListManagement = (params: IQueryRequest) => {
+    const { data, isLoading, error } = useQuery({
+        queryKey: ["kanji-list-management", params],
+        queryFn: () => kanjiService.getKanjiListManagement(params),
+    });
+
+    return { data: data?.data, isLoading, error };
+};
+

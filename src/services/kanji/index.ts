@@ -4,7 +4,7 @@ import { IQueryRequest } from "@models/common/request";
 
 const kanjiService = {
     getKanjiList: async ({ page, limit, search, sortOrder, sortBy, ...rest }: IQueryRequest = {}) => {
-        const res = await axiosPrivate.get('/kanji', {
+        return await axiosPrivate.get('/kanji', {
             params: {
                 page,
                 limit,
@@ -14,9 +14,18 @@ const kanjiService = {
                 ...rest,
             },
         });
-        console.log(res);
-
-        return res;
+    },
+    getKanjiListManagement: async ({ page, limit, search, sortOrder, sortBy, ...rest }: IQueryRequest = {}) => {
+        return await axiosPrivate.get('/kanji/management', {
+            params: {
+                page,
+                limit,
+                search,
+                sortOrder,
+                sortBy,
+                ...rest,
+            },
+        });
     },
     createKanjiWithMeaning: async (data: IKanjiWithMeaningRequest) => {
         return axiosPrivate.post('/kanji/with-meanings', data);
