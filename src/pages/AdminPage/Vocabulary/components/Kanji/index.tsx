@@ -7,8 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@ui/Input";
 import { Edit, Plus, Trash2 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/Tabs";
-import { useKanjiListManagement } from "@hooks/useKanji";
-import { useState } from "react";
+import { useKanjiListManagement, useCreateKanjiWithMeaning } from "@hooks/useKanji";
+import { useEffect, useState } from "react";
 import { KanjiManagement } from "@models/kanji/entity";
 import { EnhancedPagination as Pagination } from "@ui/Pagination";
 import { Skeleton } from "@ui/Skeleton";
@@ -56,8 +56,7 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
     /**
      * Hanlde Add Kanji Dialog
      */
-    const [isAddKanjiLoading, setIsAddKanjiLoading] = useState<boolean>(false);
-    const { register, handleSubmit, control } = useForm<IKanjiWithMeaningRequest>({
+    const { register, handleSubmit, control, reset } = useForm<IKanjiWithMeaningRequest>({
         defaultValues: {
             character: "",
             strokeCount: 0,
@@ -71,23 +70,34 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
     const { fields: readingsFields, append: appendReading, remove: removeReading } = useFieldArray({ control, name: "readings" });
     const { fields: meaningFields, append: appendMeaning, remove: removeMeaning } = useFieldArray({ control, name: "meanings" });
 
-    const onSubmit = async (data: IKanjiWithMeaningRequest) => {
-        try {
-            setIsAddKanjiLoading(true);
-            const res = await kanjiService.createKanjiWithMeaning(data);
-            
-            if (res.data.statusCode === 201) {                
-                toast.success(res.data.message);
-                setIsAddKanjiDialogOpen(false);
+    const createKanjiMutation = useCreateKanjiWithMeaning();
+
+    const onSubmit = (formData: IKanjiWithMeaningRequest) => {
+        createKanjiMutation.mutate(formData, {
+            onSuccess: (res: any) => {
+                if (res.data.statusCode === 201 || res.data.statusCode === 200) {
+                    toast.success("Thêm Kanji thành công!");
+                    setIsAddKanjiDialogOpen(false);
+                }
+            },
+            onError: (error: any) => {
+                toast.error(error.response?.data?.message || "Đã có lỗi xảy ra.");
             }
-        } catch (error: any) {
-            console.log('error', error);
-            toast.error(error.response.data.message);
-        }
-        finally {
-            setIsAddKanjiLoading(false);
-        }
+        });
     };
+
+    useEffect(() => {
+        if (isAddKanjiDialogOpen) {
+            reset({
+                character: "",
+                strokeCount: 0,
+                jlptLevel: 5,
+                image: null,
+                readings: [{ readingType: "onyomi", reading: "" }],
+                meanings: [{ translations: { vi: "", en: "" } }],
+            });
+        }
+    }, [isAddKanjiDialogOpen, reset]);
     //--------------------End--------------------//
 
     return (
@@ -222,7 +232,7 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
                                     >
                                         Hủy
                                     </Button>
-                                    <Button type="submit" disabled={isAddKanjiLoading} className="bg-primary text-white hover:bg-primary/90 rounded-full shadow-md">{isAddKanjiLoading ? "Đang thêm..." : "Thêm"}</Button>
+                                    <Button type="submit" disabled={createKanjiMutation.isPending} className="bg-primary text-white hover:bg-primary/90 rounded-full shadow-md">{createKanjiMutation.isPending ? "Đang thêm..." : "Thêm"}</Button>
                                 </div>
                             </form>
                         </DialogContent>
