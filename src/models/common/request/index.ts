@@ -9,6 +9,7 @@ export const QueryRequest = z
         limit: z.number().optional(),
         search: z.string().optional(),
         sortOrder: z.string().optional(),
+        sortBy: z.string().optional(),
     })
     .catchall(z.any());
 

@@ -1,4 +1,4 @@
-import { IQueryRequest } from "@models/query/request";
+import { IQueryRequest } from "@models/common/request";
 import kanjiService from "@services/kanji";
 import { useQuery } from "@tanstack/react-query";
 
@@ -8,7 +8,7 @@ const useKanjiList = (params: IQueryRequest) => {
         queryFn: () => kanjiService.getKanjiList(params),
     });
 
-    return { data, isLoading, error };
+    return { data: data?.data, isLoading, error };
 };
 
 export default useKanjiList;

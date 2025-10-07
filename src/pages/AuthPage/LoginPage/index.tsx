@@ -30,11 +30,12 @@ const LoginPage = () => {
     const onSubmit = async (data: ILoginFormDataRequest) => {
         try {
             setIsLoading(true);
-            // const res = await authService.login(data);
-            CookiesService.set('accessToken', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJkZXZpY2VJZCI6MTAsInJvbGVJZCI6Mywicm9sZU5hbWUiOiJMRUFSTkVSIiwidXVpZCI6IjhmYTRhZWFlLTFmYjQtNDZmNy1iYTJmLWMyNTg4MDU5MGViMCIsImlhdCI6MTc1OTUxOTI1MCwiZXhwIjoxNzU5NTM3MjUwfQ.vEW0PQNUeYVTuB0xYct_joHlqNIyFLCz5lj8BW3Q1EM');
+            const res = await authService.login(data);
+            CookiesService.set('accessToken', res.data.data.accessToken);
             toast.success('Đăng nhập thành công');
             navigate(ROUTES.ADMIN.ROOT);
         } catch (error) {
+            console.log(error);
             toast.error('Đăng nhập thất bại');
         } finally {
             setIsLoading(false);

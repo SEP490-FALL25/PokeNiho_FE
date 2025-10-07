@@ -7,9 +7,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@ui/Input";
 import { Edit, Plus, Trash2 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/Tabs";
+import useKanjiList from "@hooks/useKanji";
 
 interface KanjiVocabulary {
-    kanjiList: any[];
     isAddKanjiDialogOpen: boolean;
     setIsAddKanjiDialogOpen: (value: boolean) => void;
     onyomiReadings: string[];
@@ -20,7 +20,16 @@ interface KanjiVocabulary {
     setMeanings: (value: { vi: string; en: string }[]) => void;
 }
 
-const KanjiVocabulary = ({ kanjiList, isAddKanjiDialogOpen, setIsAddKanjiDialogOpen, onyomiReadings, setOnyomiReadings, kunyomiReadings, setKunyomiReadings, meanings, setMeanings }: KanjiVocabulary) => {
+const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen, onyomiReadings, setOnyomiReadings, kunyomiReadings, setKunyomiReadings, meanings, setMeanings }: KanjiVocabulary) => {
+    const { data: kanjiList, isLoading, error } = useKanjiList({
+        page: 1,
+        limit: 10,
+        search: "",
+        sortOrder: "asc",
+        sortBy: "id",
+        jlptLevel: "",
+        strokeCount: "",
+    });
 
     return (
         <Card className="shadow-lg bg-white">
@@ -157,7 +166,7 @@ const KanjiVocabulary = ({ kanjiList, isAddKanjiDialogOpen, setIsAddKanjiDialogO
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {kanjiList.map((k: any) => (
+                        {kanjiList?.data?.map((k: any) => (
                             <TableRow key={k.id}>
                                 <TableCell className="text-2xl font-bold">{k.character}</TableCell>
                                 <TableCell>{k.meaning}</TableCell>
