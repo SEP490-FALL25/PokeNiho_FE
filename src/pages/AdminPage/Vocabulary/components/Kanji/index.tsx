@@ -8,6 +8,9 @@ import { Input } from "@ui/Input";
 import { Edit, Plus, Trash2 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/Tabs";
 import useKanjiList from "@hooks/useKanji";
+import { useState } from "react";
+import { Kanji } from "@models/kanji/entity";
+import { EnhancedPagination as Pagination } from "@ui/Pagination";
 
 interface KanjiVocabulary {
     isAddKanjiDialogOpen: boolean;
@@ -21,15 +24,20 @@ interface KanjiVocabulary {
 }
 
 const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen, onyomiReadings, setOnyomiReadings, kunyomiReadings, setKunyomiReadings, meanings, setMeanings }: KanjiVocabulary) => {
-    const { data: kanjiList, isLoading, error } = useKanjiList({
-        page: 1,
-        limit: 10,
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
+
+    const { data, isLoading, error } = useKanjiList({
+        page,
+        limit,
         search: "",
         sortOrder: "asc",
         sortBy: "id",
         jlptLevel: "",
         strokeCount: "",
     });
+
+    const kanjiList = data?.data;
 
     return (
         <Card className="shadow-lg bg-white">
@@ -166,14 +174,15 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen, onyomi
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {kanjiList?.data?.map((k: any) => (
+                        {kanjiList?.results?.map((k: Kanji) => (
+                            console.log('k', k),
                             <TableRow key={k.id}>
                                 <TableCell className="text-2xl font-bold">{k.character}</TableCell>
-                                <TableCell>{k.meaning}</TableCell>
+                                {/* <TableCell>{k.meaning || ''}</TableCell> */}<TableCell>{''}</TableCell>
                                 <TableCell>{k.strokeCount}</TableCell>
-                                <TableCell><Badge>{k.jlptLevel}</Badge></TableCell>
-                                <TableCell>{k.onyomi.join(', ')}</TableCell>
-                                <TableCell>{k.kunyomi.join(', ')}</TableCell>
+                                <TableCell><Badge>N{k.jlptLevel}</Badge></TableCell>
+                                {/* <TableCell>{k.onyomi.join(', ')}</TableCell>*/}<TableCell>{''}</TableCell>
+                                {/* <TableCell>{k.kunyomi.join(', ')}</TableCell>*/}<TableCell>{''}</TableCell>
                                 <TableCell className="text-right">
                                     <Button variant="ghost" size="icon"><Edit className="w-4 h-4" /></Button>
                                     <Button variant="ghost" size="icon"><Trash2 className="w-4 h-4 text-red-500" /></Button>
@@ -182,6 +191,14 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen, onyomi
                         ))}
                     </TableBody>
                 </Table>
+                <Pagination
+                    className="mt-4"
+                    currentPage={kanjiList?.pagination?.current || 0}
+                    totalPages={kanjiList?.pagination?.totalPage || 0}
+                    totalItems={kanjiList?.pagination?.totalItem || 0}
+                    itemsPerPage={kanjiList?.pagination?.pageSize || 0}
+                    onPageChange={(nextPage: number) => { setPage(nextPage); }}
+                />
             </CardContent>
         </Card>
     )
