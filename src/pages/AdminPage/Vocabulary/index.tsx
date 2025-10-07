@@ -1,33 +1,48 @@
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@ui/Card"
-import { Button } from "@ui/Button"
-import { Input } from "@ui/Input"
-import { Textarea } from "@ui/Textarea"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ui/Table"
-import { Badge } from "@ui/Badge"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@ui/Dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ui/Select"
-import { Search, Plus, Edit, Trash2, Volume2, ImageIcon } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/Tabs"
-import HeaderAdmin from "@organisms/Header/Admin"
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@ui/Card";
+import { Badge } from "@ui/Badge";
+import { Languages, BookText } from "lucide-react";
+import HeaderAdmin from "@organisms/Header/Admin";
+import { Switch } from "@ui/Switch";
+import KanjiVocabulary from "./components/Kanji";
+import ListVocabulary from "./components/ListVocabulary";
 
 interface Vocabulary {
-    id: string
-    japanese: string
-    hiragana: string
-    vietnamese: string
-    type: "noun" | "verb" | "adjective" | "adverb" | "particle"
-    level: "N5" | "N4" | "N3" | "N2" | "N1"
-    lesson: string
-    example: string
-    hasAudio: boolean
-    hasImage: boolean
+    id: string;
+    japanese: string;
+    hiragana: string;
+    vietnamese: string;
+    type: "noun" | "verb" | "adjective" | "adverb" | "particle";
+    level: "N5" | "N4" | "N3" | "N2" | "N1";
+    kanji: string;
+    example: string;
+    hasAudio: boolean;
+    hasImage: boolean;
 }
 
+interface Kanji {
+    id: string;
+    character: string;
+    meaning: string;
+    strokeCount: number;
+    jlptLevel: "N5" | "N4" | "N3" | "N2" | "N1";
+    onyomi: string[];
+    kunyomi: string[];
+}
+
+
 const VocabularyManagement = () => {
-    const [searchQuery, setSearchQuery] = useState("")
-    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-    const [activeTab, setActiveTab] = useState("all")
+    const [searchQuery, setSearchQuery] = useState("");
+    const [isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpen] = useState(false);
+    const [isAddKanjiDialogOpen, setIsAddKanjiDialogOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState("all");
+    const [onyomiReadings, setOnyomiReadings] = useState<string[]>([""]);
+    const [kunyomiReadings, setKunyomiReadings] = useState<string[]>([""]);
+    const [meanings, setMeanings] = useState<{ vi: string; en: string }[]>([
+        { vi: "", en: "" },
+    ]);
+    const [showKanji, setShowKanji] = useState(false);
+
 
     // Mock data
     const vocabularies: Vocabulary[] = [
@@ -38,7 +53,7 @@ const VocabularyManagement = () => {
             vietnamese: "Xin chào",
             type: "noun",
             level: "N5",
-            lesson: "Hiragana cơ bản",
+            kanji: "N/A",
             example: "こんにちは、田中さん。",
             hasAudio: true,
             hasImage: true,
@@ -50,7 +65,7 @@ const VocabularyManagement = () => {
             vietnamese: "Ăn",
             type: "verb",
             level: "N5",
-            lesson: "Động từ cơ bản",
+            kanji: "食",
             example: "ご飯を食べる。",
             hasAudio: true,
             hasImage: false,
@@ -62,7 +77,7 @@ const VocabularyManagement = () => {
             vietnamese: "Đẹp",
             type: "adjective",
             level: "N4",
-            lesson: "Tính từ",
+            kanji: "美",
             example: "美しい花。",
             hasAudio: true,
             hasImage: true,
@@ -74,7 +89,7 @@ const VocabularyManagement = () => {
             vietnamese: "Trường học",
             type: "noun",
             level: "N5",
-            lesson: "Địa điểm",
+            kanji: "学校",
             example: "学校に行く。",
             hasAudio: true,
             hasImage: true,
@@ -86,326 +101,108 @@ const VocabularyManagement = () => {
             vietnamese: "Nhanh",
             type: "adjective",
             level: "N5",
-            lesson: "Tính từ cơ bản",
+            kanji: "速",
             example: "速い車。",
             hasAudio: true,
             hasImage: false,
         },
-    ]
+    ];
 
-    const getTypeBadgeColor = (type: string) => {
-        switch (type) {
-            case "noun":
-                return "bg-chart-1 text-white"
-            case "verb":
-                return "bg-chart-2 text-white"
-            case "adjective":
-                return "bg-chart-3 text-white"
-            case "adverb":
-                return "bg-chart-4 text-white"
-            case "particle":
-                return "bg-chart-5 text-white"
-            default:
-                return "bg-muted text-muted-foreground"
-        }
-    }
+    const kanjiList: Kanji[] = [
+        { id: "1", character: "日", meaning: "mặt trời, ngày", strokeCount: 4, jlptLevel: "N5", onyomi: ["にち", "じつ"], kunyomi: ["ひ", "び", "か"] },
+        { id: "2", character: "一", meaning: "một", strokeCount: 1, jlptLevel: "N5", onyomi: ["いち", "いっ"], kunyomi: ["ひと-", "ひと.つ"] },
+        { id: "3", character: "国", meaning: "đất nước", strokeCount: 8, jlptLevel: "N5", onyomi: ["こく"], kunyomi: ["くに"] },
+        { id: "4", character: "人", meaning: "người", strokeCount: 2, jlptLevel: "N5", onyomi: ["じん", "にん"], kunyomi: ["ひと", "-り", "-と"] },
+        { id: "5", character: "年", meaning: "năm", strokeCount: 6, jlptLevel: "N5", onyomi: ["ねん"], kunyomi: ["とし"] },
+    ];
 
-    const getLevelBadgeColor = (level: string) => {
-        switch (level) {
-            case "N5":
-                return "bg-chart-4 text-white"
-            case "N4":
-                return "bg-chart-1 text-white"
-            case "N3":
-                return "bg-chart-2 text-white"
-            case "N2":
-                return "bg-chart-3 text-white"
-            case "N1":
-                return "bg-destructive text-destructive-foreground"
-            default:
-                return "bg-muted text-muted-foreground"
-        }
-    }
+    const filteredVocabularies = vocabularies.filter((vocab: any) => {
+        return vocab.japanese.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            vocab.hiragana.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            vocab.vietnamese.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            vocab.kanji.toLowerCase().includes(searchQuery.toLowerCase());
+    });
 
-    const filteredVocabularies = vocabularies.filter((vocab) => {
-        if (activeTab === "all") return true
-        if (activeTab === "N5") return vocab.level === "N5"
-        if (activeTab === "N4") return vocab.level === "N4"
-        if (activeTab === "N3") return vocab.level === "N3"
-        return true
-    })
+    const stats = {
+        total: vocabularies.length,
+        kanji: new Set(vocabularies.flatMap(v => v.kanji.split('').filter(c => c !== 'N' && c !== '/' && c !== 'A'))).size,
+        n5: vocabularies.filter(v => v.level === 'N5').length,
+        n4: vocabularies.filter(v => v.level === 'N4').length,
+        n3: vocabularies.filter(v => v.level === 'N3').length,
+    };
+
 
     return (
-        <div className="p-8">
-            {/* Header */}
-            <HeaderAdmin title="Quản lý từ vựng" description="Quản lý tất cả từ vựng trong hệ thống" />
+        <div className="p-8 bg-gray-50 min-h-screen">
+            <HeaderAdmin title="Quản lý Kanji và Từ vựng" description="Quản lý tất cả kanji và từ vựng trong hệ thống" />
 
-            {/* Stats Cards */}
-            <div className="grid gap-6 md:grid-cols-5 mb-8">
-                <Card className="bg-card border-border">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">Tổng từ vựng</CardTitle>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 mb-8">
+                <Card className="bg-white shadow-md">
+                    <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                        <CardTitle className="text-sm font-medium text-gray-500">Tổng từ vựng</CardTitle>
+                        <Languages className="w-5 h-5 text-gray-400" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-foreground">3,456</div>
+                        <div className="text-3xl font-bold text-gray-800">{stats.total}</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-card border-border">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">N5</CardTitle>
+                <Card className="bg-white shadow-md">
+                    <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                        <CardTitle className="text-sm font-medium text-gray-500">Tổng Kanji</CardTitle>
+                        <BookText className="w-5 h-5 text-gray-400" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-foreground">800</div>
+                        <div className="text-3xl font-bold text-gray-800">{stats.kanji}</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-card border-border">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">N4</CardTitle>
+                <Card className="bg-white shadow-md">
+                    <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                        <CardTitle className="text-sm font-medium text-gray-500">Từ vựng N5</CardTitle>
+                        <Badge className="bg-green-200 text-green-800">N5</Badge>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-foreground">750</div>
+                        <div className="text-3xl font-bold text-gray-800">{stats.n5}</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-card border-border">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">N3</CardTitle>
+                <Card className="bg-white shadow-md">
+                    <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                        <CardTitle className="text-sm font-medium text-gray-500">Từ vựng N4</CardTitle>
+                        <Badge className="bg-blue-200 text-blue-800">N4</Badge>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-foreground">650</div>
+                        <div className="text-3xl font-bold text-gray-800">{stats.n4}</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-card border-border">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">Có audio</CardTitle>
+                <Card className="bg-white shadow-md">
+                    <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                        <CardTitle className="text-sm font-medium text-gray-500">Từ vựng N3</CardTitle>
+                        <Badge className="bg-yellow-200 text-yellow-800">N3</Badge>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-foreground">2,890</div>
+                        <div className="text-3xl font-bold text-gray-800">{stats.n3}</div>
                     </CardContent>
                 </Card>
             </div>
 
-            {/* Vocabulary Table */}
-            <Card className="bg-card border-border">
-                <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <CardTitle className="text-foreground">Danh sách từ vựng</CardTitle>
-                        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                            <DialogTrigger asChild>
-                                <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    Thêm từ vựng
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="bg-card border-border max-w-2xl">
-                                <DialogHeader>
-                                    <DialogTitle className="text-foreground">Thêm từ vựng mới</DialogTitle>
-                                </DialogHeader>
-                                <div className="space-y-4 py-4">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-foreground">Tiếng Nhật</label>
-                                            <Input placeholder="例: こんにちは" className="bg-background border-border text-foreground" />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-foreground">Hiragana</label>
-                                            <Input placeholder="例: こんにちは" className="bg-background border-border text-foreground" />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium text-foreground">Tiếng Việt</label>
-                                        <Input placeholder="Xin chào" className="bg-background border-border text-foreground" />
-                                    </div>
-                                    <div className="grid grid-cols-3 gap-4">
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-foreground">Loại từ</label>
-                                            <Select>
-                                                <SelectTrigger className="bg-background border-border text-foreground">
-                                                    <SelectValue placeholder="Chọn loại" />
-                                                </SelectTrigger>
-                                                <SelectContent className="bg-card border-border">
-                                                    <SelectItem value="noun">Danh từ</SelectItem>
-                                                    <SelectItem value="verb">Động từ</SelectItem>
-                                                    <SelectItem value="adjective">Tính từ</SelectItem>
-                                                    <SelectItem value="adverb">Trạng từ</SelectItem>
-                                                    <SelectItem value="particle">Trợ từ</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-foreground">Cấp độ</label>
-                                            <Select>
-                                                <SelectTrigger className="bg-background border-border text-foreground">
-                                                    <SelectValue placeholder="Chọn cấp độ" />
-                                                </SelectTrigger>
-                                                <SelectContent className="bg-card border-border">
-                                                    <SelectItem value="N5">N5</SelectItem>
-                                                    <SelectItem value="N4">N4</SelectItem>
-                                                    <SelectItem value="N3">N3</SelectItem>
-                                                    <SelectItem value="N2">N2</SelectItem>
-                                                    <SelectItem value="N1">N1</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-foreground">Bài học</label>
-                                            <Select>
-                                                <SelectTrigger className="bg-background border-border text-foreground">
-                                                    <SelectValue placeholder="Chọn bài học" />
-                                                </SelectTrigger>
-                                                <SelectContent className="bg-card border-border">
-                                                    <SelectItem value="1">Hiragana cơ bản</SelectItem>
-                                                    <SelectItem value="2">Katakana nâng cao</SelectItem>
-                                                    <SelectItem value="3">Kanji N5</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium text-foreground">Câu ví dụ</label>
-                                        <Textarea
-                                            placeholder="Nhập câu ví dụ"
-                                            className="bg-background border-border text-foreground min-h-[80px]"
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-foreground">File âm thanh</label>
-                                            <Input type="file" accept="audio/*" className="bg-background border-border text-foreground" />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-foreground">Hình ảnh</label>
-                                            <Input type="file" accept="image/*" className="bg-background border-border text-foreground" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex justify-end gap-3">
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => setIsAddDialogOpen(false)}
-                                        className="border-border text-foreground"
-                                    >
-                                        Hủy
-                                    </Button>
-                                    <Button className="bg-primary text-primary-foreground hover:bg-primary/90">Thêm</Button>
-                                </div>
-                            </DialogContent>
-                        </Dialog>
-                    </div>
-                    <div className="mt-4">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                placeholder="Tìm kiếm từ vựng..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 bg-background border-border text-foreground"
-                            />
-                        </div>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <Tabs value={activeTab} onValueChange={setActiveTab}>
-                        <TabsList className="bg-muted">
-                            <TabsTrigger value="all" className="data-[state=active]:bg-background">
-                                Tất cả
-                            </TabsTrigger>
-                            <TabsTrigger value="N5" className="data-[state=active]:bg-background">
-                                N5
-                            </TabsTrigger>
-                            <TabsTrigger value="N4" className="data-[state=active]:bg-background">
-                                N4
-                            </TabsTrigger>
-                            <TabsTrigger value="N3" className="data-[state=active]:bg-background">
-                                N3
-                            </TabsTrigger>
-                        </TabsList>
-                        <TabsContent value={activeTab} className="mt-6">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow className="border-border hover:bg-muted/50">
-                                        <TableHead className="text-muted-foreground">Tiếng Nhật</TableHead>
-                                        <TableHead className="text-muted-foreground">Hiragana</TableHead>
-                                        <TableHead className="text-muted-foreground">Tiếng Việt</TableHead>
-                                        <TableHead className="text-muted-foreground">Loại từ</TableHead>
-                                        <TableHead className="text-muted-foreground">Cấp độ</TableHead>
-                                        <TableHead className="text-muted-foreground">Bài học</TableHead>
-                                        <TableHead className="text-muted-foreground">Media</TableHead>
-                                        <TableHead className="text-muted-foreground text-right">Hành động</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {filteredVocabularies.map((vocab) => (
-                                        <TableRow key={vocab.id} className="border-border hover:bg-muted/50">
-                                            <TableCell className="font-medium text-foreground text-lg">{vocab.japanese}</TableCell>
-                                            <TableCell className="text-muted-foreground">{vocab.hiragana}</TableCell>
-                                            <TableCell className="text-foreground">{vocab.vietnamese}</TableCell>
-                                            <TableCell>
-                                                <Badge className={getTypeBadgeColor(vocab.type)}>
-                                                    {vocab.type === "noun"
-                                                        ? "Danh từ"
-                                                        : vocab.type === "verb"
-                                                            ? "Động từ"
-                                                            : vocab.type === "adjective"
-                                                                ? "Tính từ"
-                                                                : vocab.type === "adverb"
-                                                                    ? "Trạng từ"
-                                                                    : "Trợ từ"}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge className={getLevelBadgeColor(vocab.level)}>{vocab.level}</Badge>
-                                            </TableCell>
-                                            <TableCell className="text-muted-foreground">{vocab.lesson}</TableCell>
-                                            <TableCell>
-                                                <div className="flex gap-2">
-                                                    {vocab.hasAudio && (
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-8 w-8 text-chart-1 hover:text-chart-1 hover:bg-chart-1/10"
-                                                        >
-                                                            <Volume2 className="h-4 w-4" />
-                                                        </Button>
-                                                    )}
-                                                    {vocab.hasImage && (
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-8 w-8 text-chart-2 hover:text-chart-2 hover:bg-chart-2/10"
-                                                        >
-                                                            <ImageIcon className="h-4 w-4" />
-                                                        </Button>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                                                    >
-                                                        <Edit className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TabsContent>
-                    </Tabs>
-                </CardContent>
-            </Card>
+            <div className="flex items-center space-x-2 mb-6 p-2 bg-white rounded-full shadow-sm w-fit">
+                <Languages className={`w-6 h-6 transition-colors ${!showKanji ? 'text-primary' : 'text-gray-400'}`} />
+                <Switch checked={showKanji} onCheckedChange={setShowKanji} />
+                <BookText className={`w-6 h-6 transition-colors ${showKanji ? 'text-primary' : 'text-gray-400'}`} />
+            </div>
+            {showKanji ? (
+                <KanjiVocabulary
+                    kanjiList={kanjiList}
+                    isAddKanjiDialogOpen={isAddKanjiDialogOpen}
+                    setIsAddKanjiDialogOpen={setIsAddKanjiDialogOpen}
+                    onyomiReadings={onyomiReadings} setOnyomiReadings={setOnyomiReadings} kunyomiReadings={kunyomiReadings} setKunyomiReadings={setKunyomiReadings} meanings={meanings} setMeanings={setMeanings} />
+            ) : (
+                <ListVocabulary
+                    isAddVocabularyDialogOpen={isAddVocabularyDialogOpen}
+                    setIsAddVocabularyDialogOpen={setIsAddVocabularyDialogOpen}
+                    onyomiReadings={onyomiReadings} setOnyomiReadings={setOnyomiReadings} kunyomiReadings={kunyomiReadings} setKunyomiReadings={setKunyomiReadings} meanings={meanings} setMeanings={setMeanings} searchQuery={searchQuery} setSearchQuery={setSearchQuery} activeTab={activeTab} setActiveTab={setActiveTab} filteredVocabularies={filteredVocabularies} />
+            )}
         </div>
-    )
-}
+    );
+};
 
-export default VocabularyManagement
+export default VocabularyManagement;
