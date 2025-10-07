@@ -11,6 +11,7 @@ import useKanjiList from "@hooks/useKanji";
 import { useState } from "react";
 import { Kanji } from "@models/kanji/entity";
 import { EnhancedPagination as Pagination } from "@ui/Pagination";
+import { Skeleton } from "@ui/Skeleton";
 
 interface KanjiVocabulary {
     isAddKanjiDialogOpen: boolean;
@@ -174,21 +175,35 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen, onyomi
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {kanjiList?.results?.map((k: Kanji) => (
-                            console.log('k', k),
-                            <TableRow key={k.id}>
-                                <TableCell className="text-2xl font-bold">{k.character}</TableCell>
-                                {/* <TableCell>{k.meaning || ''}</TableCell> */}<TableCell>{''}</TableCell>
-                                <TableCell>{k.strokeCount}</TableCell>
-                                <TableCell><Badge>N{k.jlptLevel}</Badge></TableCell>
-                                {/* <TableCell>{k.onyomi.join(', ')}</TableCell>*/}<TableCell>{''}</TableCell>
-                                {/* <TableCell>{k.kunyomi.join(', ')}</TableCell>*/}<TableCell>{''}</TableCell>
-                                <TableCell className="text-right">
-                                    <Button variant="ghost" size="icon"><Edit className="w-4 h-4" /></Button>
-                                    <Button variant="ghost" size="icon"><Trash2 className="w-4 h-4 text-red-500" /></Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
+                        {isLoading ? (
+                            Array.from({ length: kanjiList?.pagination?.pageSize || limit }).map((_, i) => (
+                                <TableRow key={`skeleton-${i}`}>
+                                    <TableCell className="py-4"><Skeleton className="h-6 w-10" /></TableCell>
+                                    <TableCell className="py-4"><Skeleton className="h-6 w-40" /></TableCell>
+                                    <TableCell className="py-4"><Skeleton className="h-6 w-14" /></TableCell>
+                                    <TableCell className="py-4"><Skeleton className="h-6 w-12" /></TableCell>
+                                    <TableCell className="py-4"><Skeleton className="h-6 w-32" /></TableCell>
+                                    <TableCell className="py-4"><Skeleton className="h-6 w-32" /></TableCell>
+                                    <TableCell className="py-4 text-right"><Skeleton className="h-6 w-16 ml-auto" /></TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            kanjiList?.results?.map((k: Kanji) => (
+                                console.log('k', k),
+                                <TableRow key={k.id}>
+                                    <TableCell className="text-2xl font-bold">{k.character}</TableCell>
+                                    {/* <TableCell>{k.meaning || ''}</TableCell> */}<TableCell>{''}</TableCell>
+                                    <TableCell>{k.strokeCount}</TableCell>
+                                    <TableCell><Badge>N{k.jlptLevel}</Badge></TableCell>
+                                    {/* <TableCell>{k.onyomi.join(', ')}</TableCell>*/}<TableCell>{''}</TableCell>
+                                    {/* <TableCell>{k.kunyomi.join(', ')}</TableCell>*/}<TableCell>{''}</TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="ghost" size="icon"><Edit className="w-4 h-4" /></Button>
+                                        <Button variant="ghost" size="icon"><Trash2 className="w-4 h-4 text-red-500" /></Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        )}
                     </TableBody>
                 </Table>
                 <Pagination
