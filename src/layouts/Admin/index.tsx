@@ -1,7 +1,4 @@
-"use client"
-    ; ("use client")
-
-import { Outlet, Link, useLocation } from "react-router-dom"
+import { Outlet, useLocation } from "react-router-dom"
 import {
     LayoutDashboard,
     Users,
@@ -19,6 +16,7 @@ import { useState } from "react"
 import { Button } from "@ui/Button"
 import { cn } from "@utils/CN"
 import { ROUTES } from "@constants/route"
+import { NavLink } from "react-router-dom";
 
 const AdminLayout = () => {
     const location = useLocation()
@@ -63,7 +61,7 @@ const AdminLayout = () => {
                     {navigation.map((item) => {
                         const isActive = location.pathname === item.href
                         return (
-                            <Link
+                            <NavLink
                                 key={item.name}
                                 to={item.href}
                                 className={cn(
@@ -75,14 +73,14 @@ const AdminLayout = () => {
                             >
                                 <item.icon className="h-5 w-5 flex-shrink-0" />
                                 {isSidebarOpen && <span>{item.name}</span>}
-                            </Link>
+                            </NavLink>
                         )
                     })}
                 </nav>
 
                 {/* Bottom Actions */}
                 <div className="border-t border-border p-4 space-y-1">
-                    <Link
+                    <NavLink
                         to={ROUTES.ADMIN.SETTINGS}
                         className={cn(
                             "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
@@ -93,7 +91,7 @@ const AdminLayout = () => {
                     >
                         <Settings className="h-5 w-5 flex-shrink-0" />
                         {isSidebarOpen && <span>Cài đặt</span>}
-                    </Link>
+                    </NavLink>
                     <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
                         <LogOut className="h-5 w-5 flex-shrink-0" />
                         {isSidebarOpen && <span>Đăng xuất</span>}
