@@ -8,7 +8,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { RarityPokemon } from '@constants/pokemon';
 import { Textarea } from '@ui/Textarea';
 import { Plus, UploadCloud, Link, Trash2 } from 'lucide-react';
-import { ICreatePokemonRequest, ICreatePokemonFormData, CreatePokemonFormSchema } from '@models/pokemon/request';
+import { ICreatePokemonFormData, CreatePokemonFormSchema } from '@models/pokemon/request';
 import { useState, useEffect } from 'react';
 import { cn } from '@utils/CN';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -33,9 +33,11 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, dataTypes }: Creat
         defaultValues: {
             isStarted: false,
             typeIds: [],
-            nameJp: '',
-            nameEn: '',
-            nameVi: '',
+            nameTranslations: {
+                jp: '',
+                en: '',
+                vi: '',
+            },
             description: '',
             imageUrl: '',
             rarity: RarityPokemon.COMMON,
@@ -149,9 +151,12 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, dataTypes }: Creat
             }
 
             //#region Create Pokemon
-            const pokemonData: ICreatePokemonRequest = {
+            const pokemonData = {
                 ...data,
                 pokedex_number: Number(data.pokedex_number),
+                nameJp: data.nameTranslations?.jp,
+                nameEn: data.nameTranslations?.en,
+                nameVi: data.nameTranslations?.vi,
                 imageUrl: imageUrl
             };
 
@@ -182,9 +187,9 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, dataTypes }: Creat
                         {/* CỘT TRÁI */}
                         <div className="space-y-4">
                             <Controller name="pokedex_number" control={control} render={({ field }) => <Input label="Pokedex Number" type="number" placeholder="eg: 25" error={errors.pokedex_number?.message} {...field} />} />
-                            <Controller name="nameJp" control={control} render={({ field }) => <Input label="Tên (tiếng Nhật)" placeholder="ピカチュウ" error={errors.nameJp?.message} {...field} />} />
-                            <Controller name="nameEn" control={control} render={({ field }) => <Input label="Tên (tiếng Anh)" placeholder="Pikachu" error={errors.nameEn?.message} {...field} />} />
-                            <Controller name="nameVi" control={control} render={({ field }) => <Input label="Tên (tiếng Việt)" placeholder="Pikachu" error={errors.nameVi?.message} {...field} />} />
+                            <Controller name="nameTranslations.jp" control={control} render={({ field }) => <Input label="Tên (tiếng Nhật)" placeholder="ピカチュウ" error={errors.nameTranslations?.jp?.message} {...field} />} />
+                            <Controller name="nameTranslations.en" control={control} render={({ field }) => <Input label="Tên (tiếng Anh)" placeholder="Pikachu" error={errors.nameTranslations?.en?.message} {...field} />} />
+                            <Controller name="nameTranslations.vi" control={control} render={({ field }) => <Input label="Tên (tiếng Việt)" placeholder="Pikachu" error={errors.nameTranslations?.vi?.message} {...field} />} />
 
                             {/* === PHẦN UPLOAD ẢNH ĐƯỢC THIẾT KẾ LẠI === */}
                             <div>

@@ -5,11 +5,14 @@ import { RarityPokemon } from '@constants/pokemon';
 export const CreatePokemonFormSchema = z.object({
     pokedex_number: z.string().min(1, "Pokedex number is required."),
     nameJp: z.string().min(1, "Japanese name is required."),
-    nameEn: z.string().min(1, "English name is required."),
-    nameVi: z.string().min(1, "Vietnamese name is required."),
+    nameTranslations: z.object({
+        jp: z.string().min(1, "Japanese name is required."),
+        en: z.string().min(1, "English name is required."),
+        vi: z.string().min(1, "Vietnamese name is required."),
+    }),
     description: z.string().optional(),
-    isStarted: z.boolean(),
     imageUrl: z.string().optional(),
+    isStarted: z.boolean(),
     rarity: z.nativeEnum(RarityPokemon, {
         error: () => ({ message: "Please select a valid rarity." }),
     }),
