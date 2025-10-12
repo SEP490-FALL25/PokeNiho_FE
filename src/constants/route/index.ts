@@ -19,6 +19,10 @@ const ADMIN = {
     VOCABULARY: '/admin/vocabulary',
     ANALYTICS: '/admin/analytics',
     SETTINGS: '/admin/settings',
+    PACKAGE_MANAGEMENT: '/admin/package-management',
+    POKEMON_MANAGEMENT: '/admin/pokemon-management',
+    TOURNAMENT_MANAGEMENT: '/admin/tournament-management',
+    AI_PROMPTS_MANAGEMENT: '/admin/ai-prompts-management',
 };
 
 const ROLE = {

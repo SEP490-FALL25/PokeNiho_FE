@@ -1,5 +1,20 @@
+"use client"
+    ; ("use client")
+
 import { Outlet, Link, useLocation } from "react-router-dom"
-import { LayoutDashboard, Users, BookOpen, Languages, BarChart3, Settings, LogOut, Menu } from "lucide-react"
+import {
+    LayoutDashboard,
+    Users,
+    BookOpen,
+    Languages,
+    BarChart3,
+    Settings,
+    LogOut,
+    Menu,
+    Trophy,
+    Package,
+    Brain,
+} from "lucide-react"
 import { useState } from "react"
 import { Button } from "@ui/Button"
 import { cn } from "@utils/CN"
@@ -12,8 +27,12 @@ const AdminLayout = () => {
     const navigation = [
         { name: "Tổng quan", href: ROUTES.ADMIN.ROOT, icon: LayoutDashboard },
         { name: "Quản lý người dùng", href: ROUTES.ADMIN.USERS, icon: Users },
+        { name: "Quản lý Pokemon", href: ROUTES.ADMIN.POKEMON_MANAGEMENT, icon: Trophy },
         { name: "Quản lý bài học", href: ROUTES.ADMIN.LESSONS, icon: BookOpen },
         { name: "Quản lý từ vựng", href: ROUTES.ADMIN.VOCABULARY, icon: Languages },
+        { name: "Giải đấu", href: ROUTES.ADMIN.TOURNAMENT_MANAGEMENT, icon: Trophy },
+        { name: "Gói dịch vụ", href: ROUTES.ADMIN.PACKAGE_MANAGEMENT, icon: Package },
+        { name: "AI Prompts", href: ROUTES.ADMIN.AI_PROMPTS_MANAGEMENT, icon: Brain },
         { name: "Thống kê", href: ROUTES.ADMIN.ANALYTICS, icon: BarChart3 },
     ]
 
@@ -40,7 +59,7 @@ const AdminLayout = () => {
                 </div>
 
                 {/* Navigation */}
-                <nav className="flex-1 space-y-1 p-4">
+                <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
                     {navigation.map((item) => {
                         const isActive = location.pathname === item.href
                         return (
@@ -75,7 +94,7 @@ const AdminLayout = () => {
                         <Settings className="h-5 w-5 flex-shrink-0" />
                         {isSidebarOpen && <span>Cài đặt</span>}
                     </Link>
-                    <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors cursor-pointer">
+                    <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
                         <LogOut className="h-5 w-5 flex-shrink-0" />
                         {isSidebarOpen && <span>Đăng xuất</span>}
                     </button>

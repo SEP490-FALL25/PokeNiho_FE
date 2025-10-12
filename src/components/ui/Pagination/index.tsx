@@ -1,7 +1,7 @@
 import * as React from "react"
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
 
-import { ButtonProps, buttonVariants } from "@components/ui/Button"
+import { ButtonProps, buttonVariants } from "@ui/Button"
 import { cn } from "@utils/CN"
 
 // Base Pagination Components

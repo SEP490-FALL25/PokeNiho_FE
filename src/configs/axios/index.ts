@@ -1,16 +1,16 @@
-import { COOKIES } from '@constants/common';
+
+import { CookiesService } from '@utils/cookies';
 import axios, { AxiosError } from 'axios';
-import Cookies from 'js-cookie';
 
 const axiosClient = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL,
+    baseURL: import.meta.env.VITE_APP_LOCAL_API,
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
 const axiosPrivate = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL,
+    baseURL: import.meta.env.VITE_APP_LOCAL_API,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -19,15 +19,17 @@ const axiosPrivate = axios.create({
 // Interceptors cho axiosPrivate
 axiosPrivate.interceptors.request.use(
     (config) => {
-        const token = Cookies.get(COOKIES.ACCESS_TOKEN);
-        const userRole = Cookies.get('userRole');
+        const token = CookiesService.get("accessToken");
+        console.log('token', token);
+
+        // const userRole = Cookies.get('userRole');
 
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
         }
-        if (userRole) {
-            config.headers['X-User-Role'] = userRole;
-        }
+        // if (userRole) {
+        //     config.headers['X-User-Role'] = userRole;
+        // }
         return config;
     },
     (error) => {

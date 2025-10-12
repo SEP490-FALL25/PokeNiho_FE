@@ -13,6 +13,10 @@ const UsersManagement = lazy(() => import("@pages/AdminPage/Users"))
 const LessonsManagement = lazy(() => import("@pages/AdminPage/Lesson"))
 const VocabularyManagement = lazy(() => import("@pages/AdminPage/Vocabulary"))
 const AnalyticsDashboard = lazy(() => import("@pages/AdminPage/Analytics"))
+const PackageManagement = lazy(() => import("@pages/AdminPage/PackageManagement"))
+const PokemonManagement = lazy(() => import("@pages/AdminPage/Pokemon"))
+const TournamentManagement = lazy(() => import("@pages/AdminPage/Tournaments"))
+const AIPromptManagement = lazy(() => import("@pages/AdminPage/AIPrompts"))
 
 const RouterComponent = () => {
     const router = createBrowserRouter([
@@ -39,6 +43,10 @@ const RouterComponent = () => {
                                 { path: ROUTES.ADMIN.LESSONS, element: <LessonsManagement /> },
                                 { path: ROUTES.ADMIN.VOCABULARY, element: <VocabularyManagement /> },
                                 { path: ROUTES.ADMIN.ANALYTICS, element: <AnalyticsDashboard /> },
+                                { path: ROUTES.ADMIN.PACKAGE_MANAGEMENT, element: <PackageManagement /> },
+                                { path: ROUTES.ADMIN.POKEMON_MANAGEMENT, element: <PokemonManagement /> },
+                                { path: ROUTES.ADMIN.TOURNAMENT_MANAGEMENT, element: <TournamentManagement /> },    
+                                { path: ROUTES.ADMIN.AI_PROMPTS_MANAGEMENT, element: <AIPromptManagement /> },
                             ],
                         },
                     ],
