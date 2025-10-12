@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Search, Plus, Edit, Trash2, MoreVertical, Filter, LoaderCircle, Rows } from "lucide-react";
+import { Edit, Trash2, MoreVertical, Filter, LoaderCircle, Rows } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@ui/Card";
 import { Button } from "@ui/Button";
 import { Input } from "@ui/Input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@ui/Dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ui/Select";
 import { Badge } from "@ui/Badge";
 import HeaderAdmin from "@organisms/Header/Admin";
@@ -11,35 +10,31 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { EnhancedPagination } from "@ui/Pagination";
 import { usePokemonList } from "@hooks/usePokemon";
 import { useElementalTypeList } from "@hooks/useElemental";
+import { RarityPokemon } from "@constants/pokemon";
+import CreatePokemon from "./components/CreatePokemon";
 
 
 export default function PokemonManagement() {
-    const [searchQuery, setSearchQuery] = useState("");
-    const [selectedType, setSelectedType] = useState("all");
-    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-    const [currentPage, setCurrentPage] = useState<number>(1);
-    const [itemsPerPage, setItemsPerPage] = useState<number>(15);
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
 
-    // 1. Truyền các state filter vào custom hook
+
+    /**
+     * Handle Pokemon List Hook
+     */
+    const [searchQuery, setSearchQuery] = useState<string>("");
+    const [selectedRarity, setSelectedRarity] = useState<string>("all");
+    const [selectedType, setSelectedType] = useState<string>("all");
+    const [itemsPerPage, setItemsPerPage] = useState<number>(15);
+    const [currentPage, setCurrentPage] = useState<number>(1);
     const { data: pokemonData, isLoading: isPokemonLoading, error: pokemonError } = usePokemonList({
         page: currentPage,
         limit: itemsPerPage,
-        type: selectedType === 'all' ? undefined : selectedType, // Gửi 'undefined' nếu là 'all'
-        search: searchQuery || undefined, // Gửi 'undefined' nếu chuỗi rỗng
+        type: selectedType === 'all' ? undefined : selectedType,
+        search: searchQuery || undefined,
+        rarity: selectedRarity === 'all' ? undefined : selectedRarity,
     });
 
-    // 2. Fetch danh sách các hệ một lần duy nhất
-    const { data: typesData, isLoading: isTypesLoading } = useElementalTypeList({ page: 1, limit: 100 });
 
-    const getRarityBadgeVariant = (rarity: string) => {
-        switch (rarity) {
-            case "RARE": return "secondary";
-            case "LEGENDARY": return "destructive";
-            default: return "outline";
-        }
-    };
-
-    // 3. Tách hàm xử lý sự kiện để reset page khi filter
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
         setCurrentPage(1);
@@ -55,26 +50,49 @@ export default function PokemonManagement() {
         setCurrentPage(1);
     };
 
+    const handleRarityChange = (value: string) => {
+        setSelectedRarity(value);
+        setCurrentPage(1);
+    };
+    //--------------------------------End--------------------------------//
+
+    /**
+     * Handle Elemental Type List Hook
+     */
+    const { data: typesData, isLoading: isTypesLoading } = useElementalTypeList({ page: 1, limit: 100 });
+    //--------------------------------End--------------------------------//
+
+    const getRarityBadgeVariant = (rarity: string) => {
+        switch (rarity) {
+            case RarityPokemon.COMMON: return "secondary";
+            case RarityPokemon.UNCOMMON: return "secondary";
+            case RarityPokemon.RARE: return "secondary";
+            case RarityPokemon.EPIC: return "secondary";
+            case RarityPokemon.LEGENDARY: return "destructive";
+            default: return "outline";
+        }
+    };
+
+
+
     return (
         <>
             <HeaderAdmin title="Quản lý Pokémon" description="Quản lý tất cả Pokémon trong hệ thống" />
             <div className="p-8 mt-24">
                 <Card className="bg-card border-border">
                     <CardHeader>
-                        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                            <CardTitle className="text-foreground">Danh sách Pokémon</CardTitle>
-                            <div className="flex items-center gap-2 w-full md:w-auto">
-                                <div className="relative flex-1">
-                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                    <Input
-                                        placeholder="Tìm kiếm..."
-                                        value={searchQuery}
-                                        onChange={handleSearchChange}
-                                        className="pl-10 bg-background border-border text-foreground w-full"
-                                    />
-                                </div>
+                        <div className="flex items-center justify-between gap-2 w-full md:w-auto">
+                            <div className="flex-1">
+                                <Input
+                                    placeholder="Tìm kiếm..."
+                                    value={searchQuery}
+                                    onChange={handleSearchChange}
+                                    isSearch
+                                />
+                            </div>
+                            <div className="flex items-center gap-2">
                                 <Select value={selectedType} onValueChange={handleTypeChange}>
-                                    <SelectTrigger className="w-[180px] bg-background border-border text-foreground">
+                                    <SelectTrigger className="bg-background border-border text-foreground w-full md:w-auto">
                                         <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
                                         <SelectValue placeholder="Lọc theo hệ" />
                                     </SelectTrigger>
@@ -94,16 +112,23 @@ export default function PokemonManagement() {
                                         )}
                                     </SelectContent>
                                 </Select>
-                                <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                                    <DialogTrigger asChild>
-                                        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-                                            <Plus className="h-4 w-4 mr-2" /> Thêm
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="bg-card border-border max-w-2xl">
-                                        <DialogHeader><DialogTitle className="text-foreground">Thêm Pokémon mới</DialogTitle></DialogHeader>
-                                    </DialogContent>
-                                </Dialog>
+                                <Select value={selectedRarity} onValueChange={handleRarityChange}>
+                                    <SelectTrigger className="bg-background border-border text-foreground w-full md:w-auto">
+                                        <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
+                                        <SelectValue placeholder="Lọc theo độ hiếm" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-card border-border">
+                                        <SelectItem value="all">Tất cả độ hiếm</SelectItem>
+                                        {Object.values(RarityPokemon).map((rarity: string) => (
+                                            <SelectItem key={rarity} value={rarity}>{rarity}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <CreatePokemon
+                                    isAddDialogOpen={isAddDialogOpen}
+                                    setIsAddDialogOpen={setIsAddDialogOpen}
+                                    dataTypes={typesData}
+                                />
                             </div>
                         </div>
                     </CardHeader>
@@ -175,9 +200,7 @@ export default function PokemonManagement() {
                                 </SelectTrigger>
                                 <SelectContent className="bg-card border-border">
                                     {[15, 30, 45, 60].map(size => (
-                                        <>
-                                            <SelectItem key={size} value={String(size)}>{size} / trang</SelectItem>
-                                        </>
+                                        <SelectItem key={size} value={String(size)}>{size} / trang</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>

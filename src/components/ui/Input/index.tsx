@@ -3,13 +3,14 @@ import { cn } from '@utils/CN';
 import { Button } from '@ui/Button';
 import EyeShowPassword from '@atoms/EyeShowPassword';
 import React from 'react';
+import { Search } from 'lucide-react';
 
 const inputContainerVariants = cva(
-    'relative flex items-center rounded-md border h-12',
+    'flex items-center rounded-md border h-10',
     {
         variants: {
             variant: {
-                default: 'bg-white/20 border-white/50',
+                default: 'bg-white/20 border-black/50',
                 destructive: 'bg-white/20 border-red-500',
                 original: 'bg-white border-[#d1d5db]',
             },
@@ -45,6 +46,7 @@ interface InputProps
     error?: string;
     containerClassName?: string;
     isPassword?: boolean;
+    isSearch?: boolean;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -57,6 +59,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             variant,
             isPassword,
             id,
+            isSearch,
             ...props
         },
         ref
@@ -66,7 +69,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         const inputId = id || React.useId();
 
         return (
-            <div className={cn('mb-4', containerClassName)}>
+            <div className={cn(containerClassName)}>
                 {label && (
                     <label
                         htmlFor={inputId}
@@ -76,12 +79,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                     </label>
                 )}
                 <div className={cn(inputContainerVariants({ variant: activeVariant }))}>
+                    {isSearch && <Search className="h-4 w-4 mx-3 text-muted-foreground" />}
                     <input
                         id={inputId}
                         ref={ref}
                         className={cn(
                             textInputVariants({ variant: activeVariant }),
                             isPassword && 'pr-12',
+                            isSearch && 'pl-0 pr-1',
                             className
                         )}
                         type={isPassword ? (showPassword ? 'text' : 'password') : 'text'}

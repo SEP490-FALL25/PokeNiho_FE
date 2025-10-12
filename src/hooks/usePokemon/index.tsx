@@ -8,8 +8,10 @@ import pokemonService from "@services/pokemon";
  * @returns 
  */
 export const usePokemonList = (params: IQueryRequest) => {
+    const { page, limit, type, search, rarity } = params;
+
     const { data, isLoading, error } = useQuery({
-        queryKey: ["pokemon-list", params],
+        queryKey: ["pokemon-list", page, limit, search, type, rarity],
         queryFn: () => pokemonService.getAllPokemon(params),
     });
 
