@@ -14,5 +14,5 @@ export const useElementalTypeList = (params: IQueryRequest) => {
         enabled: !!params.page && !!params.limit,
     });
 
-    return { data: data?.data, isLoading, error };
+    return { data: data?.data?.data, isLoading, error };
 }

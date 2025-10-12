@@ -1,26 +1,16 @@
-import { Outlet, useLocation } from "react-router-dom"
+import { Outlet, useLocation, NavLink } from "react-router-dom";
 import {
-    LayoutDashboard,
-    Users,
-    BookOpen,
-    Languages,
-    BarChart3,
-    Settings,
-    LogOut,
-    Menu,
-    Trophy,
-    Package,
-    Brain,
-} from "lucide-react"
-import { useState } from "react"
-import { Button } from "@ui/Button"
-import { cn } from "@utils/CN"
-import { ROUTES } from "@constants/route"
-import { NavLink } from "react-router-dom";
+    LayoutDashboard, Users, BookOpen, Languages, BarChart3,
+    Settings, LogOut, Menu, Trophy, Package, Brain
+} from "lucide-react";
+import { useState } from "react";
+import { Button } from "@ui/Button";
+import { cn } from "@utils/CN";
+import { ROUTES } from "@constants/route";
 
 const AdminLayout = () => {
-    const location = useLocation()
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+    const location = useLocation();
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
     const navigation = [
         { name: "Tổng quan", href: ROUTES.ADMIN.ROOT, icon: LayoutDashboard },
@@ -32,19 +22,19 @@ const AdminLayout = () => {
         { name: "Gói dịch vụ", href: ROUTES.ADMIN.PACKAGE_MANAGEMENT, icon: Package },
         { name: "AI Prompts", href: ROUTES.ADMIN.AI_PROMPTS_MANAGEMENT, icon: Brain },
         { name: "Thống kê", href: ROUTES.ADMIN.ANALYTICS, icon: BarChart3 },
-    ]
+    ];
 
     return (
         <div className="flex h-screen bg-background">
             {/* Sidebar */}
             <aside
                 className={cn(
-                    "flex flex-col border-r border-border bg-sidebar transition-all duration-300",
+                    "flex flex-col border-r border-border bg-sidebar transition-all duration-300 fixed h-full z-10",
                     isSidebarOpen ? "w-64" : "w-20",
                 )}
             >
                 {/* Logo */}
-                <div className="flex h-16 items-center justify-between px-4 border-b border-border">
+                <div className="flex h-16 items-center justify-between px-4 border-b border-border flex-shrink-0">
                     {isSidebarOpen && <h1 className="text-xl font-bold text-sidebar-foreground">PokeNihongo</h1>}
                     <Button
                         variant="ghost"
@@ -59,7 +49,7 @@ const AdminLayout = () => {
                 {/* Navigation */}
                 <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
                     {navigation.map((item) => {
-                        const isActive = location.pathname === item.href
+                        const isActive = location.pathname === item.href;
                         return (
                             <NavLink
                                 key={item.name}
@@ -74,12 +64,12 @@ const AdminLayout = () => {
                                 <item.icon className="h-5 w-5 flex-shrink-0" />
                                 {isSidebarOpen && <span>{item.name}</span>}
                             </NavLink>
-                        )
+                        );
                     })}
                 </nav>
 
                 {/* Bottom Actions */}
-                <div className="border-t border-border p-4 space-y-1">
+                <div className="border-t border-border p-4 space-y-1 ">
                     <NavLink
                         to={ROUTES.ADMIN.SETTINGS}
                         className={cn(
@@ -100,11 +90,17 @@ const AdminLayout = () => {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 overflow-y-auto">
+            {/* SỬA LẠI: Thêm padding-left và transition */}
+            <main
+                className={cn(
+                    "flex-1 transition-all duration-300",
+                    isSidebarOpen ? "ml-64" : "ml-20",
+                )}
+            >
                 <Outlet />
             </main>
         </div>
-    )
-}
+    );
+};
 
-export default AdminLayout
+export default AdminLayout;

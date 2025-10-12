@@ -9,7 +9,7 @@ import { Badge } from "@ui/Badge";
 import HeaderAdmin from "@organisms/Header/Admin";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@ui/DropdownMenu";
 import { EnhancedPagination } from "@ui/Pagination";
-import { usePokemonList } from "@hooks/usePokemno";
+import { usePokemonList } from "@hooks/usePokemon";
 import { useElementalTypeList } from "@hooks/useElemental";
 
 const ITEMS_PER_PAGE = 9;
@@ -27,10 +27,9 @@ export default function PokemonManagement() {
         type: selectedType === 'all' ? undefined : selectedType, // Gửi 'undefined' nếu là 'all'
         search: searchQuery || undefined, // Gửi 'undefined' nếu chuỗi rỗng
     });
-    console.log('pokemonData', pokemonData);
+
     // 2. Fetch danh sách các hệ một lần duy nhất
     const { data: typesData, isLoading: isTypesLoading } = useElementalTypeList({ page: 1, limit: 100 });
-    console.log('typesData', typesData);
 
     const getRarityBadgeVariant = (rarity: string) => {
         switch (rarity) {
@@ -162,7 +161,7 @@ export default function PokemonManagement() {
                     )}
                 </CardContent>
                 {/* 5. Chỉ hiển thị pagination khi có dữ liệu */}
-                <CardFooter>
+                <CardFooter className="flex justify-end">
                     {!isPokemonLoading && pokemonData && (
                         <EnhancedPagination
                             currentPage={currentPage}

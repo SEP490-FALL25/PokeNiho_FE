@@ -4,8 +4,8 @@ import { IQueryRequest } from "@models/common/request";
 const pokemonService = {
     getAllPokemon: async (params: IQueryRequest) => {
         const queryParams = new URLSearchParams({
-            currentPage: params.page?.toString(),
-            pageSize: params.limit?.toString(),
+            currentPage: params.page?.toString() || '1',
+            pageSize: params.limit?.toString() || '10',
         });
 
         if (params.type && params.type !== 'all') {
