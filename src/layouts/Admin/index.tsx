@@ -25,7 +25,7 @@ const AdminLayout = () => {
     ];
 
     return (
-        <div className="flex h-screen bg-background">
+        <div className="flex h-screen">
             {/* Sidebar */}
             <aside
                 className={cn(
@@ -69,7 +69,7 @@ const AdminLayout = () => {
                 </nav>
 
                 {/* Bottom Actions */}
-                <div className="border-t border-border p-4 space-y-1 ">
+                <div className="border-t border-border p-4 space-y-1 flex-shrink-0">
                     <NavLink
                         to={ROUTES.ADMIN.SETTINGS}
                         className={cn(
