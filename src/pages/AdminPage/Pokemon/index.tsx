@@ -127,7 +127,7 @@ export default function PokemonManagement() {
                                 <CreatePokemon
                                     isAddDialogOpen={isAddDialogOpen}
                                     setIsAddDialogOpen={setIsAddDialogOpen}
-                                    dataTypes={typesData}
+                                    typesData={typesData}
                                 />
                             </div>
                         </div>
