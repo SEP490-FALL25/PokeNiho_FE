@@ -26,7 +26,7 @@ interface Vocabulary {
     filteredVocabularies: any[];
 }
 
-const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpen, onyomiReadings, setOnyomiReadings, kunyomiReadings, setKunyomiReadings, meanings, setMeanings, searchQuery, setSearchQuery, activeTab, setActiveTab, filteredVocabularies }: Vocabulary) => {
+const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpen, searchQuery, setSearchQuery, activeTab, setActiveTab, filteredVocabularies }: Vocabulary) => {
 
     const getTypeBadgeColor = (type: string) => {
         switch (type) {
