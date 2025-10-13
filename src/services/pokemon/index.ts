@@ -11,21 +11,22 @@ const pokemonService = {
         if (params.limit) queryParams.append('pageSize', params.limit.toString());
 
         if (params.type && params.type !== 'all') {
-            filters.push(`type:${params.type}`);
+            filters.push(`type=${params.type}`);
         }
         if (params.rarity && params.rarity !== 'all') {
-            filters.push(`rarity:${params.rarity}`);
+            filters.push(`rarity=${params.rarity}`);
         }
         if (params.search) {
-            filters.push(`name:${params.search}`);
+            filters.push(`nameTranslations.en:like=${params.search}`);
         }
 
         if (filters.length > 0) {
-            queryParams.append('qs', filters.join('='));
+            const qsValue = filters.join(',');
+            queryParams.append('qs', qsValue);
         }
 
-        console.log("Generated Query:", queryParams.toString());
-        return axiosPrivate.get(`/pokemon?${queryParams.toString()}`);
+        const queryString = queryParams.toString();
+        return axiosPrivate.get(`/pokemon?${queryString}`);
     },
 
     getPokemonById: async (id: string) => {
