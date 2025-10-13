@@ -6,6 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/Tabs";
 import { Edit, Trash2, Volume2, ImageIcon } from "lucide-react";
 import { Badge } from "@ui/Badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ui/Table";
+import { Dialog, DialogTrigger } from "@ui/Dialog";
+import { Plus } from "lucide-react";
+import CreateVocabulary from "../CreateVocabulary";
 
 interface Vocabulary {
     isAddVocabularyDialogOpen: boolean;
@@ -73,6 +76,15 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </div>
+
+                <Dialog open={isAddVocabularyDialogOpen} onOpenChange={setIsAddVocabularyDialogOpen}>
+                    <DialogTrigger asChild>
+                        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                            <Plus className="h-4 w-4 mr-2" /> Thêm
+                        </Button>
+                    </DialogTrigger>
+                    <CreateVocabulary setIsAddDialogOpen={setIsAddVocabularyDialogOpen} />
+                </Dialog>
             </CardHeader>
             <CardContent>
                 <Tabs value={activeTab} onValueChange={setActiveTab}>

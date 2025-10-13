@@ -9,7 +9,10 @@ export const CreateVocabularyFullMultipartSchema = z.object({
     translations: z.union([
         z.string().transform((val) => JSON.parse(val)),
         TranslationsSchema
-    ])
+    ]),
+    // Optional media files for multipart submission
+    image: z.any().optional(),
+    audio: z.any().optional(),
 })
 
 export type ICreateVocabularyFullMultipartType = z.infer<typeof CreateVocabularyFullMultipartSchema>
