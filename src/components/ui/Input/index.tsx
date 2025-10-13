@@ -6,13 +6,13 @@ import React from 'react';
 import { Search } from 'lucide-react';
 
 const inputContainerVariants = cva(
-    'flex items-center rounded-md border h-10',
+    'flex items-center rounded-md border h-10 focus-within:ring-2 focus-within:ring-primary focus-within:border-primary',
     {
         variants: {
             variant: {
-                default: 'bg-white/20 border-black/50',
-                destructive: 'bg-white/20 border-red-500',
-                original: 'bg-white border-[#d1d5db]',
+                default: 'bg-white/20',
+                destructive: 'bg-white/20 border-red-500 focus-within:ring-red-500 focus-within:border-red-500',
+                original: 'bg-white border-[#d1d5db] focus-within:ring-primary focus-within:border-primary',
             },
         },
         defaultVariants: {

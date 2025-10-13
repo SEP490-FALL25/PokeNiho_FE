@@ -1,10 +1,9 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@ui/Dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ui/Select";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/Card";
 import { Button } from "@ui/Button";
 import { Input } from "@ui/Input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/Tabs";
-import { Search, Edit, Trash2, Volume2, ImageIcon } from "lucide-react";
+import { Edit, Trash2, Volume2, ImageIcon } from "lucide-react";
 import { Badge } from "@ui/Badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ui/Table";
 
@@ -66,16 +65,13 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-2xl font-bold text-gray-800">Danh sách từ vựng</CardTitle>
                 </div>
-                <div className="mt-4 px-6 pb-4">
-                    <div className="relative">
-                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                        <Input
-                            placeholder="Tìm kiếm từ vựng..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-12 bg-gray-100 border-transparent focus:ring-2 focus:ring-primary focus:bg-white rounded-full transition-all"
-                        />
-                    </div>
+                <div className="mt-4 pb-4 focus:ring-primary focus:ring-2">
+                    <Input
+                        placeholder="Tìm kiếm từ vựng..."
+                        value={searchQuery}
+                        isSearch
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                 </div>
             </CardHeader>
             <CardContent>
