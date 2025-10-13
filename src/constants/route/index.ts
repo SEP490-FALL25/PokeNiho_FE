@@ -13,7 +13,7 @@ const PUBLIC = {
 }
 
 const ADMIN = {
-    ROOT: '/admin',
+    ROOT: '/admin/overview',
     USERS: '/admin/users',
     LESSONS: '/admin/lessons',
     VOCABULARY: '/admin/vocabulary',
