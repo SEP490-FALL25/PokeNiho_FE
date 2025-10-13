@@ -85,4 +85,6 @@
 .active {
     background-color: var(--primary-light);
     color: var(--primary-foreground);
+    font-weight: 700;
+    font-size: 15px;
 }
