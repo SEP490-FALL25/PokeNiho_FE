@@ -1,5 +1,6 @@
 import { axiosPrivate } from "@configs/axios";
 import { ICreateVocabularyFullMultipartType } from "@models/vocabulary/request";
+import { IQueryRequest } from "@models/common/request";
 
 const vocabularyService = {
     createVocabulary: (payload: ICreateVocabularyFullMultipartType) => {
@@ -29,6 +30,18 @@ const vocabularyService = {
 
         return axiosPrivate.post("/vocabulary/full", formData, {
             headers: { "Content-Type": "multipart/form-data" },
+        });
+    },
+    getAllVocabularies: async (data: IQueryRequest) => {
+        const queryParams = new URLSearchParams();
+        if (data.page) queryParams.append('currentPage', data.page.toString());
+        if (data.limit) queryParams.append('pageSize', data.limit.toString());
+        if (data.search) queryParams.append('search', data.search);
+        if (data.sortOrder) queryParams.append('sortOrder', data.sortOrder);
+        if (data.sortBy) queryParams.append('sortBy', data.sortBy);
+
+        return axiosPrivate.get("/vocabulary", {
+            params: data,
         });
     },
 };
