@@ -14,18 +14,11 @@ import { EnhancedPagination as Pagination } from "@ui/Pagination";
 import { Skeleton } from "@ui/Skeleton";
 import { Controller, useForm, useFieldArray } from "react-hook-form";
 import { IKanjiWithMeaningRequest } from "@models/kanji/request";
-import kanjiService from "@services/kanji";
 import { toast } from "react-toastify";
 
 interface KanjiVocabulary {
     isAddKanjiDialogOpen: boolean;
     setIsAddKanjiDialogOpen: (value: boolean) => void;
-    onyomiReadings: string[];
-    setOnyomiReadings: (value: string[]) => void;
-    kunyomiReadings: string[];
-    setKunyomiReadings: (value: string[]) => void;
-    meanings: { vi: string; en: string }[];
-    setMeanings: (value: { vi: string; en: string }[]) => void;
 }
 
 const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: KanjiVocabulary) => {

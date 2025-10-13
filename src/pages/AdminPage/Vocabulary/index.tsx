@@ -20,28 +20,10 @@ interface Vocabulary {
     hasImage: boolean;
 }
 
-interface Kanji {
-    id: string;
-    character: string;
-    meaning: string;
-    strokeCount: number;
-    jlptLevel: "N5" | "N4" | "N3" | "N2" | "N1";
-    onyomi: string[];
-    kunyomi: string[];
-}
-
-
 const VocabularyManagement = () => {
-    const [searchQuery, setSearchQuery] = useState("");
-    const [isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpen] = useState(false);
-    const [isAddKanjiDialogOpen, setIsAddKanjiDialogOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState("all");
-    const [onyomiReadings, setOnyomiReadings] = useState<string[]>([""]);
-    const [kunyomiReadings, setKunyomiReadings] = useState<string[]>([""]);
-    const [meanings, setMeanings] = useState<{ vi: string; en: string }[]>([
-        { vi: "", en: "" },
-    ]);
-    const [showKanji, setShowKanji] = useState(false);
+    const [isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpen] = useState<boolean>(false);
+    const [isAddKanjiDialogOpen, setIsAddKanjiDialogOpen] = useState<boolean>(false);
+    const [showKanji, setShowKanji] = useState<boolean>(false);
 
 
     // Mock data
@@ -107,21 +89,6 @@ const VocabularyManagement = () => {
             hasImage: false,
         },
     ];
-
-    const kanjiList: Kanji[] = [
-        { id: "1", character: "日", meaning: "mặt trời, ngày", strokeCount: 4, jlptLevel: "N5", onyomi: ["にち", "じつ"], kunyomi: ["ひ", "び", "か"] },
-        { id: "2", character: "一", meaning: "một", strokeCount: 1, jlptLevel: "N5", onyomi: ["いち", "いっ"], kunyomi: ["ひと-", "ひと.つ"] },
-        { id: "3", character: "国", meaning: "đất nước", strokeCount: 8, jlptLevel: "N5", onyomi: ["こく"], kunyomi: ["くに"] },
-        { id: "4", character: "人", meaning: "người", strokeCount: 2, jlptLevel: "N5", onyomi: ["じん", "にん"], kunyomi: ["ひと", "-り", "-と"] },
-        { id: "5", character: "年", meaning: "năm", strokeCount: 6, jlptLevel: "N5", onyomi: ["ねん"], kunyomi: ["とし"] },
-    ];
-
-    const filteredVocabularies = vocabularies.filter((vocab: any) => {
-        return vocab.japanese.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            vocab.hiragana.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            vocab.vietnamese.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            vocab.kanji.toLowerCase().includes(searchQuery.toLowerCase());
-    });
 
     const stats = {
         total: vocabularies.length,
@@ -191,15 +158,14 @@ const VocabularyManagement = () => {
                 </div>
                 {showKanji ? (
                     <KanjiVocabulary
-                        kanjiList={kanjiList}
                         isAddKanjiDialogOpen={isAddKanjiDialogOpen}
                         setIsAddKanjiDialogOpen={setIsAddKanjiDialogOpen}
-                        onyomiReadings={onyomiReadings} setOnyomiReadings={setOnyomiReadings} kunyomiReadings={kunyomiReadings} setKunyomiReadings={setKunyomiReadings} meanings={meanings} setMeanings={setMeanings} />
+                    />
                 ) : (
                     <ListVocabulary
                         isAddVocabularyDialogOpen={isAddVocabularyDialogOpen}
                         setIsAddVocabularyDialogOpen={setIsAddVocabularyDialogOpen}
-                        onyomiReadings={onyomiReadings} setOnyomiReadings={setOnyomiReadings} kunyomiReadings={kunyomiReadings} setKunyomiReadings={setKunyomiReadings} meanings={meanings} setMeanings={setMeanings} searchQuery={searchQuery} setSearchQuery={setSearchQuery} activeTab={activeTab} setActiveTab={setActiveTab} filteredVocabularies={filteredVocabularies} />
+                    />
                 )}
             </div>
         </>

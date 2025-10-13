@@ -37,12 +37,11 @@ const vocabularyService = {
         if (data.page) queryParams.append('currentPage', data.page.toString());
         if (data.limit) queryParams.append('pageSize', data.limit.toString());
         if (data.search) queryParams.append('search', data.search);
-        if (data.sortOrder) queryParams.append('sortOrder', data.sortOrder);
+        if (data.levelN) queryParams.append('levelN', data.levelN);
         if (data.sortBy) queryParams.append('sortBy', data.sortBy);
+        if (data.sort) queryParams.append('sort', data.sort);
 
-        return axiosPrivate.get("/vocabulary", {
-            params: data,
-        });
+        return axiosPrivate.get(`/vocabulary?${queryParams.toString()}`);
     },
 };
 

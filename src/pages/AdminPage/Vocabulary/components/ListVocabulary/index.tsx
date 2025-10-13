@@ -1,33 +1,54 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from "@ui/Card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@ui/Card";
 import { Button } from "@ui/Button";
 import { Input } from "@ui/Input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/Tabs";
-import { Edit, Trash2, Volume2, ImageIcon } from "lucide-react";
+import { Edit, Rows, Trash2, Volume2 } from "lucide-react";
 import { Badge } from "@ui/Badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ui/Table";
 import { Dialog, DialogTrigger } from "@ui/Dialog";
 import { Plus } from "lucide-react";
 import CreateVocabulary from "../CreateVocabulary";
+import { useVocabularyList } from "@hooks/useVocabulary";
+import { EnhancedPagination } from "@ui/Pagination";
+import { useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ui/Select";
 
 interface Vocabulary {
     isAddVocabularyDialogOpen: boolean;
     setIsAddVocabularyDialogOpen: (value: boolean) => void;
-    onyomiReadings: string[];
-    setOnyomiReadings: (value: string[]) => void;
-    kunyomiReadings: string[];
-    setKunyomiReadings: (value: string[]) => void;
-    meanings: { vi: string; en: string }[];
-    setMeanings: (value: { vi: string; en: string }[]) => void;
-    searchQuery: string;
-    setSearchQuery: (value: string) => void;
-    activeTab: string;
-    setActiveTab: (value: string) => void;
-    filteredVocabularies: any[];
 }
 
-const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpen, searchQuery, setSearchQuery, activeTab, setActiveTab, filteredVocabularies }: Vocabulary) => {
+const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpen }: Vocabulary) => {
 
+    const [searchQuery, setSearchQuery] = useState<string>("");
+    const [activeTab, setActiveTab] = useState<string>("all");
+    const [page, setPage] = useState<number>(1);
+    const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+    const { data: vocabularies, isLoading } = useVocabularyList({
+        page: page,
+        limit: itemsPerPage,
+        search: searchQuery,
+        levelN: activeTab === "all" ? undefined : activeTab,
+    });
+
+    /**
+     * handle play audio
+     * @param audioUrl 
+     */
+    const handlePlayAudio = (audioUrl: string) => {
+        const audio = new Audio(audioUrl);
+        audio.play().catch(error => {
+            console.error('Error playing audio:', error);
+        });
+    };
+    //--------------------------------End--------------------------------//
+
+    /**
+     * get type badge color
+     * @param type 
+     * @returns 
+     */
     const getTypeBadgeColor = (type: string) => {
         switch (type) {
             case "noun":
@@ -44,23 +65,31 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
                 return "bg-gray-400 text-white";
         }
     };
+    //--------------------------------End--------------------------------//
 
-    const getLevelBadgeColor = (level: string) => {
+
+    /**
+     * get level badge color
+     * @param level 
+     * @returns 
+     */
+    const getLevelBadgeColor = (level: number) => {
         switch (level) {
-            case "N5":
-                return "bg-green-200 text-green-800";
-            case "N4":
-                return "bg-blue-200 text-blue-800";
-            case "N3":
-                return "bg-yellow-200 text-yellow-800";
-            case "N2":
-                return "bg-purple-200 text-purple-800";
-            case "N1":
-                return "bg-red-200 text-red-800";
+            case 5:
+                return "bg-green-200 text-white";
+            case 4:
+                return "bg-blue-200 text-white";
+            case 3:
+                return "bg-yellow-200 text-white";
+            case 2:
+                return "bg-purple-200 text-white";
+            case 1:
+                return "bg-red-200 text-white";
             default:
-                return "bg-gray-200 text-gray-800";
+                return "bg-gray-200 text-white";
         }
     };
+    //--------------------------------End--------------------------------//
 
     return (
         <Card className="bg-white shadow-lg">
@@ -68,23 +97,26 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-2xl font-bold text-gray-800">Danh sách từ vựng</CardTitle>
                 </div>
-                <div className="mt-4 pb-4 focus:ring-primary focus:ring-2">
-                    <Input
-                        placeholder="Tìm kiếm từ vựng..."
-                        value={searchQuery}
-                        isSearch
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                </div>
 
-                <Dialog open={isAddVocabularyDialogOpen} onOpenChange={setIsAddVocabularyDialogOpen}>
-                    <DialogTrigger asChild>
-                        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-                            <Plus className="h-4 w-4 mr-2" /> Thêm
-                        </Button>
-                    </DialogTrigger>
-                    <CreateVocabulary setIsAddDialogOpen={setIsAddVocabularyDialogOpen} />
-                </Dialog>
+                <div className="flex items-center justify-between">
+                    <div className="mt-4 pb-4 flex-1 mr-4 focus:ring-primary focus:ring-2">
+                        <Input
+                            placeholder="Tìm kiếm từ vựng..."
+                            value={searchQuery}
+                            isSearch
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
+
+                    <Dialog open={isAddVocabularyDialogOpen} onOpenChange={setIsAddVocabularyDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button className="bg-primary text-white hover:bg-primary/90">
+                                <Plus className="h-4 w-4" /> Thêm
+                            </Button>
+                        </DialogTrigger>
+                        <CreateVocabulary setIsAddDialogOpen={setIsAddVocabularyDialogOpen} />
+                    </Dialog>
+                </div>
             </CardHeader>
             <CardContent>
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -107,40 +139,36 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
                             <TableHeader>
                                 <TableRow className="border-gray-200 hover:bg-gray-50">
                                     <TableHead className="text-gray-600 font-semibold">Tiếng Nhật</TableHead>
-                                    <TableHead className="text-gray-600 font-semibold">Hiragana</TableHead>
-                                    <TableHead className="text-gray-600 font-semibold">Tiếng Việt</TableHead>
+                                    <TableHead className="text-gray-600 font-semibold">Cách đọc</TableHead>
                                     <TableHead className="text-gray-600 font-semibold">Loại từ</TableHead>
                                     <TableHead className="text-gray-600 font-semibold">Cấp độ</TableHead>
-                                    <TableHead className="text-gray-600 font-semibold">Kanji</TableHead>
                                     <TableHead className="text-gray-600 font-semibold">Media</TableHead>
                                     <TableHead className="text-gray-600 font-semibold text-right">Hành động</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredVocabularies.map((vocab: any) => (
+                                {vocabularies?.results?.map((vocab: any) => (
                                     <TableRow key={vocab.id} className="border-gray-200 hover:bg-gray-50">
-                                        <TableCell className="font-semibold text-lg text-gray-800">{vocab.japanese}</TableCell>
-                                        <TableCell className="text-gray-500">{vocab.hiragana}</TableCell>
-                                        <TableCell className="text-gray-700">{vocab.vietnamese}</TableCell>
+                                        <TableCell className="font-semibold text-lg text-gray-800">{vocab.wordJp}</TableCell>
+                                        <TableCell className="text-gray-500">{vocab.reading}</TableCell>
                                         <TableCell>
                                             <Badge className={getTypeBadgeColor(vocab.type) + " font-semibold"}>
-                                                {vocab.type.charAt(0).toUpperCase() + vocab.type.slice(1)}
+                                                {/* {vocab.type.charAt(0).toUpperCase() + vocab.type.slice(1)} */}
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
-                                            <Badge className={getLevelBadgeColor(vocab.level) + " font-semibold"}>{vocab.level}</Badge>
+                                            <Badge className={getLevelBadgeColor(vocab.levelN) + " font-semibold"}>N{vocab.levelN}</Badge>
                                         </TableCell>
-                                        <TableCell className="text-gray-500">{vocab.kanji}</TableCell>
                                         <TableCell>
                                             <div className="flex gap-2">
-                                                {vocab.hasAudio && (
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-500 hover:bg-blue-100 rounded-full">
+                                                {vocab.audioUrl && (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-blue-500 hover:bg-blue-100 rounded-full"
+                                                        onClick={() => handlePlayAudio(vocab.audioUrl)}
+                                                    >
                                                         <Volume2 className="h-4 w-4" />
-                                                    </Button>
-                                                )}
-                                                {vocab.hasImage && (
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-green-500 hover:bg-green-100 rounded-full">
-                                                        <ImageIcon className="h-4 w-4" />
                                                     </Button>
                                                 )}
                                             </div>
@@ -162,6 +190,31 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
                     </TabsContent>
                 </Tabs>
             </CardContent>
+
+            <CardFooter className="flex justify-between">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Select value={String(itemsPerPage)} onValueChange={(value: string) => setItemsPerPage(parseInt(value))}>
+                        <SelectTrigger className="bg-background border-border text-foreground h-9">
+                            <Rows className="h-4 w-4 mr-2" />
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-card border-border">
+                            {[15, 30, 45, 60].map(size => (
+                                <SelectItem key={size} value={String(size)}>{size} / trang</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    {vocabularies?.pagination && (
+                        <EnhancedPagination
+                            currentPage={vocabularies.pagination.current || 0}
+                            totalPages={vocabularies.pagination.totalPage || 0}
+                            totalItems={vocabularies.pagination.totalItem || 0}
+                            itemsPerPage={vocabularies.pagination.pageSize || 0}
+                            onPageChange={(nextPage: number) => { setPage(nextPage); }}
+                        />
+                    )}
+                </div>
+            </CardFooter>
         </Card>
     )
 }
