@@ -1,11 +1,11 @@
 import { Badge } from "@ui/Badge";
 import { Button } from "@ui/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "@ui/Card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@ui/Card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@ui/Dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ui/Select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ui/Table";
 import { Input } from "@ui/Input";
-import { Edit, Plus, Trash2 } from 'lucide-react'
+import { Edit, Plus, Rows, Trash2 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/Tabs";
 import { useKanjiListManagement, useCreateKanjiWithMeaning } from "@hooks/useKanji";
 import { useEffect, useState } from "react";
@@ -14,18 +14,11 @@ import { EnhancedPagination as Pagination } from "@ui/Pagination";
 import { Skeleton } from "@ui/Skeleton";
 import { Controller, useForm, useFieldArray } from "react-hook-form";
 import { IKanjiWithMeaningRequest } from "@models/kanji/request";
-import kanjiService from "@services/kanji";
 import { toast } from "react-toastify";
 
 interface KanjiVocabulary {
     isAddKanjiDialogOpen: boolean;
     setIsAddKanjiDialogOpen: (value: boolean) => void;
-    onyomiReadings: string[];
-    setOnyomiReadings: (value: string[]) => void;
-    kunyomiReadings: string[];
-    setKunyomiReadings: (value: string[]) => void;
-    meanings: { vi: string; en: string }[];
-    setMeanings: (value: { vi: string; en: string }[]) => void;
 }
 
 const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: KanjiVocabulary) => {
@@ -34,7 +27,7 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
      * Pagination
      */
     const [page, setPage] = useState<number>(1);
-    const [limit] = useState<number>(10);
+    const [itemsPerPage, setItemsPerPage] = useState<number>(15);
     //--------------------End--------------------//
 
     /**
@@ -42,7 +35,7 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
      */
     const { data, isLoading } = useKanjiListManagement({
         page,
-        limit,
+        limit: itemsPerPage,
         search: "",
         sortOrder: "asc",
         sortBy: "id",
@@ -99,6 +92,15 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
         }
     }, [isAddKanjiDialogOpen, reset]);
     //--------------------End--------------------//
+
+    /**
+     * Handle items per page change
+     */
+    const handleItemsPerPageChange = (value: string) => {
+        setItemsPerPage(parseInt(value));
+        setPage(1);
+    };
+    //--------------------------------End--------------------------------//
 
     return (
         <Card className="shadow-lg bg-white">
@@ -254,7 +256,7 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
                     </TableHeader>
                     <TableBody>
                         {isLoading ? (
-                            Array.from({ length: kanjiList?.pagination?.pageSize || limit }).map((_, i) => (
+                            Array.from({ length: kanjiList?.pagination?.pageSize || itemsPerPage }).map((_, i) => (
                                 <TableRow key={`skeleton-${i}`}>
                                     <TableCell className="py-4"><Skeleton className="h-6 w-10" /></TableCell>
                                     <TableCell className="py-4"><Skeleton className="h-6 w-40" /></TableCell>
@@ -284,15 +286,32 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
                         )}
                     </TableBody>
                 </Table>
-                <Pagination
-                    className="mt-4"
-                    currentPage={kanjiList?.pagination?.current || 0}
-                    totalPages={kanjiList?.pagination?.totalPage || 0}
-                    totalItems={kanjiList?.pagination?.totalItem || 0}
-                    itemsPerPage={kanjiList?.pagination?.pageSize || 0}
-                    onPageChange={(nextPage: number) => { setPage(nextPage); }}
-                />
+
             </CardContent>
+            <CardFooter className="flex justify-between">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Select value={String(kanjiList?.pagination?.pageSize || itemsPerPage)} onValueChange={handleItemsPerPageChange}>
+                        <SelectTrigger className="w-[100px] bg-background border-border text-foreground h-9">
+                            <Rows className="h-4 w-4 mr-2" />
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-card border-border">
+                            {[15, 30, 45, 60].map(size => (
+                                <SelectItem key={size} value={String(size)}>{size} / trang</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+                {!isLoading && kanjiList && (
+                    <Pagination
+                        currentPage={kanjiList?.pagination?.current || 1}
+                        totalPages={kanjiList?.pagination?.totalPage || 0}
+                        totalItems={kanjiList?.pagination?.totalItem || 0}
+                        itemsPerPage={kanjiList?.pagination?.pageSize || 0}
+                        onPageChange={(nextPage: number) => { setPage(nextPage); }}
+                    />
+                )}
+            </CardFooter>
         </Card>
     )
 }

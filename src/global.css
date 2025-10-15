@@ -81,3 +81,10 @@
     border-radius: 11px;
     margin-bottom: 0;
 }
+
+.active {
+    background-color: var(--primary-light);
+    color: var(--primary-foreground);
+    font-weight: 700;
+    font-size: 15px;
+}

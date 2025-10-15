@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Edit, Trash2, MoreVertical, Filter, LoaderCircle, Rows } from "lucide-react";
+import { Edit, Trash2, MoreVertical, Filter, Rows } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@ui/Card";
 import { Button } from "@ui/Button";
 import { Input } from "@ui/Input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ui/Select";
 import { Badge } from "@ui/Badge";
+import { Skeleton } from "@ui/Skeleton";
 import HeaderAdmin from "@organisms/Header/Admin";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@ui/DropdownMenu";
 import { EnhancedPagination } from "@ui/Pagination";
@@ -73,6 +74,47 @@ export default function PokemonManagement() {
         }
     };
 
+    /**
+     * Skeleton component for loading state
+     */
+    const PokemonSkeleton = () => (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: itemsPerPage }).map((_, index) => (
+                <Card key={`skeleton-${index}`} className="bg-muted/50 border-border flex flex-col">
+                    <CardHeader>
+                        <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-4">
+                                <Skeleton className="w-20 h-20 rounded-lg" />
+                                <div className="space-y-2">
+                                    <Skeleton className="h-6 w-24" />
+                                    <Skeleton className="h-4 w-32" />
+                                    <div className="flex gap-2 mt-2">
+                                        <Skeleton className="h-5 w-16 rounded-full" />
+                                        <Skeleton className="h-5 w-20 rounded-full" />
+                                    </div>
+                                </div>
+                            </div>
+                            <Skeleton className="h-8 w-8 rounded-full" />
+                        </div>
+                    </CardHeader>
+                    <CardContent className="flex-1 flex flex-col justify-end">
+                        <div className="space-y-2 pt-4 border-t border-border">
+                            <div className="flex justify-between items-center">
+                                <Skeleton className="h-4 w-16" />
+                                <Skeleton className="h-6 w-20 rounded-full" />
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <Skeleton className="h-4 w-24" />
+                                <Skeleton className="h-4 w-8" />
+                            </div>
+                            <Skeleton className="h-8 w-full mt-2" />
+                        </div>
+                    </CardContent>
+                </Card>
+            ))}
+        </div>
+    );
+
 
 
     return (
@@ -135,9 +177,7 @@ export default function PokemonManagement() {
                     <CardContent>
                         {/* Pokemon List */}
                         {isPokemonLoading ? (
-                            <div className="flex justify-center items-center h-96">
-                                <LoaderCircle className="w-8 h-8 animate-spin text-primary" />
-                            </div>
+                            <PokemonSkeleton />
                         ) : pokemonError ? (
                             <div className="text-red-500 text-center text-5xl h-96 flex items-center justify-center">
                                 Đã có lỗi xảy ra khi tải dữ liệu Pokémon.

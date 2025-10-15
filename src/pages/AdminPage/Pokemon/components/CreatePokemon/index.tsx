@@ -16,6 +16,7 @@ import mediaService from '@services/media';
 import pokemonService from '@services/pokemon';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
+import ImageDropzone from '@ui/ImageDropzone/ImageDropzone';
 
 interface CreatePokemonProps {
     isAddDialogOpen: boolean;
@@ -269,49 +270,12 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, typesData }: Creat
                                             <Controller
                                                 name="imageUrl"
                                                 control={control}
-                                                render={({ field: { onChange, value, ...rest } }) => (
-                                                    <div>
-                                                        {!value && !imagePreview ? (
-                                                            <label htmlFor="pokemon-image-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/50 transition-colors">
-                                                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                                                    <UploadCloud className="w-8 h-8 mb-4 text-muted-foreground" />
-                                                                    <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Nhấn để tải lên</span> hoặc kéo thả</p>
-                                                                    <p className="text-xs text-muted-foreground">PNG, JPG, WEBP (Tối đa 2MB)</p>
-                                                                </div>
-                                                                <input
-                                                                    id="pokemon-image-upload"
-                                                                    type="file"
-                                                                    className="hidden"
-                                                                    accept="image/*"
-                                                                    onChange={(e) => {
-                                                                        const file = e.target.files?.[0];
-                                                                        if (file) {
-                                                                            setSelectedFile(file);
-                                                                            if (imagePreview) URL.revokeObjectURL(imagePreview); // Dọn dẹp preview cũ
-                                                                            setImagePreview(URL.createObjectURL(file));
-                                                                        }
-                                                                    }}
-                                                                    {...rest}
-                                                                />
-                                                            </label>
-                                                        ) : (
-                                                            <div className="relative w-32 h-32">
-                                                                <img src={imagePreview || (value && typeof value === 'object' && 'size' in value ? URL.createObjectURL(value as File) : (value as string) || '')} alt="Xem trước" className="object-contain w-full h-full rounded-lg border bg-muted" />
-                                                                <Button type="button" variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6 rounded-full"
-                                                                    onClick={() => {
-                                                                        setSelectedFile(null);
-                                                                        if (imagePreview) URL.revokeObjectURL(imagePreview);
-                                                                        setImagePreview(null);
-                                                                    }}
-                                                                >
-                                                                    <Trash2 className="h-4 w-4" />
-                                                                </Button>
-                                                            </div>
-                                                        )}
-                                                        {imageInputMode === 'file' && !selectedFile && (
-                                                            <p className="text-xs text-destructive mt-1">Please select a file to upload</p>
-                                                        )}
-                                                    </div>
+                                                render={({ field: { onChange, value } }) => (
+                                                    <ImageDropzone value={value} onChange={(file) => {
+                                                        if (imagePreview) URL.revokeObjectURL(imagePreview);
+                                                        setImagePreview(file ? URL.createObjectURL(file) : null);
+                                                        onChange(file);
+                                                    }} />
                                                 )}
                                             />
                                         )}
