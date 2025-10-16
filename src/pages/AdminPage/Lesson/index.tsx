@@ -7,11 +7,12 @@ import { Badge } from "@ui/Badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@ui/Dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ui/Select"
 import { Search, Plus, Edit, Trash2, Eye, Copy } from "lucide-react"
-import { Tabs, TabsList, TabsTrigger } from "@ui/Tabs"
+import { Tabs } from "@ui/Tabs"
 import HeaderAdmin from "@organisms/Header/Admin"
 import { EnhancedPagination } from "@ui/Pagination"
 import { useLessonList } from "@hooks/useLesson"
 import { Skeleton } from "@ui/Skeleton"
+import TabListLevelJLBT from "@organisms/TabListLevelJLBT"
 
 interface LessonItem {
     id: number
@@ -37,7 +38,7 @@ const LessonsManagement = () => {
     const [sort, setSort] = useState<string>("desc")
 
     const levelJlpt = activeJlptTab === "all" ? undefined : Number(activeJlptTab)
-    const isPublished = activePublishTab === "all" ? undefined : activePublishTab === "published" ? true : false
+    const isPublished = activePublishTab === "all" ? undefined : activePublishTab === "published" ? true : activePublishTab === "draft" ? false : undefined
 
     const { data, isLoading } = useLessonList({
         page,
@@ -53,7 +54,6 @@ const LessonsManagement = () => {
     const pagination = data?.pagination
 
     console.log(lessons);
-
 
     const getPublishedBadge = (published: boolean) => (published ? "Đã xuất bản" : "Bản nháp")
 
@@ -252,92 +252,104 @@ const LessonsManagement = () => {
                     <CardContent>
                         <div className="flex items-center justify-between">
                             <Tabs value={activeJlptTab} onValueChange={setActiveJlptTab}>
-                                <TabsList className="bg-muted">
-                                    <TabsTrigger value="all" className="data-[state=active]:bg-background">Tất cả</TabsTrigger>
-                                    <TabsTrigger value="5" className="data-[state=active]:bg-background">N5</TabsTrigger>
-                                    <TabsTrigger value="4" className="data-[state=active]:bg-background">N4</TabsTrigger>
-                                    <TabsTrigger value="3" className="data-[state=active]:bg-background">N3</TabsTrigger>
-                                </TabsList>
+                                <TabListLevelJLBT />
                             </Tabs>
-                            <Tabs value={activePublishTab} onValueChange={setActivePublishTab}>
-                                <TabsList className="bg-muted">
-                                    <TabsTrigger value="all" className="data-[state=active]:bg-background">Tất cả</TabsTrigger>
-                                    <TabsTrigger value="published" className="data-[state=active]:bg-background">Xuất bản</TabsTrigger>
-                                    <TabsTrigger value="draft" className="data-[state=active]:bg-background">Bản nháp</TabsTrigger>
-                                </TabsList>
-                            </Tabs>
+                            <div className="flex items-center gap-2">
+                                <div className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground">
+                                    <Button
+                                        variant={activePublishTab === 'published' ? 'default' : 'ghost'}
+                                        className={`h-8 px-4 hover:bg-transparent ${activePublishTab === 'published' ? 'shadow-xl bg-transparent font-bold' : ''}`}
+                                        onClick={() => setActivePublishTab(activePublishTab === 'published' ? 'all' : 'published')}
+                                    >
+                                        Xuất bản
+                                    </Button>
+                                    <Button
+                                        variant={activePublishTab === 'draft' ? 'default' : 'ghost'}
+                                        className={`h-8 px-4 hover:bg-transparent ${activePublishTab === 'draft' ? 'shadow-xl bg-transparent font-bold' : ''}`}
+                                        onClick={() => setActivePublishTab(activePublishTab === 'draft' ? 'all' : 'draft')}
+                                    >
+                                        Bản nháp
+                                    </Button>
+                                </div>
+                            </div>
                         </div>
                         <div className="mt-6">
-                            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                {isLoading ? (
-                                    Array.from({ length: itemsPerPage }).map((_, idx) => (
-                                        <LessonCardSkeleton key={`skeleton-${idx}`} />
-                                    ))
-                                ) : (
-                                    lessons.map((lesson) => (
-                                        <Card key={lesson.id} className="bg-muted/50 border-border hover:border-primary/50 transition-colors">
-                                            <CardHeader>
-                                                <div className="flex items-start justify-between">
-                                                    <div className="flex-1">
-                                                        <CardTitle className="text-lg text-foreground mb-2">{lesson.titleKey}</CardTitle>
-                                                        <p className="text-sm text-muted-foreground line-clamp-2">{lesson.slug}</p>
+                            {lessons.length === 0 ? (
+                                <div className="flex justify-center items-center h-96 w-full text-center">
+                                    <p className="text-muted-foreground text-center text-2xl font-bold">Không có bài học nào</p>
+                                </div>
+                            ) : (
+                                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                    {isLoading ? (
+                                        Array.from({ length: itemsPerPage }).map((_, idx) => (
+                                            <LessonCardSkeleton key={`skeleton-${idx}`} />
+                                        ))
+                                    ) : (
+                                        lessons.map((lesson) => (
+                                            <Card key={lesson.id} className="bg-muted/50 border-border hover:border-primary/50 transition-colors">
+                                                <CardHeader>
+                                                    <div className="flex items-start justify-between">
+                                                        <div className="flex-1">
+                                                            <CardTitle className="text-lg text-foreground mb-2">{lesson.titleKey}</CardTitle>
+                                                            <p className="text-sm text-muted-foreground line-clamp-2">{lesson.slug}</p>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div className="flex gap-2 mt-3">
-                                                    <Badge className="bg-chart-1 text-white">JLPT N{lesson.levelJlpt}</Badge>
-                                                    <Badge className={lesson.isPublished ? "bg-chart-4 text-white" : "bg-muted text-muted-foreground"}>
-                                                        {getPublishedBadge(lesson.isPublished)}
-                                                    </Badge>
-                                                </div>
-                                            </CardHeader>
-                                            <CardContent>
-                                                <div className="space-y-2 text-sm text-muted-foreground mb-4">
-                                                    <div className="flex justify-between">
-                                                        <span>Thời lượng ước tính:</span>
-                                                        <span className="text-foreground font-medium">{lesson.estimatedTimeMinutes} phút</span>
+                                                    <div className="flex gap-2 mt-3">
+                                                        <Badge className="bg-chart-1 text-white">JLPT N{lesson.levelJlpt}</Badge>
+                                                        <Badge className={lesson.isPublished ? "bg-chart-4 text-white" : "bg-muted text-muted-foreground"}>
+                                                            {getPublishedBadge(lesson.isPublished)}
+                                                        </Badge>
                                                     </div>
-                                                    <div className="flex justify-between">
-                                                        <span>Thứ tự bài học:</span>
-                                                        <span className="text-foreground font-medium">{lesson.lessonOrder}</span>
+                                                </CardHeader>
+                                                <CardContent>
+                                                    <div className="space-y-2 text-sm text-muted-foreground mb-4">
+                                                        <div className="flex justify-between">
+                                                            <span>Thời lượng ước tính:</span>
+                                                            <span className="text-foreground font-medium">{lesson.estimatedTimeMinutes} phút</span>
+                                                        </div>
+                                                        <div className="flex justify-between">
+                                                            <span>Thứ tự bài học:</span>
+                                                            <span className="text-foreground font-medium">{lesson.lessonOrder}</span>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div className="flex gap-2">
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        className="flex-1 border-border text-foreground hover:bg-muted bg-transparent"
-                                                    >
-                                                        <Eye className="h-4 w-4 mr-1" />
-                                                        Xem
-                                                    </Button>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        className="flex-1 border-border text-foreground hover:bg-muted bg-transparent"
-                                                    >
-                                                        <Edit className="h-4 w-4 mr-1" />
-                                                        Sửa
-                                                    </Button>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        className="border-border text-foreground hover:bg-muted bg-transparent"
-                                                    >
-                                                        <Copy className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        className="border-destructive text-destructive hover:bg-destructive/10 bg-transparent"
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    ))
-                                )}
-                            </div>
+                                                    <div className="flex gap-2">
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="flex-1 border-border text-foreground hover:bg-muted bg-transparent"
+                                                        >
+                                                            <Eye className="h-4 w-4 mr-1" />
+                                                            Xem
+                                                        </Button>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="flex-1 border-border text-foreground hover:bg-muted bg-transparent"
+                                                        >
+                                                            <Edit className="h-4 w-4 mr-1" />
+                                                            Sửa
+                                                        </Button>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="border-border text-foreground hover:bg-muted bg-transparent"
+                                                        >
+                                                            <Copy className="h-4 w-4" />
+                                                        </Button>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="border-destructive text-destructive hover:bg-destructive/10 bg-transparent"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        ))
+                                    )}
+                                </div>
+                            )}
                             <div className="flex justify-end mt-6">
                                 {pagination && (
                                     <EnhancedPagination
