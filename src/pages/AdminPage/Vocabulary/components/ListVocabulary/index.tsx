@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@ui/Card";
 import { Button } from "@ui/Button";
 import { Input } from "@ui/Input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/Tabs";
-import { Edit, Rows, Trash2, Volume2 } from "lucide-react";
+import { Edit, Rows, Trash2, Volume2, ChevronUp, ChevronDown, ChevronsUpDown, Minus } from "lucide-react";
 import { Badge } from "@ui/Badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ui/Table";
 import { Dialog, DialogTrigger } from "@ui/Dialog";
@@ -29,11 +29,15 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
     const [activeTab, setActiveTab] = useState<string>("all");
     const [page, setPage] = useState<number>(1);
     const [itemsPerPage, setItemsPerPage] = useState<number>(15);
+    const [sortBy, setSortBy] = useState<string | undefined>(undefined);
+    const [sort, setSort] = useState<"asc" | "desc" | undefined>(undefined);
     const { data: vocabularies, isLoading } = useVocabularyList({
         page: page,
         limit: itemsPerPage,
         search: searchQuery,
         levelN: activeTab === "all" ? undefined : activeTab,
+        sortBy,
+        sort,
     });
     //--------------------------------End--------------------------------//
 
@@ -87,6 +91,20 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
      */
     const handleItemsPerPageChange = (value: string) => {
         setItemsPerPage(parseInt(value));
+        setPage(1);
+    };
+    //--------------------------------End--------------------------------//
+
+    /**
+     * Handle column sort
+     */
+    const toggleSort = (columnKey: string) => {
+        if (sortBy === columnKey) {
+            setSort(prev => (prev === "asc" ? "desc" : "asc"));
+        } else {
+            setSortBy(columnKey);
+            setSort("asc");
+        }
         setPage(1);
     };
     //--------------------------------End--------------------------------//
@@ -188,30 +206,67 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
                             <Table>
                                 <TableHeader>
                                     <TableRow className="border-gray-200 hover:bg-gray-50">
-                                        <TableHead className="text-gray-600 font-semibold">Tiếng Nhật</TableHead>
-                                        <TableHead className="text-gray-600 font-semibold">Cách đọc</TableHead>
-                                        <TableHead className="text-gray-600 font-semibold">Loại từ</TableHead>
-                                        <TableHead className="text-gray-600 font-semibold">Cấp độ</TableHead>
-                                        <TableHead className="text-gray-600 font-semibold">Media</TableHead>
-                                        <TableHead>
-                                            <div className="text-center font-semibold text-gray-600">Hành động</div>
+                                        <TableHead className="text-gray-600 font-semibold w-40">
+                                            <span className="inline-flex items-center gap-1 text-gray-600">
+                                                Tiếng Nhật
+                                                <Minus className="w-4 h-4 text-gray-300" />
+                                            </span>
+                                        </TableHead>
+                                        <TableHead className="text-gray-600 font-semibold w-36">
+                                            <span className="inline-flex items-center gap-1 text-gray-600">
+                                                Cách đọc
+                                                <Minus className="w-4 h-4 text-gray-300" />
+                                            </span>
+                                        </TableHead>
+                                        <TableHead className="text-gray-600 font-semibold w-28">
+                                            <span className="inline-flex items-center gap-1 text-gray-600">
+                                                Loại từ
+                                                <Minus className="w-4 h-4 text-gray-300" />
+                                            </span>
+                                        </TableHead>
+                                        <TableHead className="text-gray-600 font-semibold select-none w-24">
+                                            <button
+                                                className="inline-flex items-center gap-1 hover:text-gray-900"
+                                                onClick={() => toggleSort("levelN")}
+                                            >
+                                                Cấp độ
+                                                <span className="inline-block w-4 h-4">
+                                                    {sortBy === "levelN" ? (
+                                                        sort === "asc" ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
+                                                    ) : (
+                                                        <ChevronsUpDown className="w-4 h-4 text-gray-400" />
+                                                    )}
+                                                </span>
+                                            </button>
+                                        </TableHead>
+                                        <TableHead className="text-gray-600 font-semibold w-24">
+                                            <span className="inline-flex items-center gap-1 text-gray-600">
+                                                Media
+                                                <Minus className="w-4 h-4 text-gray-300" />
+                                            </span>
+                                        </TableHead>
+                                        <TableHead className="w-28">
+                                            <div className="text-center font-semibold text-gray-600 inline-flex items-center gap-1 justify-center w-full">
+                                                Hành động
+                                                <Minus className="w-4 h-4 text-gray-300" />
+                                            </div>
                                         </TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {vocabularies?.results?.map((vocab: any) => (
                                         <TableRow key={vocab.id} className="border-gray-200 hover:bg-gray-50">
-                                            <TableCell className="font-semibold text-lg text-gray-800">{vocab.wordJp}</TableCell>
-                                            <TableCell className="text-gray-500">{vocab.reading}</TableCell>
-                                            <TableCell>
+                                            <TableCell className="font-semibold text-lg text-gray-800 w-40 whitespace-nowrap">{vocab.wordJp}</TableCell>
+                                            <TableCell className="text-gray-500 w-36 whitespace-nowrap">{vocab.reading}</TableCell>
+                                            <TableCell className="w-28 whitespace-nowrap">
                                                 <Badge className={getTypeBadgeColor(vocab.wordType.name) + " font-semibold"}>
                                                     {vocab.wordType.name.charAt(0).toUpperCase() + vocab.wordType.name.slice(1)}
                                                 </Badge>
                                             </TableCell>
-                                            <TableCell>
+                                            <TableCell className="w-24 whitespace-nowrap">
                                                 <Badge className={"text-white font-semibold"}>N{vocab.levelN}</Badge>
                                             </TableCell>
-                                            <TableCell>
+                                            <TableCell className="w-24">
                                                 <div className="flex gap-2">
                                                     {vocab.audioUrl && (
                                                         <Button
@@ -225,7 +280,7 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
                                                     )}
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="flex justify-center items-center">
+                                            <TableCell className="flex justify-center items-center w-28">
                                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:bg-gray-100 rounded-full">
                                                     <Edit className="h-4 w-4" />
                                                 </Button>

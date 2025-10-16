@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ui/Select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ui/Table";
 import { Input } from "@ui/Input";
-import { Edit, Plus, Rows, Trash2 } from 'lucide-react'
+import { Edit, Plus, Rows, Trash2, ChevronUp, ChevronDown, ChevronsUpDown, Minus } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/Tabs";
 import { useKanjiListManagement, useCreateKanjiWithMeaning } from "@hooks/useKanji";
 import { useEffect, useState } from "react";
@@ -29,6 +29,8 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
     const [page, setPage] = useState<number>(1);
     const [activeTab, setActiveTab] = useState<string>("all");
     const [itemsPerPage, setItemsPerPage] = useState<number>(15);
+    const [sortBy, setSortBy] = useState<string>("id");
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
     const [searchQuery, setSearchQuery] = useState<string>("");
     //--------------------End--------------------//
 
@@ -39,8 +41,8 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
         page,
         limit: itemsPerPage,
         search: searchQuery,
-        sortOrder: "asc",
-        sortBy: "id",
+        sortOrder,
+        sortBy,
         jlptLevel: activeTab === 'all' ? undefined : activeTab,
         strokeCount: "",
     });
@@ -100,6 +102,20 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
      */
     const handleItemsPerPageChange = (value: string) => {
         setItemsPerPage(parseInt(value));
+        setPage(1);
+    };
+    //--------------------------------End--------------------------------//
+
+    /**
+     * Handle column sort
+     */
+    const toggleSort = (columnKey: string) => {
+        if (sortBy === columnKey) {
+            setSortOrder(prev => (prev === "asc" ? "desc" : "asc"));
+        } else {
+            setSortBy(columnKey);
+            setSortOrder("asc");
+        }
         setPage(1);
     };
     //--------------------------------End--------------------------------//
@@ -281,13 +297,66 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Kanji</TableHead>
-                                    <TableHead>Nghĩa</TableHead>
-                                    <TableHead>Số nét</TableHead>
-                                    <TableHead>JLPT</TableHead>
-                                    <TableHead>On'yomi</TableHead>
-                                    <TableHead>Kun'yomi</TableHead>
-                                    <TableHead className="text-right">Hành động</TableHead>
+                                    <TableHead className="w-24">
+                                        <span className="inline-flex items-center gap-1 text-gray-600">
+                                            Kanji
+                                            <Minus className="w-4 h-4 text-gray-300" />
+                                        </span>
+                                    </TableHead>
+                                    <TableHead className="w-56">
+                                        <span className="inline-flex items-center gap-1 text-gray-600">
+                                            Nghĩa
+                                            <Minus className="w-4 h-4 text-gray-300" />
+                                        </span>
+                                    </TableHead>
+                                    <TableHead className="w-28 select-none">
+                                        <button
+                                            className="inline-flex items-center gap-1 hover:text-gray-900"
+                                            onClick={() => toggleSort("strokeCount")}
+                                        >
+                                            Số nét
+                                            <span className="inline-block w-4 h-4">
+                                                {sortBy === "strokeCount" ? (
+                                                    sortOrder === "asc" ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
+                                                ) : (
+                                                    <ChevronsUpDown className="w-4 h-4 text-gray-400" />
+                                                )}
+                                            </span>
+                                        </button>
+                                    </TableHead>
+                                    <TableHead className="w-24 select-none">
+                                        <button
+                                            className="inline-flex items-center gap-1 hover:text-gray-900"
+                                            onClick={() => toggleSort("jlptLevel")}
+                                        >
+                                            JLPT
+                                            <span className="inline-block w-4 h-4">
+                                                {sortBy === "jlptLevel" ? (
+                                                    sortOrder === "asc" ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
+                                                ) : (
+                                                    <ChevronsUpDown className="w-4 h-4 text-gray-400" />
+                                                )}
+                                            </span>
+                                        </button>
+                                    </TableHead>
+                                    <TableHead className="w-40">
+                                        <span className="inline-flex items-center gap-1 text-gray-600">
+                                            On'yomi
+                                            <Minus className="w-4 h-4 text-gray-300" />
+                                        </span>
+                                    </TableHead>
+                                    <TableHead className="w-40">
+                                        <span className="inline-flex items-center gap-1 text-gray-600">
+                                            Kun'yomi
+                                            <Minus className="w-4 h-4 text-gray-300" />
+                                        </span>
+                                    </TableHead>
+                                    <TableHead className="text-right w-28">
+                                        <div className="inline-flex items-center gap-1 justify-end w-full text-gray-600">
+                                            Hành động
+                                            <Minus className="w-4 h-4 text-gray-300" />
+                                        </div>
+                                    </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -307,13 +376,13 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
                                     kanjiList?.results?.map((k: KanjiManagement) => (
                                         console.log('k', k),
                                         <TableRow key={k.id}>
-                                            <TableCell className="text-2xl font-bold">{k.kanji}</TableCell>
-                                            <TableCell>{k.meaning || ''}</TableCell>
-                                            <TableCell>{k.strokeCount || ''}</TableCell>
-                                            <TableCell><Badge className="text-white font-semibold">N{k.jlptLevel}</Badge></TableCell>
-                                            <TableCell>{k.onyomi}</TableCell>
-                                            <TableCell>{k.kunyomi}</TableCell>
-                                            <TableCell className="text-right">
+                                            <TableCell className="text-2xl font-bold w-24 whitespace-nowrap">{k.kanji}</TableCell>
+                                            <TableCell className="w-56">{k.meaning || ''}</TableCell>
+                                            <TableCell className="w-28 whitespace-nowrap">{k.strokeCount || ''}</TableCell>
+                                            <TableCell className="w-24 whitespace-nowrap"><Badge className="text-white font-semibold">N{k.jlptLevel}</Badge></TableCell>
+                                            <TableCell className="w-40">{k.onyomi}</TableCell>
+                                            <TableCell className="w-40">{k.kunyomi}</TableCell>
+                                            <TableCell className="text-right w-28">
                                                 <Button variant="ghost" size="icon"><Edit className="w-4 h-4" /></Button>
                                                 <Button variant="ghost" size="icon"><Trash2 className="w-4 h-4 text-red-500" /></Button>
                                             </TableCell>
