@@ -1,5 +1,7 @@
 import { axiosPrivate } from "@configs/axios";
 import { IQueryRequest } from "@models/common/request";
+import { ICreateLessonRequest } from "@models/lesson/request";
+
 
 const lessonService = {
     getLessonList: async ({
@@ -36,6 +38,9 @@ const lessonService = {
         });
 
         return axiosPrivate.get(`/lessons?${queryParams.toString()}`);
+    },
+    createLesson: async (data: ICreateLessonRequest) => {
+        return axiosPrivate.post("/lessons", data);
     },
 };
 

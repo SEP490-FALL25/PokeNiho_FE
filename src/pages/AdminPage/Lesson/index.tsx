@@ -2,17 +2,17 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/Card"
 import { Button } from "@ui/Button"
 import { Input } from "@ui/Input"
-import { Textarea } from "@ui/Textarea"
 import { Badge } from "@ui/Badge"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@ui/Dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ui/Select"
+import { Dialog, DialogTrigger } from "@ui/Dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ui/Select";
 import { Search, Plus, Edit, Trash2, Eye, Copy } from "lucide-react"
-import { Tabs } from "@ui/Tabs"
+import { Tabs } from "@ui/Tabs";
 import HeaderAdmin from "@organisms/Header/Admin"
 import { EnhancedPagination } from "@ui/Pagination"
 import { useLessonList } from "@hooks/useLesson"
 import { Skeleton } from "@ui/Skeleton"
 import TabListLevelJLBT from "@organisms/TabListLevelJLBT"
+import CreateLesson from "./CreateLesson"
 
 interface LessonItem {
     id: number
@@ -145,75 +145,12 @@ const LessonsManagement = () => {
                             <CardTitle className="text-foreground">Danh sách bài học</CardTitle>
                             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
                                 <DialogTrigger asChild>
-                                    <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                                    <Button className="bg-primary text-white hover:bg-primary/90 rounded-full shadow-md transition-transform transform hover:scale-105">
                                         <Plus className="h-4 w-4 mr-2" />
                                         Thêm bài học
                                     </Button>
                                 </DialogTrigger>
-                                <DialogContent className="bg-card border-border max-w-2xl">
-                                    <DialogHeader>
-                                        <DialogTitle className="text-foreground">Thêm bài học mới</DialogTitle>
-                                    </DialogHeader>
-                                    <div className="space-y-4 py-4">
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-foreground">Tiêu đề bài học</label>
-                                            <Input placeholder="Nhập tiêu đề" className="bg-background border-border text-foreground" />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-foreground">Mô tả</label>
-                                            <Textarea
-                                                placeholder="Nhập mô tả bài học"
-                                                className="bg-background border-border text-foreground min-h-[100px]"
-                                            />
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <label className="text-sm font-medium text-foreground">Cấp độ</label>
-                                                <Select>
-                                                    <SelectTrigger className="bg-background border-border text-foreground">
-                                                        <SelectValue placeholder="Chọn cấp độ" />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="bg-card border-border">
-                                                        <SelectItem value="beginner">Cơ bản</SelectItem>
-                                                        <SelectItem value="intermediate">Trung cấp</SelectItem>
-                                                        <SelectItem value="advanced">Nâng cao</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-sm font-medium text-foreground">Danh mục</label>
-                                                <Select>
-                                                    <SelectTrigger className="bg-background border-border text-foreground">
-                                                        <SelectValue placeholder="Chọn danh mục" />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="bg-card border-border">
-                                                        <SelectItem value="alphabet">Chữ cái</SelectItem>
-                                                        <SelectItem value="kanji">Kanji</SelectItem>
-                                                        <SelectItem value="grammar">Ngữ pháp</SelectItem>
-                                                        <SelectItem value="conversation">Hội thoại</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-foreground">Thời lượng (phút)</label>
-                                            <Input type="number" placeholder="30" className="bg-background border-border text-foreground" />
-                                        </div>
-                                    </div>
-                                    <div className="flex justify-end gap-3">
-                                        <Button
-                                            variant="outline"
-                                            onClick={() => setIsAddDialogOpen(false)}
-                                            className="border-border text-foreground"
-                                        >
-                                            Hủy
-                                        </Button>
-                                        <Button variant="outline" className="border-border text-foreground bg-transparent">
-                                            Lưu nháp
-                                        </Button>
-                                        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">Xuất bản</Button>
-                                    </div>
-                                </DialogContent>
+                                <CreateLesson setIsAddDialogOpen={setIsAddDialogOpen} />
                             </Dialog>
                         </div>
                         <div className="mt-4 flex items-center gap-4">
