@@ -79,22 +79,7 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
      * @param level 
      * @returns 
      */
-    const getLevelBadgeColor = (level: number) => {
-        switch (level) {
-            case 5:
-                return "bg-green-200 text-white";
-            case 4:
-                return "bg-blue-200 text-white";
-            case 3:
-                return "bg-yellow-200 text-white";
-            case 2:
-                return "bg-purple-200 text-white";
-            case 1:
-                return "bg-red-200 text-white";
-            default:
-                return "bg-gray-200 text-white";
-        }
-    };
+
     //--------------------------------End--------------------------------//
 
     /**
@@ -118,7 +103,9 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
                     <TableHead className="text-gray-600 font-semibold">Loại từ</TableHead>
                     <TableHead className="text-gray-600 font-semibold">Cấp độ</TableHead>
                     <TableHead className="text-gray-600 font-semibold">Media</TableHead>
-                    <TableHead className="text-gray-600 font-semibold">Hành động</TableHead>
+                    <TableHead>
+                        <div className="text-center font-semibold text-gray-600">Hành động</div>
+                    </TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -140,7 +127,7 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
                             <Skeleton className="h-8 w-8 rounded-full" />
                         </TableCell>
                         <TableCell className="text-right">
-                            <div className="flex justify-end gap-2">
+                            <div className="flex justify-center gap-2">
                                 <Skeleton className="h-8 w-8 rounded-full" />
                                 <Skeleton className="h-8 w-8 rounded-full" />
                             </div>
@@ -153,7 +140,7 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
 
     return (
         <Card className="bg-white shadow-lg">
-            <CardHeader>
+            <CardHeader className="pb-0">
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-2xl font-bold text-gray-800">Danh sách từ vựng</CardTitle>
                 </div>
@@ -184,13 +171,13 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
                         <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-full px-4 py-1.5 text-sm font-semibold transition-colors">
                             Tất cả
                         </TabsTrigger>
-                        <TabsTrigger value="N5" className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-full px-4 py-1.5 text-sm font-semibold transition-colors">
+                        <TabsTrigger value="5" className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-full px-4 py-1.5 text-sm font-semibold transition-colors">
                             N5
                         </TabsTrigger>
-                        <TabsTrigger value="N4" className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-full px-4 py-1.5 text-sm font-semibold transition-colors">
+                        <TabsTrigger value="4" className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-full px-4 py-1.5 text-sm font-semibold transition-colors">
                             N4
                         </TabsTrigger>
-                        <TabsTrigger value="N3" className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-full px-4 py-1.5 text-sm font-semibold transition-colors">
+                        <TabsTrigger value="3" className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-full px-4 py-1.5 text-sm font-semibold transition-colors">
                             N3
                         </TabsTrigger>
                     </TabsList>
@@ -206,7 +193,9 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
                                         <TableHead className="text-gray-600 font-semibold">Loại từ</TableHead>
                                         <TableHead className="text-gray-600 font-semibold">Cấp độ</TableHead>
                                         <TableHead className="text-gray-600 font-semibold">Media</TableHead>
-                                        <TableHead className="text-gray-600 font-semibold">Hành động</TableHead>
+                                        <TableHead>
+                                            <div className="text-center font-semibold text-gray-600">Hành động</div>
+                                        </TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -220,7 +209,7 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
                                                 </Badge>
                                             </TableCell>
                                             <TableCell>
-                                                <Badge className={getLevelBadgeColor(vocab.levelN) + " font-semibold"}>N{vocab.levelN}</Badge>
+                                                <Badge className={"text-white font-semibold"}>N{vocab.levelN}</Badge>
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex gap-2">
@@ -236,15 +225,13 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
                                                     )}
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:bg-gray-100 rounded-full">
-                                                        <Edit className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:bg-red-100 rounded-full">
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
+                                            <TableCell className="flex justify-center items-center">
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:bg-gray-100 rounded-full">
+                                                    <Edit className="h-4 w-4" />
+                                                </Button>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:bg-red-100 rounded-full">
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
                                             </TableCell>
                                         </TableRow>
                                     ))}

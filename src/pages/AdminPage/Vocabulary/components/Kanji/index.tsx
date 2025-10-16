@@ -27,7 +27,9 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
      * Pagination
      */
     const [page, setPage] = useState<number>(1);
+    const [activeTab, setActiveTab] = useState<string>("all");
     const [itemsPerPage, setItemsPerPage] = useState<number>(15);
+    const [searchQuery, setSearchQuery] = useState<string>("");
     //--------------------End--------------------//
 
     /**
@@ -36,10 +38,10 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
     const { data, isLoading } = useKanjiListManagement({
         page,
         limit: itemsPerPage,
-        search: "",
+        search: searchQuery,
         sortOrder: "asc",
         sortBy: "id",
-        jlptLevel: "",
+        jlptLevel: activeTab === 'all' ? undefined : activeTab,
         strokeCount: "",
     });
 
@@ -107,6 +109,18 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-2xl font-bold text-gray-800">Quản lý Kanji</CardTitle>
+                </div>
+
+                <div className="flex items-center justify-between mt-2">
+                    <div className="mt-4 pb-4 flex-1 mr-4 focus:ring-primary focus:ring-2">
+                        <Input
+                            placeholder="Tìm kiếm Kanji..."
+                            value={searchQuery}
+                            isSearch
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
+
                     <Dialog open={isAddKanjiDialogOpen} onOpenChange={setIsAddKanjiDialogOpen}>
                         <DialogTrigger asChild>
                             <Button className="bg-primary text-white hover:bg-primary/90 rounded-full shadow-md transition-transform transform hover:scale-105">
@@ -166,6 +180,12 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
                                         </TabsContent>
 
                                         <TabsContent value="readings">
+                                            <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-lg p-1">
+                                                <TabsTrigger value="all" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-primary rounded-md">Tất cả</TabsTrigger>
+                                                <TabsTrigger value="5" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-primary rounded-md">N5</TabsTrigger>
+                                                <TabsTrigger value="4" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-primary rounded-md">N4</TabsTrigger>
+                                                <TabsTrigger value="3" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-primary rounded-md">N3</TabsTrigger>
+                                            </TabsList>
                                             <Card className="border-none shadow-none">
                                                 <CardContent className="space-y-6 pt-6">
                                                     {/* Readings (combined onyomi/kunyomi) */}
@@ -242,50 +262,68 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
                 </div>
             </CardHeader>
             <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Kanji</TableHead>
-                            <TableHead>Nghĩa</TableHead>
-                            <TableHead>Số nét</TableHead>
-                            <TableHead>JLPT</TableHead>
-                            <TableHead>On'yomi</TableHead>
-                            <TableHead>Kun'yomi</TableHead>
-                            <TableHead className="text-right">Hành động</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {isLoading ? (
-                            Array.from({ length: kanjiList?.pagination?.pageSize || itemsPerPage }).map((_, i) => (
-                                <TableRow key={`skeleton-${i}`}>
-                                    <TableCell className="py-4"><Skeleton className="h-6 w-10" /></TableCell>
-                                    <TableCell className="py-4"><Skeleton className="h-6 w-40" /></TableCell>
-                                    <TableCell className="py-4"><Skeleton className="h-6 w-14" /></TableCell>
-                                    <TableCell className="py-4"><Skeleton className="h-6 w-12" /></TableCell>
-                                    <TableCell className="py-4"><Skeleton className="h-6 w-32" /></TableCell>
-                                    <TableCell className="py-4"><Skeleton className="h-6 w-32" /></TableCell>
-                                    <TableCell className="py-4 text-right"><Skeleton className="h-6 w-16 ml-auto" /></TableCell>
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                    <TabsList className="bg-gray-100 p-1 rounded-full">
+                        <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-full px-4 py-1.5 text-sm font-semibold transition-colors">
+                            Tất cả
+                        </TabsTrigger>
+                        <TabsTrigger value="5" className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-full px-4 py-1.5 text-sm font-semibold transition-colors">
+                            N5
+                        </TabsTrigger>
+                        <TabsTrigger value="4" className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-full px-4 py-1.5 text-sm font-semibold transition-colors">
+                            N4
+                        </TabsTrigger>
+                        <TabsTrigger value="3" className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-full px-4 py-1.5 text-sm font-semibold transition-colors">
+                            N3
+                        </TabsTrigger>
+                    </TabsList>
+                    <TabsContent value={activeTab} className="mt-6">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Kanji</TableHead>
+                                    <TableHead>Nghĩa</TableHead>
+                                    <TableHead>Số nét</TableHead>
+                                    <TableHead>JLPT</TableHead>
+                                    <TableHead>On'yomi</TableHead>
+                                    <TableHead>Kun'yomi</TableHead>
+                                    <TableHead className="text-right">Hành động</TableHead>
                                 </TableRow>
-                            ))
-                        ) : (
-                            kanjiList?.results?.map((k: KanjiManagement) => (
-                                console.log('k', k),
-                                <TableRow key={k.id}>
-                                    <TableCell className="text-2xl font-bold">{k.kanji}</TableCell>
-                                    <TableCell>{k.meaning || ''}</TableCell>
-                                    <TableCell>{k.strokeCount || ''}</TableCell>
-                                    <TableCell><Badge>N{k.jlptLevel}</Badge></TableCell>
-                                    <TableCell>{k.onyomi}</TableCell>
-                                    <TableCell>{k.kunyomi}</TableCell>
-                                    <TableCell className="text-right">
-                                        <Button variant="ghost" size="icon"><Edit className="w-4 h-4" /></Button>
-                                        <Button variant="ghost" size="icon"><Trash2 className="w-4 h-4 text-red-500" /></Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
+                            </TableHeader>
+                            <TableBody>
+                                {isLoading ? (
+                                    Array.from({ length: kanjiList?.pagination?.pageSize || itemsPerPage }).map((_, i) => (
+                                        <TableRow key={`skeleton-${i}`}>
+                                            <TableCell className="py-4"><Skeleton className="h-6 w-10" /></TableCell>
+                                            <TableCell className="py-4"><Skeleton className="h-6 w-40" /></TableCell>
+                                            <TableCell className="py-4"><Skeleton className="h-6 w-14" /></TableCell>
+                                            <TableCell className="py-4"><Skeleton className="h-6 w-12" /></TableCell>
+                                            <TableCell className="py-4"><Skeleton className="h-6 w-32" /></TableCell>
+                                            <TableCell className="py-4"><Skeleton className="h-6 w-32" /></TableCell>
+                                            <TableCell className="py-4 text-right"><Skeleton className="h-6 w-16 ml-auto" /></TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    kanjiList?.results?.map((k: KanjiManagement) => (
+                                        console.log('k', k),
+                                        <TableRow key={k.id}>
+                                            <TableCell className="text-2xl font-bold">{k.kanji}</TableCell>
+                                            <TableCell>{k.meaning || ''}</TableCell>
+                                            <TableCell>{k.strokeCount || ''}</TableCell>
+                                            <TableCell><Badge className="text-white font-semibold">N{k.jlptLevel}</Badge></TableCell>
+                                            <TableCell>{k.onyomi}</TableCell>
+                                            <TableCell>{k.kunyomi}</TableCell>
+                                            <TableCell className="text-right">
+                                                <Button variant="ghost" size="icon"><Edit className="w-4 h-4" /></Button>
+                                                <Button variant="ghost" size="icon"><Trash2 className="w-4 h-4 text-red-500" /></Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
+                            </TableBody>
+                        </Table>
+                    </TabsContent>
+                </Tabs>
 
             </CardContent>
             <CardFooter className="flex justify-between">
