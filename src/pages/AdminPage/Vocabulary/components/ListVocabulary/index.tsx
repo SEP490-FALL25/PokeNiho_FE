@@ -215,8 +215,8 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
                                             <TableCell className="font-semibold text-lg text-gray-800">{vocab.wordJp}</TableCell>
                                             <TableCell className="text-gray-500">{vocab.reading}</TableCell>
                                             <TableCell>
-                                                <Badge className={getTypeBadgeColor(vocab.type) + " font-semibold"}>
-                                                    {/* {vocab.type.charAt(0).toUpperCase() + vocab.type.slice(1)} */}
+                                                <Badge className={getTypeBadgeColor(vocab.wordType.name) + " font-semibold"}>
+                                                    {vocab.wordType.name.charAt(0).toUpperCase() + vocab.wordType.name.slice(1)}
                                                 </Badge>
                                             </TableCell>
                                             <TableCell>

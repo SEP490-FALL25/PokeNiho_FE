@@ -43,6 +43,9 @@ const vocabularyService = {
 
         return axiosPrivate.get(`/vocabulary?${queryParams.toString()}`);
     },
+    getStatistics: async () => {
+        return axiosPrivate.get('/vocabulary/statistics');
+    }
 };
 
 export default vocabularyService;

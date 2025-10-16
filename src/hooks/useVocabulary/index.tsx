@@ -17,3 +17,17 @@ export const useVocabularyList = (params: IQueryRequest) => {
 
     return { data: data?.data?.data, isLoading, error };
 };
+
+
+/**
+ * hanlde Vocabulary Statistics
+ * @returns 
+ */
+export const useVocabularyStatistics = () => {
+    const { data, isLoading, error } = useQuery({
+        queryKey: ['vocabulary-statistics'],
+        queryFn: () => vocabularyService.getStatistics(),
+    });
+    return { data: data?.data?.data, isLoading, error };
+};
+//--------------------------------End--------------------------------//

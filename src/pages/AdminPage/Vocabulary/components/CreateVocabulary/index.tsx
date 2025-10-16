@@ -17,38 +17,11 @@ import { Plus, Trash2, Languages, UploadCloud } from 'lucide-react';
 import { cn } from '@utils/CN';
 import ImageDropzone from '@ui/ImageDropzone/ImageDropzone';
 import AudioDropzone from '@ui/AudioDropzone';
+import { useWordTypeList } from '@hooks/useWordType';
 
 interface CreateVocabularyProps {
     setIsAddDialogOpen: (value: boolean) => void;
 }
-
-const WORD_TYPES = [
-    { id: 1, label: 'Noun' },
-    { id: 2, label: 'Pronoun' },
-    { id: 3, label: 'Particle' },
-    { id: 4, label: 'Adverb' },
-    { id: 5, label: 'Conjunction' },
-    { id: 6, label: 'Interjection' },
-    { id: 7, label: 'Numeral' },
-    { id: 8, label: 'Counter' },
-    { id: 9, label: 'Prefix' },
-    { id: 10, label: 'Suffix' },
-    { id: 11, label: 'I-adjective' },
-    { id: 12, label: 'Na-adjective' },
-    { id: 13, label: 'No-adjective' },
-    { id: 14, label: 'Verb (Ichidan)' },
-    { id: 15, label: 'Verb (Godan)' },
-    { id: 16, label: 'Verb (Irregular)' },
-    { id: 17, label: 'Verb (Suru)' },
-    { id: 18, label: 'Verb (Kuru)' },
-    { id: 19, label: 'Verb forms (19-31)' },
-    { id: 32, label: 'Onomatopoeia' },
-    { id: 33, label: 'Mimetic word' },
-    { id: 34, label: 'Honorific' },
-    { id: 35, label: 'Humble' },
-    { id: 36, label: 'Polite' },
-    { id: 37, label: 'Casual' },
-];
 
 const LANGUAGE_OPTIONS = [
     { code: 'vi', label: 'Tiếng Việt (vi)' },
@@ -57,6 +30,8 @@ const LANGUAGE_OPTIONS = [
 ];
 
 const CreateVocabulary = ({ setIsAddDialogOpen }: CreateVocabularyProps) => {
+    const { data: wordTypesData } = useWordTypeList({ page: 1, limit: 100 });
+
     // Form setup
     // Keep form type broad to avoid resolver generic mismatch; Zod will validate and transform
     const { control, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<any>({
@@ -136,6 +111,8 @@ const CreateVocabulary = ({ setIsAddDialogOpen }: CreateVocabularyProps) => {
     });
 
     const onSubmit = async (data: ICreateVocabularyFullMultipartType) => {
+        console.log('data', data);
+        
         setIsSubmitting(true);
         try {
             // Ensure files are passed along (service builds FormData)
@@ -287,7 +264,7 @@ const CreateVocabulary = ({ setIsAddDialogOpen }: CreateVocabularyProps) => {
                                                 render={({ field }) => (
                                                     <div className="flex flex-col gap-2">
                                                         <label htmlFor="level_n">Cấp độ JLPT</label>
-                                                        <Select onValueChange={field.onChange} defaultValue={field.value as unknown as string}>
+                                                        <Select onValueChange={field.onChange} value={String(field.value)}>
                                                             <SelectTrigger>
                                                                 <SelectValue placeholder="Chọn cấp độ (N5 → N1)" />
                                                             </SelectTrigger>
@@ -310,13 +287,13 @@ const CreateVocabulary = ({ setIsAddDialogOpen }: CreateVocabularyProps) => {
                                                 render={({ field }) => (
                                                     <div className="flex flex-col gap-2">
                                                         <label htmlFor="word_type_id">Loại từ</label>
-                                                        <Select onValueChange={field.onChange} defaultValue={field.value as unknown as string}>
+                                                        <Select onValueChange={field.onChange} value={String(field.value)}>
                                                             <SelectTrigger>
                                                                 <SelectValue placeholder="Chọn loại từ" />
                                                             </SelectTrigger>
                                                             <SelectContent>
-                                                                {WORD_TYPES.map((t) => (
-                                                                    <SelectItem key={t.id} value={String(t.id)}>{t.label} ({t.id})</SelectItem>
+                                                                {wordTypesData?.results?.map((t: any) => (
+                                                                    <SelectItem key={t.id} value={String(t.id)}>{t.name}</SelectItem>
                                                                 ))}
                                                             </SelectContent>
                                                         </Select>
