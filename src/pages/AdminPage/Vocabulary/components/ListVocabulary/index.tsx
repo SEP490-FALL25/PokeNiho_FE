@@ -2,7 +2,7 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@ui/Card";
 import { Button } from "@ui/Button";
 import { Input } from "@ui/Input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/Tabs";
+import { Tabs, TabsContent } from "@ui/Tabs";
 import { Edit, Rows, Trash2, Volume2, ChevronUp, ChevronDown, ChevronsUpDown, Minus } from "lucide-react";
 import { Badge } from "@ui/Badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ui/Table";
@@ -14,6 +14,7 @@ import { EnhancedPagination } from "@ui/Pagination";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ui/Select";
 import { Skeleton } from "@ui/Skeleton";
+import TabListLevelJLBT from "@organisms/TabListLevelJLBT";
 
 interface Vocabulary {
     isAddVocabularyDialogOpen: boolean;
@@ -127,7 +128,7 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {Array.from({ length: itemsPerPage }).map((_, index) => (
+                {Array.from({ length: vocabularies?.pagination?.pageSize || itemsPerPage }).map((_, index) => (
                     <TableRow key={index} className="border-gray-200 hover:bg-gray-50">
                         <TableCell>
                             <Skeleton className="h-6 w-24" />
@@ -159,7 +160,7 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
     return (
         <Card className="bg-white shadow-lg">
             <CardHeader className="pb-0">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mt-2">
                     <CardTitle className="text-2xl font-bold text-gray-800">Danh sách từ vựng</CardTitle>
                 </div>
 
@@ -175,8 +176,8 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
 
                     <Dialog open={isAddVocabularyDialogOpen} onOpenChange={setIsAddVocabularyDialogOpen}>
                         <DialogTrigger asChild>
-                            <Button className="bg-primary text-white hover:bg-primary/90">
-                                <Plus className="h-4 w-4" /> Thêm
+                            <Button className="bg-primary text-white hover:bg-primary/90 rounded-full shadow-md transition-transform transform hover:scale-105">
+                                <Plus className="h-5 w-5 mr-2" /> Thêm mới
                             </Button>
                         </DialogTrigger>
                         <CreateVocabulary setIsAddDialogOpen={setIsAddVocabularyDialogOpen} />
@@ -185,20 +186,8 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
             </CardHeader>
             <CardContent>
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
-                    <TabsList className="bg-gray-100 p-1 rounded-full">
-                        <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-full px-4 py-1.5 text-sm font-semibold transition-colors">
-                            Tất cả
-                        </TabsTrigger>
-                        <TabsTrigger value="5" className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-full px-4 py-1.5 text-sm font-semibold transition-colors">
-                            N5
-                        </TabsTrigger>
-                        <TabsTrigger value="4" className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-full px-4 py-1.5 text-sm font-semibold transition-colors">
-                            N4
-                        </TabsTrigger>
-                        <TabsTrigger value="3" className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-full px-4 py-1.5 text-sm font-semibold transition-colors">
-                            N3
-                        </TabsTrigger>
-                    </TabsList>
+                    <TabListLevelJLBT />
+
                     <TabsContent value={activeTab} className="mt-6">
                         {isLoading ? (
                             <VocabularySkeleton />
@@ -245,8 +234,8 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
                                                 <Minus className="w-4 h-4 text-gray-300" />
                                             </span>
                                         </TableHead>
-                                        <TableHead className="w-28">
-                                            <div className="text-center font-semibold text-gray-600 inline-flex items-center gap-1 justify-center w-full">
+                                        <TableHead className="text-right w-28">
+                                            <div className="inline-flex items-center gap-1 justify-end w-full text-gray-600 font-semibold">
                                                 Hành động
                                                 <Minus className="w-4 h-4 text-gray-300" />
                                             </div>
@@ -280,12 +269,12 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
                                                     )}
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="flex justify-center items-center w-28">
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:bg-gray-100 rounded-full">
+                                            <TableCell className="text-right w-28">
+                                                <Button variant="ghost" size="icon">
                                                     <Edit className="h-4 w-4" />
                                                 </Button>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:bg-red-100 rounded-full">
-                                                    <Trash2 className="h-4 w-4" />
+                                                <Button variant="ghost" size="icon">
+                                                    <Trash2 className="h-4 w-4 text-red-500" />
                                                 </Button>
                                             </TableCell>
                                         </TableRow>
@@ -299,7 +288,7 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
 
             <CardFooter className="flex justify-between">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Select value={String(itemsPerPage)} onValueChange={handleItemsPerPageChange}>
+                    <Select value={String(vocabularies?.pagination?.pageSize || itemsPerPage)} onValueChange={handleItemsPerPageChange}>
                         <SelectTrigger className="w-[100px] bg-background border-border text-foreground h-9">
                             <Rows className="h-4 w-4 mr-2" />
                             <SelectValue />

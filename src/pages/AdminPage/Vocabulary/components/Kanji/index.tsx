@@ -15,6 +15,7 @@ import { Skeleton } from "@ui/Skeleton";
 import { Controller, useForm, useFieldArray } from "react-hook-form";
 import { IKanjiWithMeaningRequest } from "@models/kanji/request";
 import { toast } from "react-toastify";
+import TabListLevelJLBT from "@organisms/TabListLevelJLBT";
 
 interface KanjiVocabulary {
     isAddKanjiDialogOpen: boolean;
@@ -122,7 +123,7 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
 
     return (
         <Card className="shadow-lg bg-white">
-            <CardHeader>
+            <CardHeader className="pb-0">
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-2xl font-bold text-gray-800">Quản lý Kanji</CardTitle>
                 </div>
@@ -196,12 +197,7 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
                                         </TabsContent>
 
                                         <TabsContent value="readings">
-                                            <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-lg p-1">
-                                                <TabsTrigger value="all" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-primary rounded-md">Tất cả</TabsTrigger>
-                                                <TabsTrigger value="5" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-primary rounded-md">N5</TabsTrigger>
-                                                <TabsTrigger value="4" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-primary rounded-md">N4</TabsTrigger>
-                                                <TabsTrigger value="3" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-primary rounded-md">N3</TabsTrigger>
-                                            </TabsList>
+                                            <TabListLevelJLBT />
                                             <Card className="border-none shadow-none">
                                                 <CardContent className="space-y-6 pt-6">
                                                     {/* Readings (combined onyomi/kunyomi) */}
@@ -279,20 +275,7 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
             </CardHeader>
             <CardContent>
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
-                    <TabsList className="bg-gray-100 p-1 rounded-full">
-                        <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-full px-4 py-1.5 text-sm font-semibold transition-colors">
-                            Tất cả
-                        </TabsTrigger>
-                        <TabsTrigger value="5" className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-full px-4 py-1.5 text-sm font-semibold transition-colors">
-                            N5
-                        </TabsTrigger>
-                        <TabsTrigger value="4" className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-full px-4 py-1.5 text-sm font-semibold transition-colors">
-                            N4
-                        </TabsTrigger>
-                        <TabsTrigger value="3" className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-full px-4 py-1.5 text-sm font-semibold transition-colors">
-                            N3
-                        </TabsTrigger>
-                    </TabsList>
+                    <TabListLevelJLBT />
                     <TabsContent value={activeTab} className="mt-6">
                         <Table>
                             <TableHeader>

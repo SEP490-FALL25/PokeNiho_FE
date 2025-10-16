@@ -27,10 +27,10 @@ interface LessonItem {
 }
 
 const LessonsManagement = () => {
-    const [searchQuery, setSearchQuery] = useState("")
-    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-    const [activeJlptTab, setActiveJlptTab] = useState("all")
-    const [activePublishTab, setActivePublishTab] = useState("all")
+    const [searchQuery, setSearchQuery] = useState<string>("")
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false)
+    const [activeJlptTab, setActiveJlptTab] = useState<string>("all")
+    const [activePublishTab, setActivePublishTab] = useState<string>("all")
     const [page, setPage] = useState<number>(1)
     const [itemsPerPage] = useState<number>(10)
     const [sortBy, setSortBy] = useState<string>("createdAt")
@@ -54,9 +54,6 @@ const LessonsManagement = () => {
 
     console.log(lessons);
 
-    // removed unused getLevelBadgeColor
-
-    // removed unused getStatusBadgeColor
 
     const getPublishedBadge = (published: boolean) => (published ? "Đã xuất bản" : "Bản nháp")
 
@@ -237,11 +234,7 @@ const LessonsManagement = () => {
                                     <SelectContent className="bg-card border-border">
                                         <SelectItem value="createdAt">Ngày tạo</SelectItem>
                                         <SelectItem value="updatedAt">Ngày cập nhật</SelectItem>
-                                        <SelectItem value="slug">Slug</SelectItem>
                                         <SelectItem value="titleKey">Tiêu đề</SelectItem>
-                                        <SelectItem value="levelJlpt">JLPT</SelectItem>
-                                        <SelectItem value="lessonOrder">Thứ tự</SelectItem>
-                                        <SelectItem value="isPublished">Xuất bản</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <Select value={sort} onValueChange={setSort}>
