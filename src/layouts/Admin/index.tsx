@@ -1,7 +1,8 @@
 import { Outlet, useLocation, NavLink } from "react-router-dom";
 import {
     LayoutDashboard, Users, BookOpen, Languages, BarChart3,
-    Settings, LogOut, Menu, Trophy, Package, Brain
+    Settings, LogOut, Menu, Trophy, Package, Brain,
+    Calendar
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@ui/Button";
@@ -22,6 +23,7 @@ const AdminLayout = () => {
         { name: "Gói dịch vụ", href: ROUTES.ADMIN.PACKAGE_MANAGEMENT, icon: Package },
         { name: "AI Prompts", href: ROUTES.ADMIN.AI_PROMPTS_MANAGEMENT, icon: Brain },
         { name: "Thống kê", href: ROUTES.ADMIN.ANALYTICS, icon: BarChart3 },
+        { name: "Quản lý thống kê hàng ngày", href: ROUTES.ADMIN.DAILY_QUEST_MANAGEMENT, icon: Calendar },
     ];
 
     return (
