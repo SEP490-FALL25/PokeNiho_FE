@@ -22,7 +22,6 @@ const SortableTableHeader = ({
 }: SortableTableHeaderProps) => {
     const isActive = currentSortBy === sortKey;
     const isAsc = currentSort === "asc";
-    const isDesc = currentSort === "desc";
 
     const handleClick = () => {
         if (sortable && sortKey && onSort) {
@@ -50,7 +49,7 @@ const SortableTableHeader = ({
         return (
             <TableHead className={`${className} select-none`}>
                 <button
-                    className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
+                    className="inline-flex items-center gap-1 hover:bg-gray-200 hover:font-bold p-2 rounded-md transition-colors cursor-pointer"
                     onClick={handleClick}
                 >
                     {title}

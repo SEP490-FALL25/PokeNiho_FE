@@ -52,7 +52,7 @@
         "title": "Daily Quest Management",
         "description": "View, add, edit, delete daily quests",
         "addQuest": "Add Quest",
-        "searchPlaceholder": "Search quests (name, type, reward...)",
+        "searchPlaceholder": "Search quests by name",
         "questName": "Quest Name",
         "conditionType": "Condition Type",
         "conditionValue": "Value",
@@ -99,6 +99,8 @@
         "rewardRequired": "Please select reward.",
         "nameRequiredVi": "Please enter quest name (Vietnamese).",
         "descriptionRequiredVi": "Please enter quest description (Vietnamese).",
+        "taskNamePlaceholder": "Task name ({{lang}})",
+        "descriptionPlaceholder": "Task description ({{lang}})",
         "languages": {
             "vi": "Vietnamese",
             "en": "English",

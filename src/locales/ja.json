@@ -52,7 +52,7 @@
         "title": "デイリークエスト管理",
         "description": "デイリークエストの表示、追加、編集、削除",
         "addQuest": "クエスト追加",
-        "searchPlaceholder": "クエストを検索（名前、タイプ、報酬...）",
+        "searchPlaceholder": "クエスト名を検索",
         "questName": "クエスト名",
         "conditionType": "条件タイプ",
         "conditionValue": "値",
@@ -99,6 +99,8 @@
         "rewardRequired": "報酬を選択してください。",
         "nameRequiredVi": "クエスト名（ベトナム語）を入力してください。",
         "descriptionRequiredVi": "クエスト説明（ベトナム語）を入力してください。",
+        "taskNamePlaceholder": "タスク名 ({{lang}})",
+        "descriptionPlaceholder": "クエスト説明 ({{lang}})",
         "languages": {
             "vi": "ベトナム語",
             "en": "英語",

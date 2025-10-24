@@ -52,7 +52,7 @@
         "title": "Quản lý Nhiệm vụ hàng ngày",
         "description": "Xem, thêm, sửa, xóa các nhiệm vụ hàng ngày",
         "addQuest": "Thêm Nhiệm vụ",
-        "searchPlaceholder": "Tìm kiếm nhiệm vụ (tên, loại, phần thưởng...)",
+        "searchPlaceholder": "Tìm kiếm nhiệm vụ theo tên",
         "questName": "Tên Nhiệm vụ",
         "conditionType": "Loại điều kiện",
         "conditionValue": "Giá trị",
@@ -99,6 +99,8 @@
         "rewardRequired": "Vui lòng chọn phần thưởng.",
         "nameRequiredVi": "Vui lòng nhập tên nhiệm vụ (Tiếng Việt).",
         "descriptionRequiredVi": "Vui lòng nhập mô tả nhiệm vụ (Tiếng Việt).",
+        "taskNamePlaceholder": "Tên nhiệm vụ ({{lang}})",
+        "descriptionPlaceholder": "Mô tả nhiệm vụ ({{lang}})",
         "languages": {
             "vi": "Tiếng Việt",
             "en": "Tiếng Anh",
