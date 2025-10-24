@@ -1,4 +1,4 @@
-import { ChevronDown, Filter } from "lucide-react";
+import { ChevronDown, Filter, ChevronUp, ChevronsUpDown, Minus } from "lucide-react";
 import { TableHead } from "@ui/Table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ui/Select";
 import { Input } from "@ui/Input";
@@ -16,6 +16,12 @@ interface FilterableTableHeaderProps {
     onFilterChange?: (value: string) => void;
     placeholder?: string;
     className?: string;
+    // Sort props
+    sortable?: boolean;
+    sortKey?: string;
+    currentSortBy?: string;
+    currentSort?: "asc" | "desc";
+    onSort?: (sortKey: string) => void;
 }
 
 const FilterableTableHeader = ({
@@ -25,8 +31,38 @@ const FilterableTableHeader = ({
     filterValue = '',
     onFilterChange,
     placeholder,
-    className = "text-muted-foreground"
+    className = "text-muted-foreground",
+    sortable = false,
+    sortKey,
+    currentSortBy,
+    currentSort,
+    onSort
 }: FilterableTableHeaderProps) => {
+    const renderSortIcon = () => {
+        if (!sortable) {
+            return <Minus className="w-4 h-4 text-gray-300" />;
+        }
+
+        const isActive = currentSortBy === sortKey;
+        const isAsc = currentSort === "asc";
+
+        if (isActive) {
+            return isAsc ? (
+                <ChevronUp className="w-4 h-4" />
+            ) : (
+                <ChevronDown className="w-4 h-4" />
+            );
+        }
+
+        return <ChevronsUpDown className="w-4 h-4 text-gray-400" />;
+    };
+
+    const handleSortClick = () => {
+        if (sortable && sortKey && onSort) {
+            onSort(sortKey);
+        }
+    };
+
     const renderFilter = () => {
         if (filterType === 'select' && filterOptions.length > 0) {
             return (
@@ -64,7 +100,21 @@ const FilterableTableHeader = ({
     return (
         <TableHead className={className}>
             <div className="flex flex-col gap-1">
-                <span className="text-sm font-medium">{title}</span>
+                <div className="flex items-center justify-between">
+                    {sortable && sortKey ? (
+                        <button
+                            className="inline-flex items-center gap-1 hover:text-foreground transition-colors text-sm font-medium"
+                            onClick={handleSortClick}
+                        >
+                            {title}
+                            <span className="inline-block w-4 h-4">
+                                {renderSortIcon()}
+                            </span>
+                        </button>
+                    ) : (
+                        <span className="text-sm font-medium">{title}</span>
+                    )}
+                </div>
                 {filterType !== 'none' && (
                     <div className="w-full">
                         {renderFilter()}

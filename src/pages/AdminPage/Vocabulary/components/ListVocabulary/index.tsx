@@ -3,16 +3,15 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@ui/Card";
 import { Button } from "@ui/Button";
 import { Input } from "@ui/Input";
 import { Tabs, TabsContent } from "@ui/Tabs";
-import { Edit, Rows, Trash2, Volume2, ChevronUp, ChevronDown, ChevronsUpDown, Minus } from "lucide-react";
+import { Edit, Trash2, Volume2, ChevronUp, ChevronDown, ChevronsUpDown, Minus } from "lucide-react";
 import { Badge } from "@ui/Badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ui/Table";
 import { Dialog, DialogTrigger } from "@ui/Dialog";
 import { Plus } from "lucide-react";
 import CreateVocabulary from "../CreateVocabulary";
 import { useVocabularyList } from "@hooks/useVocabulary";
-import { EnhancedPagination } from "@ui/Pagination";
+import PaginationControls from "@ui/PaginationControls";
 import { useState } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ui/Select";
 import { Skeleton } from "@ui/Skeleton";
 import TabListLevelJLBT from "@organisms/TabListLevelJLBT";
 
@@ -87,13 +86,6 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
 
     //--------------------------------End--------------------------------//
 
-    /**
-     * Handle items per page change
-     */
-    const handleItemsPerPageChange = (value: string) => {
-        setItemsPerPage(parseInt(value));
-        setPage(1);
-    };
     //--------------------------------End--------------------------------//
 
     /**
@@ -286,29 +278,16 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
                 </Tabs>
             </CardContent>
 
-            <CardFooter className="flex justify-between">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Select value={String(vocabularies?.pagination?.pageSize || itemsPerPage)} onValueChange={handleItemsPerPageChange}>
-                        <SelectTrigger className="w-[100px] bg-background border-border text-foreground h-9">
-                            <Rows className="h-4 w-4 mr-2" />
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-card border-border">
-                            {[15, 30, 45, 60].map(size => (
-                                <SelectItem key={size} value={String(size)}>{size} / trang</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-                {!isLoading && vocabularies?.pagination && (
-                    <EnhancedPagination
-                        currentPage={vocabularies.pagination.current || 1}
-                        totalPages={vocabularies.pagination.totalPage || 0}
-                        totalItems={vocabularies.pagination.totalItem || 0}
-                        itemsPerPage={vocabularies.pagination.pageSize || 0}
-                        onPageChange={(nextPage: number) => { setPage(nextPage); }}
-                    />
-                )}
+            <CardFooter>
+                <PaginationControls
+                    currentPage={vocabularies?.pagination?.current || 1}
+                    totalPages={vocabularies?.pagination?.totalPage || 1}
+                    totalItems={vocabularies?.pagination?.totalItem || 0}
+                    itemsPerPage={vocabularies?.pagination?.pageSize || itemsPerPage}
+                    onPageChange={setPage}
+                    onItemsPerPageChange={setItemsPerPage}
+                    isLoading={isLoading}
+                />
             </CardFooter>
         </Card>
     )

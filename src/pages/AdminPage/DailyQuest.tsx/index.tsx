@@ -4,8 +4,9 @@ import { Button } from "@ui/Button";
 import { Input } from "@ui/Input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ui/Table";
 import { Badge } from "@ui/Badge";
-import { Search, Plus, Edit, Trash2, MoreVertical } from "lucide-react";
+import { Plus, Edit, Trash2, MoreVertical, Search, Filter } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@ui/DropdownMenu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ui/Select";
 import HeaderAdmin from "@organisms/Header/Admin";
 import { toast } from "react-toastify";
 import { cn } from "@utils/CN";
@@ -13,7 +14,7 @@ import CreateDailyQuestDialog from "./CreateDailyQuest";
 import { useTranslation } from "react-i18next";
 import { useGetDailyRequestList } from "@hooks/useDailyRequest";
 import PaginationControls from "@ui/PaginationControls";
-import FilterableTableHeader from "@ui/FilterableTableHeader";
+import SortableTableHeader from "@ui/SortableTableHeader";
 
 // --- Định nghĩa kiểu dữ liệu từ API ---
 interface DailyQuest {
@@ -54,28 +55,50 @@ const DailyQuestManagement = () => {
     const [itemsPerPage, setItemsPerPage] = useState(15);
     const [statusFilter, setStatusFilter] = useState("all");
     const [typeFilter, setTypeFilter] = useState("all");
+    const [streakFilter, setStreakFilter] = useState("all");
+    const [rewardFilter, setRewardFilter] = useState("all");
+    const [sortBy, setSortBy] = useState<string | undefined>("id");
+    const [sort, setSort] = useState<"asc" | "desc" | undefined>("desc");
 
     const { data: dailyRequestList, isLoading } = useGetDailyRequestList({
         page: currentPage,
         limit: itemsPerPage,
-        sortBy: "createdAt",
-        sort: "desc",
-        search: searchQuery || undefined,
+        sortBy,
+        sort,
+        nameTranslation: searchQuery || undefined,
+        dailyRequestType: typeFilter !== "all" ? typeFilter : undefined,
+        isActive: statusFilter !== "all" ? statusFilter === "active" : undefined,
+        isStreak: streakFilter !== "all" ? streakFilter === "true" : undefined,
+        rewardId: rewardFilter !== "all" ? parseInt(rewardFilter) : undefined,
     });
 
     // Filter options
     const statusOptions = [
-        { value: "all", label: t('common.all') },
+        { value: "all", label: t('dailyQuest.allStatuses') },
         { value: "active", label: t('common.active') },
         { value: "inactive", label: t('common.inactive') }
     ];
 
     const typeOptions = [
-        { value: "all", label: t('common.all') },
+        { value: "all", label: t('dailyQuest.allTypes') },
         { value: "DAILY_LOGIN", label: "Daily Login" },
         { value: "STREAK_LOGIN", label: "Streak Login" },
         { value: "COMPLETE_LESSON", label: "Complete Lesson" },
         { value: "VOCABULARY_PRACTICE", label: "Vocabulary Practice" }
+    ];
+
+    const streakOptions = [
+        { value: "all", label: t('dailyQuest.allStreaks') },
+        { value: "true", label: t('dailyQuest.hasStreak') },
+        { value: "false", label: t('dailyQuest.noStreak') }
+    ];
+
+    const rewardOptions = [
+        { value: "all", label: t('dailyQuest.allRewards') },
+        { value: "1", label: "Gem x10" },
+        { value: "2", label: "Exp x50" },
+        { value: "3", label: "Stamina Refill S" },
+        { value: "4", label: "Vé Quay x1" }
     ];
 
     const handleDelete = async (questId: number) => {
@@ -99,6 +122,16 @@ const DailyQuestManagement = () => {
             case "VOCABULARY_PRACTICE": return "Vocabulary Practice";
             default: return type;
         }
+    };
+
+    const handleSort = (columnKey: string) => {
+        if (sortBy === columnKey) {
+            setSort(prev => (prev === "asc" ? "desc" : "asc"));
+        } else {
+            setSortBy(columnKey);
+            setSort("asc");
+        }
+        setCurrentPage(1);
     };
 
 
@@ -128,18 +161,85 @@ const DailyQuestManagement = () => {
                                 {t('dailyQuest.addQuest')}
                             </Button>
                         </div>
-                        <div className="mt-4">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                <Input
-                                    placeholder={t('dailyQuest.searchPlaceholder')}
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="pl-10 bg-background border-border text-foreground"
-                                />
+                    </CardHeader>
+
+                    {/* Filter Section */}
+                    <div className="px-6 py-4 border-b border-border bg-muted/20">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            {/* Search */}
+                            <div className="lg:col-span-2">
+                                <div className="relative">
+                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                    <Input
+                                        placeholder={t('dailyQuest.searchPlaceholder')}
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="pl-10 bg-background border-border text-foreground"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Filters Grid */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                                    <SelectTrigger className="w-full bg-background border-border text-foreground">
+                                        <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
+                                        <SelectValue placeholder={t('dailyQuest.filterByType')} />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-card border-border">
+                                        {typeOptions.map((option) => (
+                                            <SelectItem key={option.value} value={option.value}>
+                                                {option.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+
+                                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                    <SelectTrigger className="w-full bg-background border-border text-foreground">
+                                        <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
+                                        <SelectValue placeholder={t('dailyQuest.filterByStatus')} />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-card border-border">
+                                        {statusOptions.map((option) => (
+                                            <SelectItem key={option.value} value={option.value}>
+                                                {option.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+
+                                <Select value={streakFilter} onValueChange={setStreakFilter}>
+                                    <SelectTrigger className="w-full bg-background border-border text-foreground">
+                                        <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
+                                        <SelectValue placeholder={t('dailyQuest.filterByStreak')} />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-card border-border">
+                                        {streakOptions.map((option) => (
+                                            <SelectItem key={option.value} value={option.value}>
+                                                {option.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+
+                                <Select value={rewardFilter} onValueChange={setRewardFilter}>
+                                    <SelectTrigger className="w-full bg-background border-border text-foreground">
+                                        <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
+                                        <SelectValue placeholder={t('dailyQuest.filterByReward')} />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-card border-border">
+                                        {rewardOptions.map((option) => (
+                                            <SelectItem key={option.value} value={option.value}>
+                                                {option.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                         </div>
-                    </CardHeader>
+                    </div>
+
                     <CardContent>
                         {isLoading ? (
                             <p>{t('common.loading')}</p>
@@ -147,28 +247,40 @@ const DailyQuestManagement = () => {
                             <Table>
                                 <TableHeader>
                                     <TableRow className="border-border hover:bg-muted/50">
-                                        <FilterableTableHeader
+                                        <SortableTableHeader
                                             title={t('common.name')}
-                                            filterType="input"
-                                            filterValue={searchQuery}
-                                            onFilterChange={setSearchQuery}
-                                            placeholder={t('dailyQuest.searchPlaceholder')}
+                                            sortKey="nameTranslation"
+                                            currentSortBy={sortBy}
+                                            currentSort={sort}
+                                            onSort={handleSort}
                                         />
-                                        <FilterableTableHeader
+                                        <SortableTableHeader
                                             title={t('common.condition') + ' ' + t('common.type')}
-                                            filterType="select"
-                                            filterOptions={typeOptions}
-                                            filterValue={typeFilter}
-                                            onFilterChange={setTypeFilter}
+                                            sortKey="dailyRequestType"
+                                            currentSortBy={sortBy}
+                                            currentSort={sort}
+                                            onSort={handleSort}
                                         />
-                                        <TableHead className="text-muted-foreground">{t('common.value')}</TableHead>
-                                        <TableHead className="text-muted-foreground">{t('common.reward')}</TableHead>
-                                        <FilterableTableHeader
+                                        <SortableTableHeader
+                                            title={t('common.value')}
+                                            sortKey="conditionValue"
+                                            currentSortBy={sortBy}
+                                            currentSort={sort}
+                                            onSort={handleSort}
+                                        />
+                                        <SortableTableHeader
+                                            title={t('common.reward')}
+                                            sortKey="rewardId"
+                                            currentSortBy={sortBy}
+                                            currentSort={sort}
+                                            onSort={handleSort}
+                                        />
+                                        <SortableTableHeader
                                             title={t('common.status')}
-                                            filterType="select"
-                                            filterOptions={statusOptions}
-                                            filterValue={statusFilter}
-                                            onFilterChange={setStatusFilter}
+                                            sortKey="isActive"
+                                            currentSortBy={sortBy}
+                                            currentSort={sort}
+                                            onSort={handleSort}
                                         />
                                         <TableHead className="text-muted-foreground text-right">{t('common.actions')}</TableHead>
                                     </TableRow>
