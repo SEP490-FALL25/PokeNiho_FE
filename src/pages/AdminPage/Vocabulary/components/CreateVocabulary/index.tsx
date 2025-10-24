@@ -18,6 +18,7 @@ import { cn } from '@utils/CN';
 import ImageDropzone from '@ui/ImageDropzone/ImageDropzone';
 import AudioDropzone from '@ui/AudioDropzone';
 import { useWordTypeList } from '@hooks/useWordType';
+import { useTranslation } from 'react-i18next';
 
 interface CreateVocabularyProps {
     setIsAddDialogOpen: (value: boolean) => void;
@@ -30,6 +31,7 @@ const LANGUAGE_OPTIONS = [
 ];
 
 const CreateVocabulary = ({ setIsAddDialogOpen }: CreateVocabularyProps) => {
+    const { t } = useTranslation();
     const { data: wordTypesData } = useWordTypeList({ page: 1, limit: 100 });
 
     // Form setup
@@ -90,7 +92,7 @@ const CreateVocabulary = ({ setIsAddDialogOpen }: CreateVocabularyProps) => {
             reset();
             setIsAddDialogOpen(false);
             setIsSubmitting(false);
-            toast.success('Tạo từ vựng thành công.');
+            toast.success(t('createVocabulary.createSuccess'));
         },
         onError: (error: any) => {
             setIsSubmitting(false);
@@ -100,19 +102,19 @@ const CreateVocabulary = ({ setIsAddDialogOpen }: CreateVocabularyProps) => {
             if (error.response?.status === 422) {
                 const messages = error.response?.data?.message;
                 if (Array.isArray(messages)) {
-                    toast.error(`Validation errors: ${messages.join(', ')}`);
+                    toast.error(`${t('createVocabulary.validationErrors')}: ${messages.join(', ')}`);
                 } else {
-                    toast.error(messages || 'Validation error');
+                    toast.error(messages || t('createVocabulary.validationError'));
                 }
             } else {
-                toast.error(error.response?.data?.message || 'Đã có lỗi xảy ra.');
+                toast.error(error.response?.data?.message || t('createVocabulary.generalError'));
             }
         }
     });
 
     const onSubmit = async (data: ICreateVocabularyFullMultipartType) => {
         console.log('data', data);
-        
+
         setIsSubmitting(true);
         try {
             // Ensure files are passed along (service builds FormData)
@@ -127,7 +129,7 @@ const CreateVocabulary = ({ setIsAddDialogOpen }: CreateVocabularyProps) => {
         } catch (error: any) {
             setIsSubmitting(false);
             console.error('Unexpected error:', error);
-            toast.error(error.response?.data?.message || 'Đã có lỗi xảy ra.');
+            toast.error(error.response?.data?.message || t('createVocabulary.generalError'));
         }
     };
 

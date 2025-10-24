@@ -13,9 +13,11 @@ import { usePokemonList } from "@hooks/usePokemon";
 import { useElementalTypeList } from "@hooks/useElemental";
 import { RarityPokemon } from "@constants/pokemon";
 import CreatePokemon from "./components/CreatePokemon";
+import { useTranslation } from "react-i18next";
 
 
 export default function PokemonManagement() {
+    const { t } = useTranslation();
     const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
 
 
@@ -119,14 +121,14 @@ export default function PokemonManagement() {
 
     return (
         <>
-            <HeaderAdmin title="Quản lý Pokémon" description="Quản lý tất cả Pokémon trong hệ thống" />
+            <HeaderAdmin title={t('pokemon.title')} description={t('pokemon.description')} />
             <div className="p-8 mt-24">
                 <Card className="bg-card border-border">
                     <CardHeader>
                         <div className="flex items-center justify-between gap-2 w-full md:w-auto">
                             <div className="flex-1">
                                 <Input
-                                    placeholder="Tìm kiếm..."
+                                    placeholder={t('pokemon.searchPlaceholder')}
                                     value={searchQuery}
                                     onChange={handleSearchChange}
                                     isSearch
@@ -136,12 +138,12 @@ export default function PokemonManagement() {
                                 <Select value={selectedType} onValueChange={handleTypeChange}>
                                     <SelectTrigger className="bg-background border-border text-foreground w-full md:w-auto">
                                         <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
-                                        <SelectValue placeholder="Lọc theo hệ" />
+                                        <SelectValue placeholder={t('pokemon.filterByType')} />
                                     </SelectTrigger>
                                     <SelectContent className="bg-card border-border">
-                                        <SelectItem value="all">Tất cả hệ</SelectItem>
+                                        <SelectItem value="all">{t('pokemon.allTypes')}</SelectItem>
                                         {isTypesLoading ? (
-                                            <SelectItem value="loading" disabled>Đang tải...</SelectItem>
+                                            <SelectItem value="loading" disabled>{t('common.loading')}</SelectItem>
                                         ) : (
                                             typesData?.results.map((type: any) => (
                                                 <SelectItem key={type.id} value={type.type_name}>
@@ -157,10 +159,10 @@ export default function PokemonManagement() {
                                 <Select value={selectedRarity} onValueChange={handleRarityChange}>
                                     <SelectTrigger className="bg-background border-border text-foreground w-full md:w-auto">
                                         <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
-                                        <SelectValue placeholder="Lọc theo độ hiếm" />
+                                        <SelectValue placeholder={t('pokemon.filterByRarity')} />
                                     </SelectTrigger>
                                     <SelectContent className="bg-card border-border">
-                                        <SelectItem value="all">Tất cả độ hiếm</SelectItem>
+                                        <SelectItem value="all">{t('pokemon.allRarities')}</SelectItem>
                                         {Object.values(RarityPokemon).map((rarity: string) => (
                                             <SelectItem key={rarity} value={rarity}>{rarity}</SelectItem>
                                         ))}
@@ -205,8 +207,8 @@ export default function PokemonManagement() {
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground h-8 w-8"><MoreVertical className="h-4 w-4" /></Button></DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end" className="bg-card border-border">
-                                                        <DropdownMenuItem className="text-foreground hover:bg-muted cursor-pointer"><Edit className="h-4 w-4 mr-2" /> Chỉnh sửa</DropdownMenuItem>
-                                                        <DropdownMenuItem className="text-destructive hover:bg-destructive/10 cursor-pointer"><Trash2 className="h-4 w-4 mr-2" /> Xóa</DropdownMenuItem>
+                                                        <DropdownMenuItem className="text-foreground hover:bg-muted cursor-pointer"><Edit className="h-4 w-4 mr-2" /> {t('common.edit')}</DropdownMenuItem>
+                                                        <DropdownMenuItem className="text-destructive hover:bg-destructive/10 cursor-pointer"><Trash2 className="h-4 w-4 mr-2" /> {t('common.delete')}</DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
                                             </div>

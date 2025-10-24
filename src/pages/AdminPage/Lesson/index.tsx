@@ -13,6 +13,7 @@ import { useLessonList } from "@hooks/useLesson"
 import { Skeleton } from "@ui/Skeleton"
 import TabListLevelJLBT from "@organisms/TabListLevelJLBT"
 import CreateLesson from "./CreateLesson"
+import { useTranslation } from "react-i18next"
 
 interface LessonItem {
     id: number
@@ -28,6 +29,7 @@ interface LessonItem {
 }
 
 const LessonsManagement = () => {
+    const { t } = useTranslation();
     const [searchQuery, setSearchQuery] = useState<string>("")
     const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false)
     const [activeJlptTab, setActiveJlptTab] = useState<string>("all")
@@ -55,7 +57,7 @@ const LessonsManagement = () => {
 
     console.log(lessons);
 
-    const getPublishedBadge = (published: boolean) => (published ? "Đã xuất bản" : "Bản nháp")
+    const getPublishedBadge = (published: boolean) => (published ? t('lesson.published') : t('lesson.draft'))
 
     /**
      * Skeleton component for loading state
@@ -99,14 +101,14 @@ const LessonsManagement = () => {
     return (
         <>
             {/* Header */}
-            <HeaderAdmin title="Quản lý bài học" description="Quản lý tất cả bài học và khóa học trong hệ thống" />
+            <HeaderAdmin title={t('lesson.title')} description={t('lesson.description')} />
 
             <div className="mt-24 p-8">
                 {/* Stats Cards */}
                 <div className="grid gap-6 md:grid-cols-4 mb-8">
                     <Card className="bg-card border-border">
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">Tổng bài học</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">{t('lesson.totalLessons')}</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="text-3xl font-bold text-foreground">156</div>
@@ -114,7 +116,7 @@ const LessonsManagement = () => {
                     </Card>
                     <Card className="bg-card border-border">
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">Đã xuất bản</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">{t('lesson.published')}</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="text-3xl font-bold text-foreground">142</div>
@@ -122,7 +124,7 @@ const LessonsManagement = () => {
                     </Card>
                     <Card className="bg-card border-border">
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">Bản nháp</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">{t('lesson.draft')}</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="text-3xl font-bold text-foreground">14</div>
@@ -130,7 +132,7 @@ const LessonsManagement = () => {
                     </Card>
                     <Card className="bg-card border-border">
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">Tổng học viên</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">{t('lesson.totalStudents')}</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="text-3xl font-bold text-foreground">5,920</div>
@@ -142,12 +144,12 @@ const LessonsManagement = () => {
                 <Card className="bg-card border-border">
                     <CardHeader>
                         <div className="flex items-center justify-between">
-                            <CardTitle className="text-foreground">Danh sách bài học</CardTitle>
+                            <CardTitle className="text-foreground">{t('lesson.lessonList')}</CardTitle>
                             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
                                 <DialogTrigger asChild>
                                     <Button className="bg-primary text-white hover:bg-primary/90 rounded-full shadow-md transition-transform transform hover:scale-105">
                                         <Plus className="h-4 w-4 mr-2" />
-                                        Thêm bài học
+                                        {t('lesson.addLesson')}
                                     </Button>
                                 </DialogTrigger>
                                 <CreateLesson setIsAddDialogOpen={setIsAddDialogOpen} />
@@ -157,7 +159,7 @@ const LessonsManagement = () => {
                             <div className="relative flex-1">
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                 <Input
-                                    placeholder="Tìm kiếm bài học..."
+                                    placeholder={t('lesson.searchPlaceholder')}
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="pl-10 bg-background border-border text-foreground"
@@ -169,9 +171,9 @@ const LessonsManagement = () => {
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent className="bg-card border-border">
-                                        <SelectItem value="createdAt">Ngày tạo</SelectItem>
-                                        <SelectItem value="updatedAt">Ngày cập nhật</SelectItem>
-                                        <SelectItem value="titleKey">Tiêu đề</SelectItem>
+                                        <SelectItem value="createdAt">{t('lesson.createdAt')}</SelectItem>
+                                        <SelectItem value="updatedAt">{t('lesson.updatedAt')}</SelectItem>
+                                        <SelectItem value="titleKey">{t('lesson.title')}</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <Select value={sort} onValueChange={setSort}>
@@ -179,8 +181,8 @@ const LessonsManagement = () => {
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent className="bg-card border-border">
-                                        <SelectItem value="asc">Tăng dần</SelectItem>
-                                        <SelectItem value="desc">Giảm dần</SelectItem>
+                                        <SelectItem value="asc">{t('lesson.ascending')}</SelectItem>
+                                        <SelectItem value="desc">{t('lesson.descending')}</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -198,14 +200,14 @@ const LessonsManagement = () => {
                                         className={`h-8 px-4 hover:bg-transparent ${activePublishTab === 'published' ? 'shadow-xl bg-transparent font-bold' : ''}`}
                                         onClick={() => setActivePublishTab(activePublishTab === 'published' ? 'all' : 'published')}
                                     >
-                                        Xuất bản
+                                        {t('lesson.published')}
                                     </Button>
                                     <Button
                                         variant={activePublishTab === 'draft' ? 'default' : 'ghost'}
                                         className={`h-8 px-4 hover:bg-transparent ${activePublishTab === 'draft' ? 'shadow-xl bg-transparent font-bold' : ''}`}
                                         onClick={() => setActivePublishTab(activePublishTab === 'draft' ? 'all' : 'draft')}
                                     >
-                                        Bản nháp
+                                        {t('lesson.draft')}
                                     </Button>
                                 </div>
                             </div>
@@ -213,7 +215,7 @@ const LessonsManagement = () => {
                         <div className="mt-6">
                             {lessons.length === 0 ? (
                                 <div className="flex justify-center items-center h-96 w-full text-center">
-                                    <p className="text-muted-foreground text-center text-2xl font-bold">Không có bài học nào</p>
+                                    <p className="text-muted-foreground text-center text-2xl font-bold">{t('lesson.noLessons')}</p>
                                 </div>
                             ) : (
                                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -241,11 +243,11 @@ const LessonsManagement = () => {
                                                 <CardContent>
                                                     <div className="space-y-2 text-sm text-muted-foreground mb-4">
                                                         <div className="flex justify-between">
-                                                            <span>Thời lượng ước tính:</span>
+                                                            <span>{t('lesson.estimatedTime')}:</span>
                                                             <span className="text-foreground font-medium">{lesson.estimatedTimeMinutes} phút</span>
                                                         </div>
                                                         <div className="flex justify-between">
-                                                            <span>Thứ tự bài học:</span>
+                                                            <span>{t('lesson.lessonOrder')}:</span>
                                                             <span className="text-foreground font-medium">{lesson.lessonOrder}</span>
                                                         </div>
                                                     </div>
@@ -256,7 +258,7 @@ const LessonsManagement = () => {
                                                             className="flex-1 border-border text-foreground hover:bg-muted bg-transparent"
                                                         >
                                                             <Eye className="h-4 w-4 mr-1" />
-                                                            Xem
+                                                            {t('common.view')}
                                                         </Button>
                                                         <Button
                                                             variant="outline"
@@ -264,7 +266,7 @@ const LessonsManagement = () => {
                                                             className="flex-1 border-border text-foreground hover:bg-muted bg-transparent"
                                                         >
                                                             <Edit className="h-4 w-4 mr-1" />
-                                                            Sửa
+                                                            {t('common.edit')}
                                                         </Button>
                                                         <Button
                                                             variant="outline"

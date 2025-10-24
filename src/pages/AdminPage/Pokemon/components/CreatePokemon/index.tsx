@@ -17,6 +17,7 @@ import pokemonService from '@services/pokemon';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import ImageDropzone from '@ui/ImageDropzone/ImageDropzone';
+import { useTranslation } from 'react-i18next';
 
 interface CreatePokemonProps {
     isAddDialogOpen: boolean;
@@ -25,6 +26,7 @@ interface CreatePokemonProps {
 }
 
 const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, typesData }: CreatePokemonProps) => {
+    const { t } = useTranslation();
 
     /**
      * Handle form
@@ -58,7 +60,7 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, typesData }: Creat
             setSelectedFile(null);
             setImagePreview(null);
             setIsSubmitting(false);
-            toast.success("Tạo Pokémon thành công.");
+            toast.success(t('createPokemon.createSuccess'));
         },
         onError: (error: any) => {
             setIsSubmitting(false);
@@ -69,12 +71,12 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, typesData }: Creat
             if (error.response?.status === 422) {
                 const messages = error.response?.data.message;
                 if (Array.isArray(messages)) {
-                    toast.error(`Validation errors: ${messages.join(', ')}`);
+                    toast.error(`${t('createPokemon.validationErrors')}: ${messages.join(', ')}`);
                 } else {
-                    toast.error(messages || "Validation error");
+                    toast.error(messages || t('createPokemon.validationError'));
                 }
             } else {
-                toast.error(error.response?.data?.message || "Đã có lỗi xảy ra.");
+                toast.error(error.response?.data?.message || t('createPokemon.generalError'));
             }
         }
     });
@@ -91,7 +93,7 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, typesData }: Creat
             if (creationMode === 'manual') {
                 if (imageInputMode === 'file') {
                     if (!selectedFile) {
-                        toast.error('Vui lòng chọn file để tải lên');
+                        toast.error(t('createPokemon.selectFile'));
                         setIsSubmitting(false);
                         return;
                     }
@@ -99,7 +101,7 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, typesData }: Creat
 
                 if (imageInputMode === 'url') {
                     if (!data.imageUrl) {
-                        toast.error('Vui lòng nhập URL hình ảnh');
+                        toast.error(t('createPokemon.imageUrlRequired'));
                         setIsSubmitting(false);
                         return;
                     }
@@ -107,19 +109,19 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, typesData }: Creat
                     try {
                         new URL(data.imageUrl);
                     } catch {
-                        toast.error('URL không hợp lệ');
+                        toast.error(t('createPokemon.invalidUrl'));
                         setIsSubmitting(false);
                         return;
                     }
                 }
             } else if (creationMode === 'import') {
                 if (!selectedFile) {
-                    toast.error('Vui lòng chọn file để import');
+                    toast.error(t('createPokemon.selectFileImport'));
                     setIsSubmitting(false);
                     return;
                 }
                 // TODO: Handle file import logic here
-                toast.error('Chức năng import từ file đang được phát triển');
+                toast.error(t('createPokemon.importFeatureDevelopment'));
                 setIsSubmitting(false);
                 return;
             }
@@ -180,7 +182,7 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, typesData }: Creat
         } catch (error: any) {
             setIsSubmitting(false);
             console.error('Unexpected error:', error);
-            toast.error(error.response?.data?.message || "Đã có lỗi xảy ra.");
+            toast.error(error.response?.data?.message || t('createPokemon.generalError'));
         }
     };
     //-----------------------End-----------------------//
@@ -190,12 +192,12 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, typesData }: Creat
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
                 <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-                    <Plus className="h-4 w-4 mr-2" /> Thêm
+                    <Plus className="h-4 w-4 mr-2" /> {t('common.add')}
                 </Button>
             </DialogTrigger>
             <DialogContent className="bg-white border-border max-w-4xl">
                 <DialogHeader>
-                    <DialogTitle className="text-foreground text-2xl">Thêm Pokémon mới</DialogTitle>
+                    <DialogTitle className="text-foreground text-2xl">{t('createPokemon.addNewPokemon')}</DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-4 max-h-[70vh] overflow-y-auto pr-6">
@@ -215,7 +217,7 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, typesData }: Creat
                                 onClick={() => setCreationMode('manual')}
                             >
                                 <Plus className="h-4 w-4 mr-2" />
-                                Tạo thủ công
+                                {t('createPokemon.manualCreate')}
                             </Button>
                             <Button
                                 type="button"
@@ -230,7 +232,7 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, typesData }: Creat
                                 onClick={() => setCreationMode('import')}
                             >
                                 <UploadCloud className="h-4 w-4 mr-2" />
-                                Import từ file
+                                {t('createPokemon.importFromFile')}
                             </Button>
                         </div>
                     </div>
@@ -239,27 +241,27 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, typesData }: Creat
                         /* Manual Creation Mode */
                         <div className="space-y-6">
                             <div className="text-center mb-6">
-                                <h3 className="text-lg font-semibold text-foreground mb-2">Tạo Pokémon thủ công</h3>
-                                <p className="text-sm text-muted-foreground">Nhập thông tin chi tiết để tạo Pokémon mới</p>
+                                <h3 className="text-lg font-semibold text-foreground mb-2">{t('createPokemon.manualCreateTitle')}</h3>
+                                <p className="text-sm text-muted-foreground">{t('createPokemon.manualCreateDescription')}</p>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                                 {/* Left Column */}
                                 <div className="space-y-4">
-                                    <Controller name="pokedex_number" control={control} render={({ field }) => <Input label="Pokedex Number" type="number" placeholder="eg: 25" error={errors.pokedex_number?.message} {...field} />} />
-                                    <Controller name="nameTranslations.ja" control={control} render={({ field }) => <Input label="Tên (tiếng Nhật)" placeholder="ピカチュウ" error={errors.nameTranslations?.ja?.message} {...field} />} />
-                                    <Controller name="nameTranslations.en" control={control} render={({ field }) => <Input label="Tên (tiếng Anh)" placeholder="Pikachu" error={errors.nameTranslations?.en?.message} {...field} />} />
-                                    <Controller name="nameTranslations.vi" control={control} render={({ field }) => <Input label="Tên (tiếng Việt)" placeholder="Pikachu" error={errors.nameTranslations?.vi?.message} {...field} />} />
+                                    <Controller name="pokedex_number" control={control} render={({ field }) => <Input label={t('createPokemon.pokedexNumber')} type="number" placeholder={t('createPokemon.pokedexNumberPlaceholder')} error={errors.pokedex_number?.message} {...field} />} />
+                                    <Controller name="nameTranslations.ja" control={control} render={({ field }) => <Input label={t('createPokemon.nameJapanese')} placeholder="ピカチュウ" error={errors.nameTranslations?.ja?.message} {...field} />} />
+                                    <Controller name="nameTranslations.en" control={control} render={({ field }) => <Input label={t('createPokemon.nameEnglish')} placeholder="Pikachu" error={errors.nameTranslations?.en?.message} {...field} />} />
+                                    <Controller name="nameTranslations.vi" control={control} render={({ field }) => <Input label={t('createPokemon.nameVietnamese')} placeholder="Pikachu" error={errors.nameTranslations?.vi?.message} {...field} />} />
 
                                     <div>
                                         <div className="flex items-center gap-4 mb-2">
-                                            <label className='text-sm font-medium'>Hình ảnh</label>
+                                            <label className='text-sm font-medium'>{t('createPokemon.image')}</label>
                                             <div className="flex w-fit items-center gap-1 rounded-full bg-muted p-1">
                                                 <Button type="button" variant="ghost" size="sm" onClick={() => setImageInputMode('url')} className={cn("rounded-full px-4 py-1 h-auto text-sm transition-colors duration-200", imageInputMode === 'url' ? "bg-white text-foreground shadow-sm" : "bg-transparent text-muted-foreground hover:text-foreground")}>
                                                     <UploadCloud className="h-4 w-4 mr-2" /> URL
                                                 </Button>
                                                 <Button type="button" variant="ghost" size="sm" onClick={() => setImageInputMode('file')} className={cn("rounded-full px-4 py-1 h-auto text-sm transition-colors duration-200", imageInputMode === 'file' ? "bg-white text-foreground shadow-sm" : "bg-transparent text-muted-foreground hover:text-foreground")}>
-                                                    <UploadCloud className="h-4 w-4 mr-2" /> Tải lên
+                                                    <UploadCloud className="h-4 w-4 mr-2" /> {t('createPokemon.upload')}
                                                 </Button>
                                             </div>
                                         </div>
@@ -286,9 +288,9 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, typesData }: Creat
                                 <div className="space-y-4">
                                     <Controller name="rarity" control={control} render={({ field }) => (
                                         <div className="flex flex-col gap-2">
-                                            <label htmlFor="rarity">Độ hiếm</label>
+                                            <label htmlFor="rarity">{t('createPokemon.rarity')}</label>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <SelectTrigger><SelectValue placeholder="Chọn độ hiếm" /></SelectTrigger>
+                                                <SelectTrigger><SelectValue placeholder={t('createPokemon.selectRarity')} /></SelectTrigger>
                                                 <SelectContent>{Object.values(RarityPokemon).map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
                                             </Select>
                                             {errors.rarity && <p className="text-xs text-destructive mt-1">{errors.rarity.message}</p>}
@@ -301,7 +303,7 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, typesData }: Creat
 
                                         return (
                                             <div className="flex flex-col gap-2">
-                                                <label htmlFor="typeIds">Hệ (chọn tối đa 2)</label>
+                                                <label htmlFor="typeIds">{t('createPokemon.types')}</label>
                                                 <div className="grid grid-cols-3 gap-2 p-2 border rounded-md max-h-40 overflow-y-auto">
                                                     {typesData?.results?.map((type: any) => {
                                                         const isDisabled = !isTypeSelected(type.id) && isMaxSelected;
@@ -340,8 +342,8 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, typesData }: Creat
 
                                     <Controller name="description" control={control} render={({ field }) => (
                                         <div className="flex flex-col gap-2">
-                                            <label htmlFor="description">Mô tả</label>
-                                            <Textarea id="description" placeholder="Nhập mô tả về Pokémon..." {...field} />
+                                            <label htmlFor="description">{t('createPokemon.description')}</label>
+                                            <Textarea id="description" placeholder={t('createPokemon.descriptionPlaceholder')} {...field} />
                                             {errors.description && <p className="text-xs text-destructive mt-1">{errors.description.message}</p>}
                                         </div>
                                     )} />
@@ -349,7 +351,7 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, typesData }: Creat
                                     <Controller name="isStarted" control={control} render={({ field }) => (
                                         <div className="flex items-center space-x-2 pt-2">
                                             <Switch checked={field.value} onCheckedChange={field.onChange} id="is-started" />
-                                            <label htmlFor="is-started">Là Pokémon khởi đầu?</label>
+                                            <label htmlFor="is-started">{t('createPokemon.isStarter')}</label>
                                         </div>
                                     )} />
                                 </div>
@@ -359,8 +361,8 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, typesData }: Creat
                         /* Import from File Mode */
                         <div className="space-y-6">
                             <div className="text-center mb-6">
-                                <h3 className="text-lg font-semibold text-foreground mb-2">Import Pokémon từ file</h3>
-                                <p className="text-sm text-muted-foreground">Tải lên file CSV hoặc JSON để import nhiều Pokémon cùng lúc</p>
+                                <h3 className="text-lg font-semibold text-foreground mb-2">{t('createPokemon.importTitle')}</h3>
+                                <p className="text-sm text-muted-foreground">{t('createPokemon.importDescription')}</p>
                             </div>
 
                             <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 bg-muted/20">
@@ -369,14 +371,14 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, typesData }: Creat
                                         <div className="p-4 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors mb-4">
                                             <UploadCloud className="w-12 h-12 text-primary" />
                                         </div>
-                                        <h4 className="text-lg font-semibold text-foreground mb-2">Chọn file để import</h4>
+                                        <h4 className="text-lg font-semibold text-foreground mb-2">{t('createPokemon.selectFileToImport')}</h4>
                                         <p className="text-sm text-muted-foreground mb-4">
-                                            <span className="font-medium">Nhấn để chọn file</span> hoặc kéo thả file vào đây
+                                            <span className="font-medium">{t('createPokemon.clickToSelect')}</span> {t('createPokemon.orDragDrop')}
                                         </p>
                                         <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                                             <span className="px-2 py-1 bg-muted rounded">CSV</span>
                                             <span className="px-2 py-1 bg-muted rounded">JSON</span>
-                                            <span className="px-2 py-1 bg-muted rounded">Tối đa 5MB</span>
+                                            <span className="px-2 py-1 bg-muted rounded">{t('createPokemon.maxSize')}</span>
                                         </div>
                                     </div>
                                     <Input
@@ -436,11 +438,11 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, typesData }: Creat
                     )}
 
                     <DialogFooter className="pt-4">
-                        <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)} disabled={isSubmitting}>Hủy</Button>
+                        <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)} disabled={isSubmitting}>{t('common.cancel')}</Button>
                         <Button type="submit" className="bg-primary text-primary-foreground" disabled={isSubmitting}>
                             {isSubmitting
-                                ? (creationMode === 'manual' ? 'Đang tạo...' : 'Đang import...')
-                                : (creationMode === 'manual' ? 'Tạo Pokémon' : 'Import Pokémon')
+                                ? (creationMode === 'manual' ? t('createPokemon.creating') : t('createPokemon.importing'))
+                                : (creationMode === 'manual' ? t('createPokemon.createPokemon') : t('createPokemon.importPokemon'))
                             }
                         </Button>
                     </DialogFooter>

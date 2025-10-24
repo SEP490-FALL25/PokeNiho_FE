@@ -8,8 +8,10 @@ import { Switch } from "@ui/Switch";
 import KanjiVocabulary from "./components/Kanji";
 import ListVocabulary from "./components/ListVocabulary";
 import { useVocabularyStatistics } from "@hooks/useVocabulary";
+import { useTranslation } from "react-i18next";
 
 const VocabularyManagement = () => {
+    const { t } = useTranslation();
     const [isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpen] = useState<boolean>(false);
     const [isAddKanjiDialogOpen, setIsAddKanjiDialogOpen] = useState<boolean>(false);
     const [showKanji, setShowKanji] = useState<boolean>(false);
@@ -19,13 +21,13 @@ const VocabularyManagement = () => {
     if (isLoading) {
         return (
             <>
-                <HeaderAdmin title="Quản lý Kanji và Từ vựng" description="Quản lý tất cả kanji và từ vựng trong hệ thống" />
+                <HeaderAdmin title={t('vocabulary.title')} description={t('vocabulary.description')} />
                 <div className="p-8 mt-24">
                     {/* Stats section: show real titles/icons, skeleton only for numbers */}
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 mb-8">
                         <Card className="bg-white shadow-md">
                             <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                                <CardTitle className="text-sm font-medium text-gray-500">Tổng từ vựng</CardTitle>
+                                <CardTitle className="text-sm font-medium text-gray-500">{t('vocabulary.totalVocabulary')}</CardTitle>
                                 <Languages className="w-5 h-5 text-gray-400" />
                             </CardHeader>
                             <CardContent>
@@ -34,7 +36,7 @@ const VocabularyManagement = () => {
                         </Card>
                         <Card className="bg-white shadow-md">
                             <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                                <CardTitle className="text-sm font-medium text-gray-500">Tổng Kanji</CardTitle>
+                                <CardTitle className="text-sm font-medium text-gray-500">{t('vocabulary.totalKanji')}</CardTitle>
                                 <BookText className="w-5 h-5 text-gray-400" />
                             </CardHeader>
                             <CardContent>
@@ -43,7 +45,7 @@ const VocabularyManagement = () => {
                         </Card>
                         <Card className="bg-white shadow-md">
                             <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                                <CardTitle className="text-sm font-medium text-gray-500">Từ vựng N5</CardTitle>
+                                <CardTitle className="text-sm font-medium text-gray-500">{t('vocabulary.vocabularyN5')}</CardTitle>
                                 <Badge className="bg-green-200 text-green-800">N5</Badge>
                             </CardHeader>
                             <CardContent>
@@ -52,7 +54,7 @@ const VocabularyManagement = () => {
                         </Card>
                         <Card className="bg-white shadow-md">
                             <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                                <CardTitle className="text-sm font-medium text-gray-500">Từ vựng N4</CardTitle>
+                                <CardTitle className="text-sm font-medium text-gray-500">{t('vocabulary.vocabularyN4')}</CardTitle>
                                 <Badge className="bg-blue-200 text-blue-800">N4</Badge>
                             </CardHeader>
                             <CardContent>
@@ -61,7 +63,7 @@ const VocabularyManagement = () => {
                         </Card>
                         <Card className="bg-white shadow-md">
                             <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                                <CardTitle className="text-sm font-medium text-gray-500">Từ vựng N3</CardTitle>
+                                <CardTitle className="text-sm font-medium text-gray-500">{t('vocabulary.vocabularyN3')}</CardTitle>
                                 <Badge className="bg-yellow-200 text-yellow-800">N3</Badge>
                             </CardHeader>
                             <CardContent>
@@ -100,12 +102,12 @@ const VocabularyManagement = () => {
 
     return (
         <>
-            <HeaderAdmin title="Quản lý Kanji và Từ vựng" description="Quản lý tất cả kanji và từ vựng trong hệ thống" />
+            <HeaderAdmin title={t('vocabulary.title')} description={t('vocabulary.description')} />
             <div className="p-8 mt-24">
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 mb-8">
                     <Card className="bg-white shadow-md">
                         <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                            <CardTitle className="text-sm font-medium text-gray-500">Tổng từ vựng</CardTitle>
+                            <CardTitle className="text-sm font-medium text-gray-500">{t('vocabulary.totalVocabulary')}</CardTitle>
                             <Languages className="w-5 h-5 text-gray-400" />
                         </CardHeader>
                         <CardContent>
@@ -114,7 +116,7 @@ const VocabularyManagement = () => {
                     </Card>
                     <Card className="bg-white shadow-md">
                         <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                            <CardTitle className="text-sm font-medium text-gray-500">Tổng Kanji</CardTitle>
+                            <CardTitle className="text-sm font-medium text-gray-500">{t('vocabulary.totalKanji')}</CardTitle>
                             <BookText className="w-5 h-5 text-gray-400" />
                         </CardHeader>
                         <CardContent>
@@ -123,7 +125,7 @@ const VocabularyManagement = () => {
                     </Card>
                     <Card className="bg-white shadow-md">
                         <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                            <CardTitle className="text-sm font-medium text-gray-500">Từ vựng N5</CardTitle>
+                            <CardTitle className="text-sm font-medium text-gray-500">{t('vocabulary.vocabularyN5')}</CardTitle>
                             <Badge className="bg-green-200 text-green-800">N5</Badge>
                         </CardHeader>
                         <CardContent>
@@ -132,7 +134,7 @@ const VocabularyManagement = () => {
                     </Card>
                     <Card className="bg-white shadow-md">
                         <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                            <CardTitle className="text-sm font-medium text-gray-500">Từ vựng N4</CardTitle>
+                            <CardTitle className="text-sm font-medium text-gray-500">{t('vocabulary.vocabularyN4')}</CardTitle>
                             <Badge className="bg-blue-200 text-blue-800">N4</Badge>
                         </CardHeader>
                         <CardContent>
@@ -141,7 +143,7 @@ const VocabularyManagement = () => {
                     </Card>
                     <Card className="bg-white shadow-md">
                         <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                            <CardTitle className="text-sm font-medium text-gray-500">Từ vựng N3</CardTitle>
+                            <CardTitle className="text-sm font-medium text-gray-500">{t('vocabulary.vocabularyN3')}</CardTitle>
                             <Badge className="bg-yellow-200 text-yellow-800">N3</Badge>
                         </CardHeader>
                         <CardContent>

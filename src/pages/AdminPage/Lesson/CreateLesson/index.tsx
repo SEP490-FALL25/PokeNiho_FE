@@ -10,6 +10,7 @@ import { useCreateLesson } from '@hooks/useLesson';
 import { ICreateLessonRequest } from '@models/lesson/request';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
+import { useTranslation } from 'react-i18next';
 import {
     BookOpen,
     Clock,
@@ -29,6 +30,7 @@ interface CreateLessonProps {
 }
 
 const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
+    const { t } = useTranslation();
     const createLessonMutation = useCreateLesson();
 
     const [formData, setFormData] = useState<ICreateLessonRequest>({
@@ -80,30 +82,30 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
         const newErrors: Record<string, string> = {};
 
         if (!formData.titleJp.trim()) {
-            newErrors.titleJp = 'Tiêu đề tiếng Nhật là bắt buộc';
+            newErrors.titleJp = t('createLesson.titleJpRequired');
         }
         if (formData.levelJlpt < 1 || formData.levelJlpt > 5) {
-            newErrors.levelJlpt = 'Cấp độ JLPT phải từ 1-5';
+            newErrors.levelJlpt = t('createLesson.levelJlptRange');
         }
         if (formData.estimatedTimeMinutes < 1) {
-            newErrors.estimatedTimeMinutes = 'Thời lượng phải lớn hơn 0';
+            newErrors.estimatedTimeMinutes = t('createLesson.estimatedTimeRequired');
         }
         if (formData.lessonOrder < 1) {
-            newErrors.lessonOrder = 'Thứ tự bài học phải lớn hơn 0';
+            newErrors.lessonOrder = t('createLesson.lessonOrderRequired');
         }
         if (!formData.version.trim()) {
-            newErrors.version = 'Phiên bản là bắt buộc';
+            newErrors.version = t('createLesson.versionRequired');
         }
         if (formData.lessonCategoryId < 1) {
-            newErrors.lessonCategoryId = 'Danh mục bài học là bắt buộc';
+            newErrors.lessonCategoryId = t('createLesson.categoryRequired');
         }
         if (formData.rewardId < 1) {
-            newErrors.rewardId = 'ID phần thưởng là bắt buộc';
+            newErrors.rewardId = t('createLesson.rewardIdRequired');
         }
 
         formData.translations.meaning.forEach((translation, index) => {
             if (!translation.value.trim()) {
-                newErrors[`translation_${index}`] = 'Giá trị dịch không được để trống';
+                newErrors[`translation_${index}`] = t('createLesson.translationRequired');
             }
         });
 
@@ -113,7 +115,7 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
 
     const handleSubmit = async (isPublish: boolean = false) => {
         if (!validateForm()) {
-            toast.error("Vui lòng kiểm tra lại thông tin");
+            toast.error(t('createLesson.checkInfo'));
             return;
         }
 
@@ -124,10 +126,10 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
 
         try {
             await createLessonMutation.mutateAsync(submitData);
-            toast.success(isPublish ? "Bài học đã được xuất bản" : "Bài học đã được lưu nháp");
+            toast.success(isPublish ? t('createLesson.publishedSuccess') : t('createLesson.draftSuccess'));
             setIsAddDialogOpen(false);
         } catch (error) {
-            toast.error("Có lỗi xảy ra khi tạo bài học");
+            toast.error(t('createLesson.createError'));
         }
     };
 
@@ -141,10 +143,10 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
                         </div>
                         <div>
                             <DialogTitle className="text-2xl font-bold text-foreground">
-                                Tạo bài học mới
+                                {t('createLesson.title')}
                             </DialogTitle>
                             <p className="text-sm text-muted-foreground mt-1">
-                                Điền thông tin để tạo bài học mới cho hệ thống
+                                {t('createLesson.description')}
                             </p>
                         </div>
                     </div>
@@ -157,7 +159,7 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
                             <CardHeader className="pb-4">
                                 <CardTitle className="flex items-center gap-2 text-lg">
                                     <FileText className="h-5 w-5 text-primary" />
-                                    Thông tin cơ bản
+                                    {t('createLesson.basicInfo')}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-6">
@@ -165,7 +167,7 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                                         <Globe className="h-4 w-4 text-primary" />
-                                        Tiêu đề tiếng Nhật *
+                                        {t('createLesson.titleJp')} *
                                     </label>
                                     <Input
                                         placeholder="挨拶の基本"
@@ -183,7 +185,7 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
                                 <div className="space-y-3">
                                     <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                                         <Languages className="h-4 w-4 text-primary" />
-                                        Dịch thuật *
+                                        {t('createLesson.translations')} *
                                     </label>
                                     <div className="space-y-3">
                                         {formData.translations.meaning.map((translation, index) => (
@@ -224,7 +226,7 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
                             <CardHeader className="pb-4">
                                 <CardTitle className="flex items-center gap-2 text-lg">
                                     <Layers className="h-5 w-5 text-primary" />
-                                    Cấu hình bài học
+                                    {t('createLesson.lessonConfig')}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-6">
@@ -233,11 +235,11 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
                                     <div className="space-y-2">
                                         <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                                             <Badge variant="outline" className="text-xs">JLPT</Badge>
-                                            Cấp độ *
+                                            {t('createLesson.level')} *
                                         </label>
                                         <Select value={formData.levelJlpt.toString()} onValueChange={(value) => handleInputChange('levelJlpt', parseInt(value))}>
                                             <SelectTrigger className="bg-background border-border text-foreground h-11">
-                                                <SelectValue placeholder="Chọn cấp độ JLPT" />
+                                                <SelectValue placeholder={t('createLesson.selectLevel')} />
                                             </SelectTrigger>
                                             <SelectContent className="bg-card border-border">
                                                 <SelectItem value="5">
@@ -434,7 +436,7 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
 
                 <div className="flex justify-between items-center pt-4">
                     <div className="text-xs text-muted-foreground">
-                        * Trường bắt buộc
+                        * {t('createLesson.requiredFields')}
                     </div>
                     <div className="flex gap-3">
                         <Button
@@ -443,7 +445,7 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
                             className="border-border text-foreground hover:bg-gray-50 h-10 px-6"
                         >
                             <X className="h-4 w-4 mr-2" />
-                            Hủy
+                            {t('common.cancel')}
                         </Button>
                         <Button
                             variant="outline"
@@ -452,7 +454,7 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
                             disabled={createLessonMutation.isPending}
                         >
                             <Save className="h-4 w-4 mr-2" />
-                            {createLessonMutation.isPending ? 'Đang lưu...' : 'Lưu nháp'}
+                            {createLessonMutation.isPending ? t('common.loading') : t('createLesson.saveDraft')}
                         </Button>
                         <Button
                             className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:from-primary/90 hover:to-primary/70 h-10 px-6 shadow-lg"
@@ -460,7 +462,7 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
                             disabled={createLessonMutation.isPending}
                         >
                             <Send className="h-4 w-4 mr-2" />
-                            {createLessonMutation.isPending ? 'Đang xuất bản...' : 'Xuất bản'}
+                            {createLessonMutation.isPending ? t('createLesson.publishing') : t('createLesson.publish')}
                         </Button>
                     </div>
                 </div>

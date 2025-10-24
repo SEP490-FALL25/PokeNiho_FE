@@ -1,6 +1,7 @@
 import { Button } from '@ui/Button';
 import { UploadCloud, Trash2 } from 'lucide-react';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface ImageDropzoneProps {
     label?: string;
@@ -8,7 +9,8 @@ interface ImageDropzoneProps {
     onChange: (file?: File) => void;
 }
 
-const ImageDropzone: React.FC<ImageDropzoneProps> = ({ label = 'Hình ảnh', value, onChange }) => {
+const ImageDropzone: React.FC<ImageDropzoneProps> = ({ label, value, onChange }) => {
+    const { t } = useTranslation();
     const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
 
     React.useEffect(() => {
@@ -26,13 +28,13 @@ const ImageDropzone: React.FC<ImageDropzoneProps> = ({ label = 'Hình ảnh', va
 
     return (
         <div className="space-y-2">
-            <label className="font-medium">{label}</label>
+            <label className="font-medium">{label || t('imageDropzone.defaultLabel')}</label>
             {!value && !previewUrl ? (
                 <label htmlFor="image-dropzone-input" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/50 transition-colors">
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                         <UploadCloud className="w-8 h-8 mb-4 text-muted-foreground" />
-                        <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Nhấn để tải lên</span> hoặc kéo thả</p>
-                        <p className="text-xs text-muted-foreground">PNG, JPG, WEBP (Tối đa 2MB)</p>
+                        <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">{t('imageDropzone.clickToUpload')}</span> {t('imageDropzone.orDragDrop')}</p>
+                        <p className="text-xs text-muted-foreground">{t('imageDropzone.supportedFormats')}</p>
                     </div>
                     <input
                         id="image-dropzone-input"
