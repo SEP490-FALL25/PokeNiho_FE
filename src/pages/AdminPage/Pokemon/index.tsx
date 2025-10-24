@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Edit, Trash2, MoreVertical, Filter, Rows } from "lucide-react";
+import { Edit, Trash2, MoreVertical, Filter } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@ui/Card";
 import { Button } from "@ui/Button";
 import { Input } from "@ui/Input";
@@ -8,7 +8,7 @@ import { Badge } from "@ui/Badge";
 import { Skeleton } from "@ui/Skeleton";
 import HeaderAdmin from "@organisms/Header/Admin";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@ui/DropdownMenu";
-import { EnhancedPagination } from "@ui/Pagination";
+import PaginationControls from "@ui/PaginationControls";
 import { usePokemonList } from "@hooks/usePokemon";
 import { useElementalTypeList } from "@hooks/useElemental";
 import { RarityPokemon } from "@constants/pokemon";
@@ -48,10 +48,6 @@ export default function PokemonManagement() {
         setCurrentPage(1);
     };
 
-    const handleItemsPerPageChange = (value: string) => {
-        setItemsPerPage(parseInt(value));
-        setCurrentPage(1);
-    };
 
     const handleRarityChange = (value: string) => {
         setSelectedRarity(value);
@@ -233,29 +229,16 @@ export default function PokemonManagement() {
                     </CardContent>
 
                     {/* Pagination */}
-                    <CardFooter className="flex justify-between">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Select value={String(itemsPerPage)} onValueChange={handleItemsPerPageChange}>
-                                <SelectTrigger className="w-[100px] bg-background border-border text-foreground h-9">
-                                    <Rows className="h-4 w-4 mr-2" />
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent className="bg-card border-border">
-                                    {[15, 30, 45, 60].map(size => (
-                                        <SelectItem key={size} value={String(size)}>{size} / trang</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        {!isPokemonLoading && pokemonData && (
-                            <EnhancedPagination
-                                currentPage={currentPage}
-                                totalPages={pokemonData.pagination?.totalPage || 1}
-                                totalItems={pokemonData.pagination?.totalItem || 0}
-                                itemsPerPage={itemsPerPage}
-                                onPageChange={setCurrentPage}
-                            />
-                        )}
+                    <CardFooter className="justify-between">
+                        <PaginationControls
+                            currentPage={currentPage}
+                            totalPages={pokemonData?.pagination?.totalPage || 1}
+                            totalItems={pokemonData?.pagination?.totalItem || 0}
+                            itemsPerPage={itemsPerPage}
+                            onPageChange={setCurrentPage}
+                            onItemsPerPageChange={setItemsPerPage}
+                            isLoading={isPokemonLoading}
+                        />
                     </CardFooter>
                 </Card>
             </div>

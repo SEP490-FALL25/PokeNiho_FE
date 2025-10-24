@@ -1,6 +1,22 @@
 import { ICreateDailyRequestRequest } from "@models/dailyRequest/request";
 import dailyRequestService from "@services/dailyRequest";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { IQueryRequest } from "@models/common/request";
+
+
+/**
+ * Handle Get Daily Request List
+ * @returns { getDailyRequestListQuery }
+ */
+export const useGetDailyRequestList = (params?: IQueryRequest) => {
+    const getDailyRequestListQuery = useQuery({
+        queryKey: ['daily-request-list', params],
+        queryFn: () => dailyRequestService.getDailyRequestList(params),
+    });
+    return { data: getDailyRequestListQuery.data?.data?.data, isLoading: getDailyRequestListQuery.isLoading, error: getDailyRequestListQuery.error };
+};
+//------------------------End------------------------//
+
 
 /**
  * Handle Create Daily Request
@@ -16,3 +32,4 @@ export const useCreateDailyRequest = () => {
     });
     return createDailyRequestMutation;
 };
+//------------------------End------------------------//

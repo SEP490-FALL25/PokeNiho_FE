@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@ui/Card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@ui/Card";
 import { Button } from "@ui/Button";
 import { Input } from "@ui/Input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ui/Table";
@@ -10,93 +10,37 @@ import HeaderAdmin from "@organisms/Header/Admin";
 import { toast } from "react-toastify";
 import { cn } from "@utils/CN";
 import CreateDailyQuestDialog from "./CreateDailyQuest";
-import { DAILY_REQUEST } from "@constants/dailyRequest";
 import { useTranslation } from "react-i18next";
+import { useGetDailyRequestList } from "@hooks/useDailyRequest";
+import PaginationControls from "@ui/PaginationControls";
+import FilterableTableHeader from "@ui/FilterableTableHeader";
 
-// --- Định nghĩa kiểu dữ liệu (Giữ nguyên) ---
-interface TranslationInput {
-    key: "en" | "ja" | "vi";
-    value: string;
-}
-
+// --- Định nghĩa kiểu dữ liệu từ API ---
 interface DailyQuest {
-    id: string;
-    conditionType: string;
+    id: number;
+    nameKey: string;
+    descriptionKey: string;
+    dailyRequestType: string;
     conditionValue: number;
     rewardId: number;
-    rewardName?: string;
+    isStreak: boolean;
     isActive: boolean;
-    nameTranslations: TranslationInput[];
-    descriptionTranslations: TranslationInput[];
-    createdAt?: string;
+    createdById: number;
+    updatedById: number | null;
+    deletedById: number | null;
+    deletedAt: string | null;
+    createdAt: string;
+    updatedAt: string;
+    nameTranslation: string;
+    descriptionTranslation: string;
 }
 
-// --- Dữ liệu giả lập (Giữ nguyên) ---
+// --- Dữ liệu giả lập cho rewards ---
 const mockRewards = [
     { id: 1, name: "Gem x10" },
     { id: 2, name: "Exp x50" },
     { id: 3, name: "Stamina Refill S" },
     { id: 4, name: "Vé Quay x1" },
-];
-
-const mockDailyQuests: DailyQuest[] = [
-    {
-        id: "dq1",
-        conditionType: "STREAK_LOGIN",
-        conditionValue: 3,
-        rewardId: 1,
-        rewardName: "Gem x10",
-        isActive: true,
-        nameTranslations: [
-            { key: "en", value: "3-Day Login Streak" },
-            { key: "ja", value: "３日連続ログイン" },
-            { key: "vi", value: "Chuỗi đăng nhập 3 ngày" },
-        ],
-        descriptionTranslations: [
-            { key: "en", value: "Log in for 3 consecutive days." },
-            { key: "ja", value: "３日間連続でログインする。" },
-            { key: "vi", value: "Đăng nhập liên tục trong 3 ngày." },
-        ],
-        createdAt: "2025-10-20",
-    },
-    {
-        id: "dq2",
-        conditionType: "COMPLETE_LESSON",
-        conditionValue: 1,
-        rewardId: 2,
-        rewardName: "Exp x50",
-        isActive: true,
-        nameTranslations: [
-            { key: "en", value: "Complete a Lesson" },
-            { key: "ja", value: "レッスンを完了する" },
-            { key: "vi", value: "Hoàn thành 1 bài học" },
-        ],
-        descriptionTranslations: [
-            { key: "en", value: "Finish any lesson." },
-            { key: "ja", value: "任意のレッスンを完了する。" },
-            { key: "vi", value: "Hoàn thành bất kỳ bài học nào." },
-        ],
-        createdAt: "2025-10-21",
-    },
-    {
-        id: "dq3",
-        conditionType: "VOCABULARY_PRACTICE",
-        conditionValue: 5,
-        rewardId: 3,
-        rewardName: "Stamina Refill S",
-        isActive: false,
-        nameTranslations: [
-            { key: "en", value: "Practice 5 Vocabs" },
-            { key: "ja", value: "単語を５つ練習する" },
-            { key: "vi", value: "Luyện tập 5 từ vựng" },
-        ],
-        descriptionTranslations: [
-            { key: "en", value: "Practice 5 vocabulary words." },
-            { key: "ja", value: "単語を５つ練習しましょう。" },
-            { key: "vi", value: "Hãy luyện tập 5 từ vựng." },
-        ],
-        createdAt: "2025-10-22",
-    },
 ];
 
 const DailyQuestManagement = () => {
@@ -105,20 +49,55 @@ const DailyQuestManagement = () => {
     // --- States ---
     const [searchQuery, setSearchQuery] = useState("");
     const [isAddEditDialogOpen, setIsAddEditDialogOpen] = useState(false);
-    const [editingQuest, setEditingQuest] = useState<DailyQuest | null>(null);
-    const [quests, setQuests] = useState<DailyQuest[]>(mockDailyQuests);
-    const [isLoading, setIsLoading] = useState(false);
+    const [, setEditingQuest] = useState<DailyQuest | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(15);
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [typeFilter, setTypeFilter] = useState("all");
 
-    const handleDelete = async (questId: string) => {
+    const { data: dailyRequestList, isLoading } = useGetDailyRequestList({
+        page: currentPage,
+        limit: itemsPerPage,
+        sortBy: "createdAt",
+        sort: "desc",
+        search: searchQuery || undefined,
+    });
+
+    // Filter options
+    const statusOptions = [
+        { value: "all", label: t('common.all') },
+        { value: "active", label: t('common.active') },
+        { value: "inactive", label: t('common.inactive') }
+    ];
+
+    const typeOptions = [
+        { value: "all", label: t('common.all') },
+        { value: "DAILY_LOGIN", label: "Daily Login" },
+        { value: "STREAK_LOGIN", label: "Streak Login" },
+        { value: "COMPLETE_LESSON", label: "Complete Lesson" },
+        { value: "VOCABULARY_PRACTICE", label: "Vocabulary Practice" }
+    ];
+
+    const handleDelete = async (questId: number) => {
         if (window.confirm(t('dailyQuest.confirmDelete'))) {
             try {
                 // TODO: Gọi API xóa quest
-                setQuests(quests.filter((q) => q.id !== questId));
+                console.log('Deleting quest:', questId);
                 toast.success(t('dailyQuest.deleteSuccess'));
             } catch (error) {
                 console.error("Lỗi khi xóa nhiệm vụ:", error);
                 toast.error(t('dailyQuest.deleteError'));
             }
+        }
+    };
+
+    const getConditionLabel = (type: string) => {
+        switch (type) {
+            case "DAILY_LOGIN": return "Daily Login";
+            case "STREAK_LOGIN": return "Streak Login";
+            case "COMPLETE_LESSON": return "Complete Lesson";
+            case "VOCABULARY_PRACTICE": return "Vocabulary Practice";
+            default: return type;
         }
     };
 
@@ -133,29 +112,6 @@ const DailyQuestManagement = () => {
         setEditingQuest(null);
     };
 
-
-    // --- Các hàm tiện ích (Giữ nguyên) ---
-    const filteredQuests = quests.filter((quest) => {
-        const nameVi = quest.nameTranslations.find((t) => t.key === "vi")?.value.toLowerCase() || "";
-
-        const rewardName = quest.rewardName?.toLowerCase() || "";
-        const query = searchQuery.toLowerCase();
-        return (
-            nameVi.includes(query) ||
-            rewardName.includes(query) ||
-            quest.conditionType.toLowerCase().includes(query)
-        );
-    });
-
-
-    const getQuestName = (quest: DailyQuest, lang: "vi" | "en" | "ja" = "vi") => {
-        return quest.nameTranslations.find((t) => t.key === lang)?.value || "N/A";
-    };
-
-    const getConditionLabel = (conditionType: string) => {
-        const condition = Object.values(DAILY_REQUEST.DAILY_REQUEST_TYPE).find(c => c.value === conditionType);
-        return condition?.label || conditionType;
-    };
 
     return (
         <>
@@ -191,24 +147,42 @@ const DailyQuestManagement = () => {
                             <Table>
                                 <TableHeader>
                                     <TableRow className="border-border hover:bg-muted/50">
-                                        <TableHead className="text-muted-foreground">{t('common.name')}</TableHead>
-                                        <TableHead className="text-muted-foreground">{t('common.condition')} {t('common.type')}</TableHead>
+                                        <FilterableTableHeader
+                                            title={t('common.name')}
+                                            filterType="input"
+                                            filterValue={searchQuery}
+                                            onFilterChange={setSearchQuery}
+                                            placeholder={t('dailyQuest.searchPlaceholder')}
+                                        />
+                                        <FilterableTableHeader
+                                            title={t('common.condition') + ' ' + t('common.type')}
+                                            filterType="select"
+                                            filterOptions={typeOptions}
+                                            filterValue={typeFilter}
+                                            onFilterChange={setTypeFilter}
+                                        />
                                         <TableHead className="text-muted-foreground">{t('common.value')}</TableHead>
                                         <TableHead className="text-muted-foreground">{t('common.reward')}</TableHead>
-                                        <TableHead className="text-muted-foreground">{t('common.status')}</TableHead>
+                                        <FilterableTableHeader
+                                            title={t('common.status')}
+                                            filterType="select"
+                                            filterOptions={statusOptions}
+                                            filterValue={statusFilter}
+                                            onFilterChange={setStatusFilter}
+                                        />
                                         <TableHead className="text-muted-foreground text-right">{t('common.actions')}</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {filteredQuests.length > 0 ? (
-                                        filteredQuests.map((quest) => (
+                                    {dailyRequestList?.results && dailyRequestList.results.length > 0 ? (
+                                        dailyRequestList.results.map((quest: DailyQuest) => (
                                             <TableRow key={quest.id} className="border-border hover:bg-muted/50">
-                                                <TableCell className="font-medium text-foreground">{getQuestName(quest, "vi")}</TableCell>
+                                                <TableCell className="font-medium text-foreground">{quest.nameTranslation}</TableCell>
                                                 <TableCell className="text-muted-foreground">
-                                                    {getConditionLabel(quest.conditionType)}
+                                                    {getConditionLabel(quest.dailyRequestType)}
                                                 </TableCell>
                                                 <TableCell className="text-foreground">{quest.conditionValue}</TableCell>
-                                                <TableCell className="text-foreground">{quest.rewardName || `ID: ${quest.rewardId}`}</TableCell>
+                                                <TableCell className="text-foreground">Reward ID: {quest.rewardId}</TableCell>
                                                 <TableCell>
                                                     <Badge
                                                         className={cn(quest.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800")}
@@ -258,6 +232,17 @@ const DailyQuestManagement = () => {
                             </Table>
                         )}
                     </CardContent>
+                    <CardFooter>
+                        <PaginationControls
+                            currentPage={currentPage}
+                            totalPages={dailyRequestList?.pagination?.totalPage || 1}
+                            totalItems={dailyRequestList?.pagination?.totalItem || 0}
+                            itemsPerPage={itemsPerPage}
+                            onPageChange={setCurrentPage}
+                            onItemsPerPageChange={setItemsPerPage}
+                            isLoading={isLoading}
+                        />
+                    </CardFooter>
                 </Card>
             </div>
 
