@@ -10,17 +10,12 @@ import HeaderAdmin from "@organisms/Header/Admin";
 import { toast } from "react-toastify";
 import { cn } from "@utils/CN";
 import CreateDailyQuestDialog from "./CreateDailyQuest";
+import { DAILY_REQUEST } from "@constants/dailyRequest";
 
 // --- Định nghĩa kiểu dữ liệu (Giữ nguyên) ---
 interface TranslationInput {
     key: "en" | "ja" | "vi";
     value: string;
-}
-
-interface ConditionType {
-    value: string;
-    label: string;
-    createdAt?: string;
 }
 
 interface DailyQuest {
@@ -41,14 +36,6 @@ const mockRewards = [
     { id: 2, name: "Exp x50" },
     { id: 3, name: "Stamina Refill S" },
     { id: 4, name: "Vé Quay x1" },
-];
-
-const initialConditionTypes: ConditionType[] = [
-    { value: "STREAK_LOGIN", label: "Đăng nhập liên tiếp", createdAt: "2025-10-20" },
-    { value: "COMPLETE_LESSON", label: "Hoàn thành bài học", createdAt: "2025-10-20" },
-    { value: "EARN_POINTS", label: "Kiếm điểm kinh nghiệm", createdAt: "2025-10-20" },
-    { value: "VOCABULARY_PRACTICE", label: "Luyện tập từ vựng", createdAt: "2025-10-20" },
-    { value: "WATCH_AD", label: "Xem quảng cáo", createdAt: "2025-10-20" },
 ];
 
 const mockDailyQuests: DailyQuest[] = [
@@ -118,7 +105,6 @@ const DailyQuestManagement = () => {
     const [editingQuest, setEditingQuest] = useState<DailyQuest | null>(null);
     const [quests, setQuests] = useState<DailyQuest[]>(mockDailyQuests);
     const [isLoading, setIsLoading] = useState(false);
-    const [conditionTypes] = useState<ConditionType[]>(initialConditionTypes);
 
     // --- Các hàm xử lý sự kiện ---
     const onSubmit = async (data: DailyQuest) => {
@@ -203,12 +189,11 @@ const DailyQuestManagement = () => {
     // --- Các hàm tiện ích (Giữ nguyên) ---
     const filteredQuests = quests.filter((quest) => {
         const nameVi = quest.nameTranslations.find((t) => t.key === "vi")?.value.toLowerCase() || "";
-        const conditionLabel = conditionTypes.find((c) => c.value === quest.conditionType)?.label.toLowerCase() || "";
+
         const rewardName = quest.rewardName?.toLowerCase() || "";
         const query = searchQuery.toLowerCase();
         return (
             nameVi.includes(query) ||
-            conditionLabel.includes(query) ||
             rewardName.includes(query) ||
             quest.conditionType.toLowerCase().includes(query)
         );
@@ -220,7 +205,8 @@ const DailyQuestManagement = () => {
     };
 
     const getConditionLabel = (conditionType: string) => {
-        return conditionTypes.find((c) => c.value === conditionType)?.label || conditionType;
+        const condition = Object.values(DAILY_REQUEST.DAILY_REQUEST_TYPE).find(c => c.value === conditionType);
+        return condition?.label || conditionType;
     };
 
     return (
@@ -233,7 +219,7 @@ const DailyQuestManagement = () => {
                     <CardHeader>
                         <div className="flex items-center justify-between">
                             <CardTitle className="text-foreground">Danh sách Nhiệm vụ</CardTitle>
-                            <Button className="bg-primary text-primary-foreground hover:bg-primary/90" onClick={openAddDialog}>
+                            <Button className="" onClick={openAddDialog}>
                                 <Plus className="h-4 w-4 mr-2" />
                                 Thêm Nhiệm vụ
                             </Button>
@@ -334,7 +320,10 @@ const DailyQuestManagement = () => {
                 onSubmit={onSubmit}
                 editingQuest={editingQuest}
                 isLoading={isLoading}
-                conditionTypes={conditionTypes}
+                conditionTypes={Object.values(DAILY_REQUEST.DAILY_REQUEST_TYPE).map(condition => ({
+                    value: condition.value,
+                    label: condition.label
+                }))}
                 mockRewards={mockRewards}
             />
         </>
