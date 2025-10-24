@@ -2,6 +2,8 @@ import { ICreateDailyRequestRequest } from "@models/dailyRequest/request";
 import dailyRequestService from "@services/dailyRequest";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { IQueryRequest } from "@models/common/request";
+import { useSelector } from "react-redux";
+import { selectCurrentLanguage } from "@redux/features/language/selector";
 
 
 /**
@@ -9,8 +11,10 @@ import { IQueryRequest } from "@models/common/request";
  * @returns { getDailyRequestListQuery }
  */
 export const useGetDailyRequestList = (params?: IQueryRequest) => {
+    const currentLanguage = useSelector(selectCurrentLanguage);
+
     const getDailyRequestListQuery = useQuery({
-        queryKey: ['daily-request-list', params],
+        queryKey: ['daily-request-list', params, currentLanguage],
         queryFn: () => dailyRequestService.getDailyRequestList(params),
     });
     return { data: getDailyRequestListQuery.data?.data?.data, isLoading: getDailyRequestListQuery.isLoading, error: getDailyRequestListQuery.error };

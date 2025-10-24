@@ -12,6 +12,7 @@ const axiosClient = axios.create({
 // Interceptors cho axiosClient
 axiosClient.interceptors.request.use(
     (config) => {
+        // Đọc language từ Redux store hoặc localStorage
         const language = localStorage.getItem('language') || 'vi';
         config.headers['Accept-Language'] = language;
         return config;
@@ -41,7 +42,6 @@ axiosPrivate.interceptors.request.use(
             config.headers['Authorization'] = `Bearer ${token}`;
         }
 
-        // Thêm header ngôn ngữ
         config.headers['Accept-Language'] = language;
 
         // if (userRole) {

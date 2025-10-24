@@ -15,6 +15,7 @@ import PaginationControls from "@ui/PaginationControls";
 import SortableTableHeader from "@ui/SortableTableHeader";
 import FilterPanel from "@ui/FilterPanel";
 import { IDailyRequestResponse } from "@models/dailyRequest/response";
+import TableSkeleton from "@ui/TableSkeleton";
 
 
 
@@ -141,9 +142,7 @@ const DailyQuestManagement = () => {
         <>
             <HeaderAdmin title={t('dailyQuest.title')} description={t('dailyQuest.description')} />
             <div className="mt-24 p-8">
-                {/* Bảng danh sách nhiệm vụ */}
                 <Card className="bg-card border-border">
-                    {/* CardHeader và CardContent chứa Table (Giữ nguyên) */}
                     <CardHeader>
                         <div className="flex items-center justify-between">
                             <CardTitle className="text-foreground">{t('dailyQuest.title')}</CardTitle>
@@ -191,17 +190,14 @@ const DailyQuestManagement = () => {
 
                     <CardContent>
                         {isLoading ? (
-                            <p>{t('common.loading')}</p>
+                            <TableSkeleton rows={itemsPerPage} columns={6} />
                         ) : (
                             <Table>
                                 <TableHeader>
                                     <TableRow className="border-border hover:bg-muted/50">
                                         <SortableTableHeader
                                             title={t('common.name')}
-                                            sortKey="nameTranslation"
-                                            currentSortBy={sortBy}
-                                            currentSort={sort}
-                                            onSort={handleSort}
+                                            sortable={false}
                                         />
                                         <SortableTableHeader
                                             title={t('common.condition') + ' ' + t('common.type')}
@@ -239,7 +235,7 @@ const DailyQuestManagement = () => {
                                         dailyRequestList.results.map((quest: IDailyRequestResponse) => (
                                             <TableRow key={quest.id} className="border-border hover:bg-muted/50">
                                                 <TableCell className="font-medium text-foreground">{quest.nameTranslation}</TableCell>
-                                                <TableCell className="text-muted-foreground">   
+                                                <TableCell className="text-muted-foreground">
                                                     {getConditionLabel(quest.dailyRequestType)}
                                                 </TableCell>
                                                 <TableCell className="text-foreground">{quest.conditionValue}</TableCell>
