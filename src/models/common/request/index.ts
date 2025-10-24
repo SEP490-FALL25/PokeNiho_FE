@@ -15,3 +15,10 @@ export const QueryRequest = z
 
 export type IQueryRequest = z.infer<typeof QueryRequest>;
 //------------------End------------------//
+
+export const TranslationRequest = z.object({
+    key: z.enum(['en', 'ja', 'vi']),
+    value: z.string(),
+});
+
+export type ITranslationRequest = z.infer<typeof TranslationRequest>;

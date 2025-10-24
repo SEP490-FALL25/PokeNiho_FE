@@ -28,3 +28,5 @@ export const DAILY_REQUEST_TYPE = {
 export const DAILY_REQUEST = {
     DAILY_REQUEST_TYPE,
 }
+
+export type DAILY_REQUEST = typeof DAILY_REQUEST;

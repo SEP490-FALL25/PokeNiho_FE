@@ -32,7 +32,8 @@
         "condition": "条件",
         "required": "必須",
         "optional": "オプション",
-        "view": "表示"
+        "view": "表示",
+        "notFound": "見つかりません"
     },
     "navigation": {
         "dashboard": "ダッシュボード",
@@ -66,6 +67,8 @@
         "deleteError": "クエストの削除に失敗しました",
         "updateSuccess": "クエストを更新しました！",
         "addSuccess": "クエストを追加しました！",
+        "createSuccess": "デイリークエストが正常に作成されました！",
+        "createError": "デイリークエストの作成に失敗しました",
         "updateError": "クエストの更新に失敗しました",
         "addError": "クエストの追加に失敗しました",
         "nameRequired": "クエスト名（ベトナム語）を入力してください。",
@@ -181,7 +184,7 @@
         "selectRarity": "レア度を選択",
         "types": "タイプ（最大2つ）",
         "description": "説明",
-        "descriptionPlaceholder": "ポケモンの説明を入力...",
+        "descriptionOwnerPlaceholder": "ポケモンの説明を入力...",
         "isStarter": "初期ポケモンですか？",
         "importTitle": "ファイルからポケモンをインポート",
         "importDescription": "CSVまたはJSONファイルをアップロードして、複数のポケモンを一度にインポート",
@@ -192,7 +195,14 @@
         "creating": "作成中...",
         "importing": "インポート中...",
         "createPokemon": "ポケモンを作成",
-        "importPokemon": "ポケモンをインポート"
+        "importPokemon": "ポケモンをインポート",
+        "conditionValuePlaceholder": "例: 7",
+        "taskNamePlaceholder": "タスク名 ({{lang}})",
+        "descriptionPlaceholder": "説明 ({{lang}})",
+        "isActive": "アクティブ",
+        "isActiveOn": "オン",
+        "isActiveOff": "オフ",
+        "isStreak": "連続"
     },
     "createVocabulary": {
         "createSuccess": "語彙が正常に作成されました",
@@ -205,6 +215,17 @@
         "clickToUpload": "クリックしてアップロード",
         "orDragDrop": "またはドラッグ&ドロップ",
         "supportedFormats": "PNG, JPG, WEBP (最大2MB)"
+    },
+    "validation": {
+        "conditionValueRequired": "条件値は必須です",
+        "rewardIdRequired": "報酬IDは必須です",
+        "wordJapaneseRequired": "日本語の単語は空にできません",
+        "readingRequired": "読み方は空にできません",
+        "languageCodeMinLength": "言語コードは少なくとも2文字である必要があります",
+        "translationContentRequired": "翻訳内容は空にできません",
+        "sentenceTranslationRequired": "文の翻訳は空にできません",
+        "originalSentenceRequired": "元の文は空にできません",
+        "meaningRequired": "少なくとも1つの意味が必要です"
     },
     "conditionTypes": {
         "DAILY_LOGIN": "ログイン",

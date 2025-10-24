@@ -32,7 +32,8 @@
         "condition": "Điều kiện",
         "required": "Bắt buộc",
         "optional": "Tùy chọn",
-        "view": "Xem"
+        "view": "Xem",
+        "notFound": "Không tìm thấy"
     },
     "navigation": {
         "dashboard": "Tổng quan",
@@ -68,6 +69,8 @@
         "addSuccess": "Thêm nhiệm vụ thành công!",
         "updateError": "Cập nhật nhiệm vụ thất bại",
         "addError": "Thêm nhiệm vụ thất bại",
+        "createSuccess": "Tạo nhiệm vụ thành công!",
+        "createError": "Tạo nhiệm vụ thất bại",
         "nameRequired": "Vui lòng nhập Tên nhiệm vụ (Tiếng Việt).",
         "descriptionRequired": "Vui lòng nhập Mô tả nhiệm vụ (Tiếng Việt).",
         "addTitle": "Thêm Nhiệm vụ hàng ngày",
@@ -181,7 +184,7 @@
         "selectRarity": "Chọn độ hiếm",
         "types": "Hệ (chọn tối đa 2)",
         "description": "Mô tả",
-        "descriptionPlaceholder": "Nhập mô tả về Pokémon...",
+        "descriptionOwnerPlaceholder": "Nhập mô tả về Pokémon...",
         "isStarter": "Là Pokémon khởi đầu?",
         "importTitle": "Import Pokémon từ file",
         "importDescription": "Tải lên file CSV hoặc JSON để import nhiều Pokémon cùng lúc",
@@ -192,7 +195,14 @@
         "creating": "Đang tạo...",
         "importing": "Đang import...",
         "createPokemon": "Tạo Pokémon",
-        "importPokemon": "Import Pokémon"
+        "importPokemon": "Import Pokémon",
+        "conditionValuePlaceholder": "Ví dụ: 7",
+        "taskNamePlaceholder": "Tên nhiệm vụ ({{lang}})",
+        "descriptionPlaceholder": "Mô tả ({{lang}})",
+        "isActive": "Kích hoạt",
+        "isActiveOn": "Đang bật",
+        "isActiveOff": "Đang tắt",
+        "isStreak": "Chuỗi liên tiếp"
     },
     "createVocabulary": {
         "createSuccess": "Tạo từ vựng thành công",
@@ -205,6 +215,17 @@
         "clickToUpload": "Nhấn để tải lên",
         "orDragDrop": "hoặc kéo thả",
         "supportedFormats": "PNG, JPG, WEBP (Tối đa 2MB)"
+    },
+    "validation": {
+        "conditionValueRequired": "Giá trị điều kiện là bắt buộc",
+        "rewardIdRequired": "ID phần thưởng là bắt buộc",
+        "wordJapaneseRequired": "Từ tiếng Nhật không được để trống",
+        "readingRequired": "Cách đọc không được để trống",
+        "languageCodeMinLength": "Mã ngôn ngữ phải có ít nhất 2 ký tự",
+        "translationContentRequired": "Nội dung dịch không được để trống",
+        "sentenceTranslationRequired": "Câu dịch không được để trống",
+        "originalSentenceRequired": "Câu gốc không được để trống",
+        "meaningRequired": "Phải có ít nhất 1 nghĩa"
     },
     "conditionTypes": {
         "DAILY_LOGIN": "Đăng nhập",

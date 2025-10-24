@@ -343,7 +343,7 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, typesData }: Creat
                                     <Controller name="description" control={control} render={({ field }) => (
                                         <div className="flex flex-col gap-2">
                                             <label htmlFor="description">{t('createPokemon.description')}</label>
-                                            <Textarea id="description" placeholder={t('createPokemon.descriptionPlaceholder')} {...field} />
+                                            <Textarea id="description" placeholder={t('createPokemon.descriptionOwnerPlaceholder')} {...field} />
                                             {errors.description && <p className="text-xs text-destructive mt-1">{errors.description.message}</p>}
                                         </div>
                                     )} />

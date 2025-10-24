@@ -109,61 +109,6 @@ const DailyQuestManagement = () => {
     const [quests, setQuests] = useState<DailyQuest[]>(mockDailyQuests);
     const [isLoading, setIsLoading] = useState(false);
 
-    // --- Các hàm xử lý sự kiện ---
-    const onSubmit = async (data: DailyQuest) => {
-        setIsLoading(true);
-        console.log("Dữ liệu gửi đi:", data);
-        try {
-            const nameVi = data.nameTranslations.find(t => t.key === 'vi')?.value;
-            const descVi = data.descriptionTranslations.find(t => t.key === 'vi')?.value;
-            if (!nameVi || nameVi.trim() === '') {
-                toast.error(t('dailyQuest.nameRequired'));
-                setIsLoading(false);
-                return;
-            }
-            if (!descVi || descVi.trim() === '') {
-                toast.error(t('dailyQuest.descriptionRequired'));
-                setIsLoading(false);
-                return;
-            }
-
-            if (editingQuest) {
-                // TODO: Gọi API cập nhật
-                setQuests(
-                    quests.map((q) =>
-                        q.id === editingQuest.id
-                            ? { ...q, ...data, rewardName: mockRewards.find((r) => r.id === data.rewardId)?.name }
-                            : q,
-                    ),
-                );
-                toast.success(t('dailyQuest.updateSuccess'));
-            } else {
-                // TODO: Gọi API tạo mới
-                const newQuest = {
-                    ...data,
-                    id: `new-${Date.now()}`,
-                    rewardName: mockRewards.find((r) => r.id === data.rewardId)?.name,
-                    createdAt: new Date().toISOString().split("T")[0],
-                };
-                setQuests([newQuest, ...quests]);
-                toast.success(t('dailyQuest.addSuccess'));
-            }
-            closeDialog();
-        } catch (error) {
-            console.error("Lỗi khi lưu nhiệm vụ:", error);
-            toast.error(editingQuest ? t('dailyQuest.updateError') : t('dailyQuest.addError'));
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-
-    const handleEdit = (quest: DailyQuest) => {
-        setEditingQuest(quest);
-        setIsAddEditDialogOpen(true);
-    };
-
-
     const handleDelete = async (questId: string) => {
         if (window.confirm(t('dailyQuest.confirmDelete'))) {
             try {
@@ -285,7 +230,7 @@ const DailyQuestManagement = () => {
                                                         <DropdownMenuContent align="end" className="bg-card border-border">
                                                             <DropdownMenuItem
                                                                 className="text-foreground hover:bg-muted cursor-pointer"
-                                                                onClick={() => handleEdit(quest)}
+                                                            // onClick={() => handleEdit(quest)}
                                                             >
                                                                 <Edit className="h-4 w-4 mr-2" />
                                                                 {t('common.edit')}
@@ -320,13 +265,6 @@ const DailyQuestManagement = () => {
             <CreateDailyQuestDialog
                 isOpen={isAddEditDialogOpen}
                 onClose={closeDialog}
-                onSubmit={onSubmit}
-                editingQuest={editingQuest}
-                isLoading={isLoading}
-                conditionTypes={Object.values(DAILY_REQUEST.DAILY_REQUEST_TYPE).map(condition => ({
-                    value: condition.value,
-                    label: condition.label
-                }))}
                 mockRewards={mockRewards}
             />
         </>

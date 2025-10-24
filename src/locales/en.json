@@ -32,7 +32,8 @@
         "condition": "Condition",
         "required": "Required",
         "optional": "Optional",
-        "view": "View"
+        "view": "View",
+        "notFound": "Not found"
     },
     "navigation": {
         "dashboard": "Dashboard",
@@ -66,6 +67,8 @@
         "deleteError": "Failed to delete quest",
         "updateSuccess": "Quest updated successfully!",
         "addSuccess": "Quest added successfully!",
+        "createSuccess": "Daily quest created successfully!",
+        "createError": "Failed to create daily quest",
         "updateError": "Failed to update quest",
         "addError": "Failed to add quest",
         "nameRequired": "Please enter Quest Name (Vietnamese).",
@@ -181,7 +184,7 @@
         "selectRarity": "Select rarity",
         "types": "Types (max 2)",
         "description": "Description",
-        "descriptionPlaceholder": "Enter Pokémon description...",
+        "descriptionOwnerPlaceholder": "Enter Pokémon description...",
         "isStarter": "Is starter Pokémon?",
         "importTitle": "Import Pokémon from file",
         "importDescription": "Upload CSV or JSON file to import multiple Pokémon at once",
@@ -192,7 +195,14 @@
         "creating": "Creating...",
         "importing": "Importing...",
         "createPokemon": "Create Pokémon",
-        "importPokemon": "Import Pokémon"
+        "importPokemon": "Import Pokémon",
+        "conditionValuePlaceholder": "Example: 7",
+        "taskNamePlaceholder": "Task name ({{lang}})",
+        "descriptionPlaceholder": "Description ({{lang}})",
+        "isActive": "Active",
+        "isActiveOn": "On",
+        "isActiveOff": "Off",
+        "isStreak": "Streak"
     },
     "createVocabulary": {
         "createSuccess": "Vocabulary created successfully",
@@ -205,6 +215,17 @@
         "clickToUpload": "Click to upload",
         "orDragDrop": "or drag and drop",
         "supportedFormats": "PNG, JPG, WEBP (Max 2MB)"
+    },
+    "validation": {
+        "conditionValueRequired": "Condition value is required",
+        "rewardIdRequired": "Reward ID is required",
+        "wordJapaneseRequired": "Japanese word cannot be empty",
+        "readingRequired": "Reading cannot be empty",
+        "languageCodeMinLength": "Language code must be at least 2 characters",
+        "translationContentRequired": "Translation content cannot be empty",
+        "sentenceTranslationRequired": "Sentence translation cannot be empty",
+        "originalSentenceRequired": "Original sentence cannot be empty",
+        "meaningRequired": "At least one meaning is required"
     },
     "conditionTypes": {
         "DAILY_LOGIN": "Daily Login",
