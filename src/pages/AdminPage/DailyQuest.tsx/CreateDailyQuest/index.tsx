@@ -11,6 +11,7 @@ import { Check, ChevronsUpDown } from 'lucide-react';
 import React from 'react';
 import { Controller, useForm, useFieldArray } from 'react-hook-form';
 import { cn } from '@utils/CN';
+import { useTranslation } from 'react-i18next';
 
 // --- Định nghĩa kiểu dữ liệu ---
 interface TranslationInput {
@@ -55,6 +56,7 @@ const CreateDailyQuestDialog: React.FC<CreateDailyQuestDialogProps> = ({
     conditionTypes,
     mockRewards
 }) => {
+    const { t } = useTranslation();
     const [openConditionSelect, setOpenConditionSelect] = React.useState(false);
 
     const {
@@ -132,7 +134,7 @@ const CreateDailyQuestDialog: React.FC<CreateDailyQuestDialogProps> = ({
             <DialogContent className="bg-white border-border max-w-2xl sm:max-w-3xl">
                 <DialogHeader>
                     <DialogTitle className="text-foreground">
-                        {editingQuest ? "Chỉnh sửa Nhiệm vụ hàng ngày" : "Thêm Nhiệm vụ hàng ngày"}
+                        {editingQuest ? t('dailyQuest.editTitle') : t('dailyQuest.addTitle')}
                     </DialogTitle>
                 </DialogHeader>
 
@@ -142,11 +144,11 @@ const CreateDailyQuestDialog: React.FC<CreateDailyQuestDialogProps> = ({
                         {/* Combobox Loại điều kiện */}
                         <div className="space-y-1.5">
                             {/* --- THAY ĐỔI: Sử dụng <label> --- */}
-                            <label htmlFor="conditionType" className={cn("text-sm font-medium text-foreground", errors.conditionType && "text-destructive")}>Loại điều kiện</label>
+                            <label htmlFor="conditionType" className={cn("text-sm font-medium text-foreground", errors.conditionType && "text-destructive")}>{t('dailyQuest.conditionTypeLabel')}</label>
                             <Controller
                                 name="conditionType"
                                 control={control}
-                                rules={{ required: "Vui lòng chọn loại điều kiện." }}
+                                rules={{ required: t('dailyQuest.conditionRequired') }}
                                 render={({ field }) => (
                                     <Popover open={openConditionSelect} onOpenChange={setOpenConditionSelect}>
                                         <PopoverTrigger asChild>
@@ -161,14 +163,14 @@ const CreateDailyQuestDialog: React.FC<CreateDailyQuestDialogProps> = ({
                                                 )}
                                             >
                                                 {field.value
-                                                    ? conditionTypes.find((ct) => ct.value === field.value)?.label ?? "Chọn..."
-                                                    : "Chọn loại điều kiện..."}
+                                                    ? conditionTypes.find((ct) => ct.value === field.value)?.label ?? t('dailyQuest.selectCondition')
+                                                    : t('dailyQuest.selectCondition')}
                                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                             </Button>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                                             <Command>
-                                                <CommandInput placeholder="Tìm kiếm loại..." />
+                                                <CommandInput placeholder={t('dailyQuest.searchCondition')} />
                                                 <CommandList>
                                                     <CommandEmpty>Không tìm thấy.</CommandEmpty>
                                                     <CommandGroup>
@@ -202,16 +204,16 @@ const CreateDailyQuestDialog: React.FC<CreateDailyQuestDialogProps> = ({
                         {/* Giá trị điều kiện */}
                         <div className="space-y-1.5">
                             {/* --- THAY ĐỔI: Sử dụng <label> --- */}
-                            <label htmlFor="conditionValue" className={cn("text-sm font-medium text-foreground", errors.conditionValue && "text-destructive")}>Giá trị điều kiện</label>
+                            <label htmlFor="conditionValue" className={cn("text-sm font-medium text-foreground", errors.conditionValue && "text-destructive")}>{t('dailyQuest.conditionValueLabel')}</label>
                             <Input
                                 id="conditionValue"
                                 type="number"
                                 placeholder="Ví dụ: 7"
                                 className={cn("bg-background border-input", errors.conditionValue && "border-destructive focus-visible:ring-destructive")}
                                 {...register("conditionValue", {
-                                    required: "Vui lòng nhập giá trị.",
+                                    required: t('dailyQuest.valueRequired'),
                                     valueAsNumber: true,
-                                    min: { value: 1, message: "Giá trị phải lớn hơn 0." },
+                                    min: { value: 1, message: t('dailyQuest.valueMin') },
                                 })}
                             />
                             {errors.conditionValue && <p className="text-xs text-destructive mt-1">{errors.conditionValue.message}</p>}
@@ -221,15 +223,15 @@ const CreateDailyQuestDialog: React.FC<CreateDailyQuestDialogProps> = ({
                     {/* Phần thưởng */}
                     <div className="space-y-1.5">
                         {/* --- THAY ĐỔI: Sử dụng <label> --- */}
-                        <label htmlFor="rewardId" className={cn("text-sm font-medium text-foreground", errors.rewardId && "text-destructive")}>Phần thưởng</label>
+                        <label htmlFor="rewardId" className={cn("text-sm font-medium text-foreground", errors.rewardId && "text-destructive")}>{t('dailyQuest.rewardLabel')}</label>
                         <Controller
                             name="rewardId"
                             control={control}
-                            rules={{ required: "Vui lòng chọn phần thưởng." }}
+                            rules={{ required: t('dailyQuest.rewardRequired') }}
                             render={({ field }) => (
                                 <Select onValueChange={(value) => field.onChange(Number(value))} value={field.value?.toString()}>
                                     <SelectTrigger id="rewardId" className={cn("bg-background border-input", errors.rewardId && "border-destructive focus-visible:ring-destructive")}>
-                                        <SelectValue placeholder="Chọn phần thưởng" />
+                                        <SelectValue placeholder={t('dailyQuest.selectReward')} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {mockRewards.map((reward) => (
@@ -247,12 +249,12 @@ const CreateDailyQuestDialog: React.FC<CreateDailyQuestDialogProps> = ({
                     {/* Tên nhiệm vụ */}
                     <div className="space-y-1.5">
                         {/* --- THAY ĐỔI: Sử dụng <label> --- */}
-                        <label className={cn("text-sm font-medium text-foreground", errors.nameTranslations && "text-destructive")}>Tên nhiệm vụ (đa ngôn ngữ)</label>
+                        <label className={cn("text-sm font-medium text-foreground", errors.nameTranslations && "text-destructive")}>{t('dailyQuest.nameLabel')}</label>
                         <Tabs defaultValue="vi" className="w-full">
                             <TabsList className="grid w-full grid-cols-3">
-                                <TabsTrigger value="vi">Tiếng Việt {errors.nameTranslations?.[2]?.value && <span className="text-destructive ml-1">*</span>}</TabsTrigger>
-                                <TabsTrigger value="en">Tiếng Anh</TabsTrigger>
-                                <TabsTrigger value="ja">Tiếng Nhật</TabsTrigger>
+                                <TabsTrigger value="vi">{t('dailyQuest.languages.vi')} {errors.nameTranslations?.[2]?.value && <span className="text-destructive ml-1">*</span>}</TabsTrigger>
+                                <TabsTrigger value="en">{t('dailyQuest.languages.en')}</TabsTrigger>
+                                <TabsTrigger value="ja">{t('dailyQuest.languages.ja')}</TabsTrigger>
                             </TabsList>
                             {nameFields.map((field, index) => (
                                 <TabsContent key={field.id} value={field.key} className="mt-2"> {/* Thêm mt-2 */}
@@ -271,19 +273,19 @@ const CreateDailyQuestDialog: React.FC<CreateDailyQuestDialogProps> = ({
                             ))}
                         </Tabs>
                         {errors.nameTranslations && !errors.nameTranslations[2]?.value && errors.nameTranslations[2]?.type === 'required' && (
-                            <p className="text-xs text-destructive mt-1">Vui lòng nhập tên nhiệm vụ Tiếng Việt.</p>
+                            <p className="text-xs text-destructive mt-1">{t('dailyQuest.nameRequiredVi')}</p>
                         )}
                     </div>
 
                     {/* Mô tả nhiệm vụ */}
                     <div className="space-y-1.5">
                         {/* --- THAY ĐỔI: Sử dụng <label> --- */}
-                        <label className={cn("text-sm font-medium text-foreground", errors.descriptionTranslations && "text-destructive")}>Mô tả nhiệm vụ (đa ngôn ngữ)</label>
+                        <label className={cn("text-sm font-medium text-foreground", errors.descriptionTranslations && "text-destructive")}>{t('dailyQuest.descriptionLabel')}</label>
                         <Tabs defaultValue="vi" className="w-full">
                             <TabsList className="grid w-full grid-cols-3">
-                                <TabsTrigger value="vi">Tiếng Việt {errors.descriptionTranslations?.[2]?.value && <span className="text-destructive ml-1">*</span>}</TabsTrigger>
-                                <TabsTrigger value="en">Tiếng Anh</TabsTrigger>
-                                <TabsTrigger value="ja">Tiếng Nhật</TabsTrigger>
+                                <TabsTrigger value="vi">{t('dailyQuest.languages.vi')} {errors.descriptionTranslations?.[2]?.value && <span className="text-destructive ml-1">*</span>}</TabsTrigger>
+                                <TabsTrigger value="en">{t('dailyQuest.languages.en')}</TabsTrigger>
+                                <TabsTrigger value="ja">{t('dailyQuest.languages.ja')}</TabsTrigger>
                             </TabsList>
                             {descriptionFields.map((field, index) => (
                                 <TabsContent key={field.id} value={field.key} className="mt-2"> {/* Thêm mt-2 */}
@@ -302,7 +304,7 @@ const CreateDailyQuestDialog: React.FC<CreateDailyQuestDialogProps> = ({
                             ))}
                         </Tabs>
                         {errors.descriptionTranslations && !errors.descriptionTranslations[2]?.value && errors.descriptionTranslations[2]?.type === 'required' && (
-                            <p className="text-xs text-destructive mt-1">Vui lòng nhập mô tả nhiệm vụ Tiếng Việt.</p>
+                            <p className="text-xs text-destructive mt-1">{t('dailyQuest.descriptionRequiredVi')}</p>
                         )}
                     </div>
 
@@ -323,9 +325,9 @@ const CreateDailyQuestDialog: React.FC<CreateDailyQuestDialogProps> = ({
 
                     {/* Nút Submit/Cancel */}
                     <DialogFooter className="mt-6 pt-4 border-t border-border">
-                        <Button type="button" variant="outline" onClick={onClose}>Hủy</Button>
+                        <Button type="button" variant="outline" onClick={onClose}>{t('common.cancel')}</Button>
                         <Button type="submit" disabled={isLoading} className="bg-primary text-primary-foreground hover:bg-primary/90">
-                            {isLoading ? "Đang lưu..." : editingQuest ? "Cập nhật" : "Thêm mới"}
+                            {isLoading ? t('common.loading') : editingQuest ? t('common.edit') : t('common.add')}
                         </Button>
                     </DialogFooter>
                 </form>

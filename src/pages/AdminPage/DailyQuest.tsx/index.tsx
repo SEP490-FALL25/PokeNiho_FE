@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import { cn } from "@utils/CN";
 import CreateDailyQuestDialog from "./CreateDailyQuest";
 import { DAILY_REQUEST } from "@constants/dailyRequest";
+import { useTranslation } from "react-i18next";
 
 // --- Định nghĩa kiểu dữ liệu (Giữ nguyên) ---
 interface TranslationInput {
@@ -99,6 +100,8 @@ const mockDailyQuests: DailyQuest[] = [
 ];
 
 const DailyQuestManagement = () => {
+    const { t } = useTranslation();
+
     // --- States ---
     const [searchQuery, setSearchQuery] = useState("");
     const [isAddEditDialogOpen, setIsAddEditDialogOpen] = useState(false);
@@ -114,12 +117,12 @@ const DailyQuestManagement = () => {
             const nameVi = data.nameTranslations.find(t => t.key === 'vi')?.value;
             const descVi = data.descriptionTranslations.find(t => t.key === 'vi')?.value;
             if (!nameVi || nameVi.trim() === '') {
-                toast.error("Vui lòng nhập Tên nhiệm vụ (Tiếng Việt).");
+                toast.error(t('dailyQuest.nameRequired'));
                 setIsLoading(false);
                 return;
             }
             if (!descVi || descVi.trim() === '') {
-                toast.error("Vui lòng nhập Mô tả nhiệm vụ (Tiếng Việt).");
+                toast.error(t('dailyQuest.descriptionRequired'));
                 setIsLoading(false);
                 return;
             }
@@ -133,7 +136,7 @@ const DailyQuestManagement = () => {
                             : q,
                     ),
                 );
-                toast.success("Cập nhật nhiệm vụ thành công!");
+                toast.success(t('dailyQuest.updateSuccess'));
             } else {
                 // TODO: Gọi API tạo mới
                 const newQuest = {
@@ -143,12 +146,12 @@ const DailyQuestManagement = () => {
                     createdAt: new Date().toISOString().split("T")[0],
                 };
                 setQuests([newQuest, ...quests]);
-                toast.success("Thêm nhiệm vụ thành công!");
+                toast.success(t('dailyQuest.addSuccess'));
             }
             closeDialog();
         } catch (error) {
             console.error("Lỗi khi lưu nhiệm vụ:", error);
-            toast.error(`Lỗi: ${editingQuest ? "Cập nhật" : "Thêm"} nhiệm vụ thất bại.`);
+            toast.error(editingQuest ? t('dailyQuest.updateError') : t('dailyQuest.addError'));
         } finally {
             setIsLoading(false);
         }
@@ -162,14 +165,14 @@ const DailyQuestManagement = () => {
 
 
     const handleDelete = async (questId: string) => {
-        if (window.confirm("Bạn có chắc chắn muốn xóa nhiệm vụ này?")) {
+        if (window.confirm(t('dailyQuest.confirmDelete'))) {
             try {
                 // TODO: Gọi API xóa quest
                 setQuests(quests.filter((q) => q.id !== questId));
-                toast.success("Xóa nhiệm vụ thành công!");
+                toast.success(t('dailyQuest.deleteSuccess'));
             } catch (error) {
                 console.error("Lỗi khi xóa nhiệm vụ:", error);
-                toast.error("Xóa nhiệm vụ thất bại.");
+                toast.error(t('dailyQuest.deleteError'));
             }
         }
     };
@@ -211,24 +214,24 @@ const DailyQuestManagement = () => {
 
     return (
         <>
-            <HeaderAdmin title="Quản lý Nhiệm vụ hàng ngày" description="Xem, thêm, sửa, xóa các nhiệm vụ hàng ngày." />
+            <HeaderAdmin title={t('dailyQuest.title')} description={t('dailyQuest.description')} />
             <div className="mt-24 p-8">
                 {/* Bảng danh sách nhiệm vụ */}
                 <Card className="bg-card border-border">
                     {/* CardHeader và CardContent chứa Table (Giữ nguyên) */}
                     <CardHeader>
                         <div className="flex items-center justify-between">
-                            <CardTitle className="text-foreground">Danh sách Nhiệm vụ</CardTitle>
-                            <Button className="" onClick={openAddDialog}>
+                            <CardTitle className="text-foreground">{t('dailyQuest.title')}</CardTitle>
+                            <Button className="bg-primary text-primary-foreground hover:bg-primary/90" onClick={openAddDialog}>
                                 <Plus className="h-4 w-4 mr-2" />
-                                Thêm Nhiệm vụ
+                                {t('dailyQuest.addQuest')}
                             </Button>
                         </div>
                         <div className="mt-4">
                             <div className="relative">
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                 <Input
-                                    placeholder="Tìm kiếm nhiệm vụ (tên, loại, phần thưởng...)"
+                                    placeholder={t('dailyQuest.searchPlaceholder')}
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="pl-10 bg-background border-border text-foreground"
@@ -238,17 +241,17 @@ const DailyQuestManagement = () => {
                     </CardHeader>
                     <CardContent>
                         {isLoading ? (
-                            <p>Đang tải dữ liệu...</p>
+                            <p>{t('common.loading')}</p>
                         ) : (
                             <Table>
                                 <TableHeader>
                                     <TableRow className="border-border hover:bg-muted/50">
-                                        <TableHead className="text-muted-foreground">Tên Nhiệm vụ (VI)</TableHead>
-                                        <TableHead className="text-muted-foreground">Loại điều kiện</TableHead>
-                                        <TableHead className="text-muted-foreground">Giá trị</TableHead>
-                                        <TableHead className="text-muted-foreground">Phần thưởng</TableHead>
-                                        <TableHead className="text-muted-foreground">Trạng thái</TableHead>
-                                        <TableHead className="text-muted-foreground text-right">Hành động</TableHead>
+                                        <TableHead className="text-muted-foreground">{t('common.name')}</TableHead>
+                                        <TableHead className="text-muted-foreground">{t('common.condition')} {t('common.type')}</TableHead>
+                                        <TableHead className="text-muted-foreground">{t('common.value')}</TableHead>
+                                        <TableHead className="text-muted-foreground">{t('common.reward')}</TableHead>
+                                        <TableHead className="text-muted-foreground">{t('common.status')}</TableHead>
+                                        <TableHead className="text-muted-foreground text-right">{t('common.actions')}</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -265,7 +268,7 @@ const DailyQuestManagement = () => {
                                                     <Badge
                                                         className={cn(quest.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800")}
                                                     >
-                                                        {quest.isActive ? "Hoạt động" : "Không hoạt động"}
+                                                        {quest.isActive ? t('common.active') : t('common.inactive')}
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="text-right">
@@ -285,14 +288,14 @@ const DailyQuestManagement = () => {
                                                                 onClick={() => handleEdit(quest)}
                                                             >
                                                                 <Edit className="h-4 w-4 mr-2" />
-                                                                Chỉnh sửa
+                                                                {t('common.edit')}
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem
                                                                 className="text-destructive hover:bg-destructive/10 cursor-pointer"
                                                                 onClick={() => handleDelete(quest.id)}
                                                             >
                                                                 <Trash2 className="h-4 w-4 mr-2" />
-                                                                Xóa
+                                                                {t('common.delete')}
                                                             </DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>
@@ -302,7 +305,7 @@ const DailyQuestManagement = () => {
                                     ) : (
                                         <TableRow>
                                             <TableCell colSpan={6} className="text-center text-muted-foreground">
-                                                Không tìm thấy nhiệm vụ nào.
+                                                {t('dailyQuest.noQuestsFound')}
                                             </TableCell>
                                         </TableRow>
                                     )}

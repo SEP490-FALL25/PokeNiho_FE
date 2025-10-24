@@ -9,6 +9,18 @@ const axiosClient = axios.create({
     },
 });
 
+// Interceptors cho axiosClient
+axiosClient.interceptors.request.use(
+    (config) => {
+        const language = localStorage.getItem('language') || 'vi';
+        config.headers['Accept-Language'] = language;
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    },
+);
+
 const axiosPrivate = axios.create({
     baseURL: import.meta.env.VITE_APP_LOCAL_API,
     headers: {
@@ -20,6 +32,7 @@ const axiosPrivate = axios.create({
 axiosPrivate.interceptors.request.use(
     (config) => {
         const token = CookiesService.get("accessToken");
+        const language = localStorage.getItem('language') || 'vi';
         console.log('token', token);
 
         // const userRole = Cookies.get('userRole');
@@ -27,6 +40,10 @@ axiosPrivate.interceptors.request.use(
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
         }
+
+        // Thêm header ngôn ngữ
+        config.headers['Accept-Language'] = language;
+
         // if (userRole) {
         //     config.headers['X-User-Role'] = userRole;
         // }
