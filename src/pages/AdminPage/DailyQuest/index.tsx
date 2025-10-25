@@ -242,7 +242,7 @@ const DailyQuestManagement = () => {
                                                 <TableCell className="text-foreground">Reward ID: {quest.rewardId}</TableCell>
                                                 <TableCell>
                                                     <Badge
-                                                        className={cn(quest.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800")}
+                                                        className={cn(quest.isActive ? "bg-green-100 text-white" : "bg-red-100 text-white")}
                                                     >
                                                         {quest.isActive ? t('common.active') : t('common.inactive')}
                                                     </Badge>

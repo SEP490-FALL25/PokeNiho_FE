@@ -17,7 +17,7 @@ const PackageManagement = lazy(() => import("@pages/AdminPage/PackageManagement"
 const PokemonManagement = lazy(() => import("@pages/AdminPage/Pokemon"))
 const TournamentManagement = lazy(() => import("@pages/AdminPage/Tournaments"))
 const AIPromptManagement = lazy(() => import("@pages/AdminPage/AIPrompts"))
-const DailyQuestManagement = lazy(() => import("@pages/AdminPage/DailyQuest.tsx"))
+const DailyQuestManagement = lazy(() => import("@pages/AdminPage/DailyQuest"))
 const RouterComponent = () => {
     const router = createBrowserRouter([
         //#region Auth routes

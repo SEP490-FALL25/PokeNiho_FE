@@ -95,8 +95,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
                     {isPassword && (
                         <Button
+                            type="button"
                             variant="ghost"
-                            className="absolute inset-y-0 right-0 flex items-center justify-center w-12 h-full text-black"
+                            className="absolute inset-y-0 right-0 flex items-center justify-center w-12 h-full text-black hover:bg-transparent"
                             onClick={() => setShowPassword(!showPassword)}
                         >
                             <EyeShowPassword showPassword={showPassword} size={20} color="black" />
