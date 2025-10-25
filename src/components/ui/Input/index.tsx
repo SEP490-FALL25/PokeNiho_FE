@@ -6,7 +6,7 @@ import React from 'react';
 import { Search } from 'lucide-react';
 
 const inputContainerVariants = cva(
-    'flex items-center rounded-md border h-10 focus-within:ring-2 focus-within:ring-primary focus-within:border-primary',
+    'relative flex items-center rounded-md border h-10 focus-within:ring-2 focus-within:ring-primary focus-within:border-primary',
     {
         variants: {
             variant: {
