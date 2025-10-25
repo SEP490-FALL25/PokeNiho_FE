@@ -50,3 +50,16 @@ export const at = {
     deletedAt: z.string().nullable(),
 }
 //----------------------End----------------------//
+
+
+/**
+ * Translation Input Schema
+ */
+export const TranslationInputSchema = z.array(
+    z.object({
+        key: z.string(),
+        value: z.string()
+    })
+)
+//----------------------End----------------------//
+
