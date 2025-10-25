@@ -2,7 +2,7 @@ import { Outlet, useLocation, NavLink } from "react-router-dom";
 import {
     LayoutDashboard, Users, BookOpen, Languages, BarChart3,
     Settings, LogOut, Menu, Trophy, Package, Brain,
-    Calendar
+    Calendar, Gift
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@ui/Button";
@@ -27,6 +27,7 @@ const AdminLayout = () => {
         { name: t('navigation.aiPrompts'), href: ROUTES.ADMIN.AI_PROMPTS_MANAGEMENT, icon: Brain },
         { name: t('navigation.analytics'), href: ROUTES.ADMIN.ANALYTICS, icon: BarChart3 },
         { name: t('navigation.dailyQuests'), href: ROUTES.ADMIN.DAILY_QUEST_MANAGEMENT, icon: Calendar },
+        { name: t('navigation.rewards'), href: ROUTES.ADMIN.REWARD_MANAGEMENT, icon: Gift },
     ];
 
     return (

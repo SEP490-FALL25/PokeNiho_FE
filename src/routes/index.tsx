@@ -18,6 +18,7 @@ const PokemonManagement = lazy(() => import("@pages/AdminPage/Pokemon"))
 const TournamentManagement = lazy(() => import("@pages/AdminPage/Tournaments"))
 const AIPromptManagement = lazy(() => import("@pages/AdminPage/AIPrompts"))
 const DailyQuestManagement = lazy(() => import("@pages/AdminPage/DailyQuest"))
+const RewardManagement = lazy(() => import("@pages/AdminPage/Reward"))
 const RouterComponent = () => {
     const router = createBrowserRouter([
         //#region Auth routes
@@ -45,9 +46,10 @@ const RouterComponent = () => {
                                 { path: ROUTES.ADMIN.ANALYTICS, element: <AnalyticsDashboard /> },
                                 { path: ROUTES.ADMIN.PACKAGE_MANAGEMENT, element: <PackageManagement /> },
                                 { path: ROUTES.ADMIN.POKEMON_MANAGEMENT, element: <PokemonManagement /> },
-                                { path: ROUTES.ADMIN.TOURNAMENT_MANAGEMENT, element: <TournamentManagement /> },    
+                                { path: ROUTES.ADMIN.TOURNAMENT_MANAGEMENT, element: <TournamentManagement /> },
                                 { path: ROUTES.ADMIN.AI_PROMPTS_MANAGEMENT, element: <AIPromptManagement /> },
                                 { path: ROUTES.ADMIN.DAILY_QUEST_MANAGEMENT, element: <DailyQuestManagement /> },
+                                { path: ROUTES.ADMIN.REWARD_MANAGEMENT, element: <RewardManagement /> },
                             ],
                         },
                     ],

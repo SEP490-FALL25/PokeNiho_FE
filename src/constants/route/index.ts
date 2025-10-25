@@ -24,6 +24,7 @@ const ADMIN = {
     TOURNAMENT_MANAGEMENT: '/admin/tournament-management',
     AI_PROMPTS_MANAGEMENT: '/admin/ai-prompts-management',
     DAILY_QUEST_MANAGEMENT: '/admin/daily-quest-management',
+    REWARD_MANAGEMENT: '/admin/reward-management',
 };
 
 const ROLE = {
