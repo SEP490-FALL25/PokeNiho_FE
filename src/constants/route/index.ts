@@ -27,6 +27,14 @@ const ADMIN = {
     REWARD_MANAGEMENT: '/admin/reward-management',
 };
 
+const LESSONS = {
+    ROOT: '/admin/lessons',
+    MANAGEMENT: '/admin/lessons/management',
+    QUESTION_BANK: '/admin/lessons/question-bank',
+    LESSON_TYPES: '/admin/lessons/lesson-types',
+    LESSON_CONTENT: '/admin/lessons/lesson-content',
+};
+
 const ROLE = {
     ADMIN: "admin",
     INSTRUCTOR: "instructor",
@@ -37,6 +45,7 @@ export const ROUTES = {
     AUTH,
     PUBLIC,
     ADMIN,
+    LESSONS,
     ROLE,
 };
 

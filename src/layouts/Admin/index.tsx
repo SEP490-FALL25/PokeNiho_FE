@@ -10,6 +10,8 @@ import { cn } from "@utils/CN";
 import { ROUTES } from "@constants/route";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../../components/Atoms/LanguageSwitcher";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@ui/Accordion";
+import { ChevronDown } from "lucide-react";
 
 const AdminLayout = () => {
     const location = useLocation();
@@ -20,7 +22,17 @@ const AdminLayout = () => {
         { name: t('navigation.dashboard'), href: ROUTES.ADMIN.ROOT, icon: LayoutDashboard },
         { name: t('navigation.users'), href: ROUTES.ADMIN.USERS, icon: Users },
         { name: t('navigation.pokemon'), href: ROUTES.ADMIN.POKEMON_MANAGEMENT, icon: Trophy },
-        { name: t('navigation.lessons'), href: ROUTES.ADMIN.LESSONS, icon: BookOpen },
+        { 
+            name: t('navigation.lessons'), 
+            href: ROUTES.ADMIN.LESSONS, 
+            icon: BookOpen,
+            children: [
+                { name: t('navigation.lessonManagement'), href: ROUTES.LESSONS.MANAGEMENT },
+                { name: t('navigation.questionBank'), href: ROUTES.LESSONS.QUESTION_BANK },
+                { name: t('navigation.lessonTypes'), href: ROUTES.LESSONS.LESSON_TYPES },
+                { name: t('navigation.lessonContent'), href: ROUTES.LESSONS.LESSON_CONTENT },
+            ]
+        },
         { name: t('navigation.vocabulary'), href: ROUTES.ADMIN.VOCABULARY, icon: Languages },
         { name: t('navigation.tournaments'), href: ROUTES.ADMIN.TOURNAMENT_MANAGEMENT, icon: Trophy },
         { name: t('navigation.packageManagement'), href: ROUTES.ADMIN.PACKAGE_MANAGEMENT, icon: Package },
@@ -55,7 +67,52 @@ const AdminLayout = () => {
                 {/* Navigation */}
                 <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
                     {navigation.map((item) => {
-                        const isActive = location.pathname === item.href;
+                        const isActive = location.pathname === item.href || 
+                                      (item.children && item.children.some(child => location.pathname === child.href));
+                        const hasChildren = item.children && item.children.length > 0;
+                        
+                        if (hasChildren && isSidebarOpen) {
+                            return (
+                                <Accordion key={item.name} type="single" collapsible className="w-full">
+                                    <AccordionItem value={item.name} className="border-none">
+                                        <AccordionTrigger className={cn(
+                                            "cursor-pointer flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:no-underline [&>svg:last-child]:hidden",
+                                            isActive
+                                                ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                                                : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                                        )}>
+                                            <div className="flex items-center gap-3">
+                                                <item.icon className="h-5 w-5 flex-shrink-0" />
+                                                <span>{item.name}</span>
+                                            </div>
+                                            <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+                                        </AccordionTrigger>
+                                        <AccordionContent className="pt-1">
+                                            <div className="ml-6 space-y-1">
+                                                {item.children.map((child) => {
+                                                    const isChildActive = location.pathname === child.href;
+                                                    return (
+                                                        <NavLink
+                                                            key={child.name}
+                                                            to={child.href}
+                                                            className={cn(
+                                                                "flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-colors",
+                                                                isChildActive
+                                                                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                                                                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                                                            )}
+                                                        >
+                                                            <span>{child.name}</span>
+                                                        </NavLink>
+                                                    );
+                                                })}
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                </Accordion>
+                            );
+                        }
+                        
                         return (
                             <NavLink
                                 key={item.name}

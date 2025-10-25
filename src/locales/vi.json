@@ -47,7 +47,11 @@
         "settings": "Cài đặt",
         "packageManagement": "Gói dịch vụ",
         "aiPrompts": "AI Prompts",
-        "rewards": "Phần thưởng"
+        "rewards": "Phần thưởng",
+        "lessonManagement": "Danh sách bài học",
+        "questionBank": "Ngân hàng câu hỏi",
+        "lessonTypes": "Loại bài học",
+        "lessonContent": "Nội dung bài học"
     },
     "dailyQuest": {
         "title": "Quản lý Nhiệm vụ hàng ngày",

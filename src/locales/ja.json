@@ -47,7 +47,11 @@
         "settings": "設定",
         "packageManagement": "パッケージ管理",
         "aiPrompts": "AIプロンプト",
-        "rewards": "報酬"
+        "rewards": "報酬",
+        "lessonManagement": "レッスン一覧",
+        "questionBank": "問題バンク",
+        "lessonTypes": "レッスンタイプ",
+        "lessonContent": "レッスン内容"
     },
     "dailyQuest": {
         "title": "デイリークエスト管理",

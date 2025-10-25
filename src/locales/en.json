@@ -47,7 +47,11 @@
         "settings": "Settings",
         "packageManagement": "Package Management",
         "aiPrompts": "AI Prompts",
-        "rewards": "Rewards"
+        "rewards": "Rewards",
+        "lessonManagement": "Lesson List",
+        "questionBank": "Question Bank",
+        "lessonTypes": "Lesson Types",
+        "lessonContent": "Lesson Content"
     },
     "dailyQuest": {
         "title": "Daily Quest Management",
