@@ -5,8 +5,7 @@ import { Input } from '@ui/Input';
 import { Popover, PopoverContent, PopoverTrigger } from '@ui/Popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ui/Select';
 import { Switch } from '@ui/Switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@ui/Tabs';
-import { Textarea } from '@ui/Textarea';
+import MultilingualInput from '@ui/MultilingualInput';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Controller, useForm, useFieldArray } from 'react-hook-form';
@@ -68,24 +67,24 @@ const CreateDailyQuestDialog = ({
 
     // Reset form when editingQuest changes
     useEffect(() => {
-       
-            reset({
-                dailyRequestType: 'DAILY_LOGIN',
-                conditionValue: 1,
-                rewardId: mockRewards.length > 0 ? mockRewards[0].id : 1,
-                isActive: true,
-                isStreak: false,
-                nameTranslations: [
-                    { key: "en" as const, value: "" },
-                    { key: "ja" as const, value: "" },
-                    { key: "vi" as const, value: "" },
-                ],
-                descriptionTranslations: [
-                    { key: "en" as const, value: "" },
-                    { key: "ja" as const, value: "" },
-                    { key: "vi" as const, value: "" },
-                ],
-            });
+
+        reset({
+            dailyRequestType: 'DAILY_LOGIN',
+            conditionValue: 1,
+            rewardId: mockRewards.length > 0 ? mockRewards[0].id : 1,
+            isActive: true,
+            isStreak: false,
+            nameTranslations: [
+                { key: "en" as const, value: "" },
+                { key: "ja" as const, value: "" },
+                { key: "vi" as const, value: "" },
+            ],
+            descriptionTranslations: [
+                { key: "en" as const, value: "" },
+                { key: "ja" as const, value: "" },
+                { key: "vi" as const, value: "" },
+            ],
+        });
     }, [mockRewards, reset]);
 
 
@@ -223,66 +222,25 @@ const CreateDailyQuestDialog = ({
                     </div>
 
                     {/* Tên nhiệm vụ */}
-                    <div className="space-y-1.5">
-                        {/* --- THAY ĐỔI: Sử dụng <label> --- */}
-                        <label className={cn("text-sm font-medium text-foreground", errors.nameTranslations && "text-destructive")}>{t('dailyQuest.nameLabel')}</label>
-                        <Tabs defaultValue="vi" className="w-full">
-                            <TabsList className="grid w-full grid-cols-3">
-                                <TabsTrigger value="vi">{t('dailyQuest.languages.vi')} {errors.nameTranslations?.[2]?.value && <span className="text-destructive ml-1">*</span>}</TabsTrigger>
-                                <TabsTrigger value="en">{t('dailyQuest.languages.en')}</TabsTrigger>
-                                <TabsTrigger value="ja">{t('dailyQuest.languages.ja')}</TabsTrigger>
-                            </TabsList>
-                            {nameFields.map((field, index) => (
-                                <TabsContent key={field.id} value={field.key} className="mt-2"> {/* Thêm mt-2 */}
-                                    <Input
-                                        placeholder={t('dailyQuest.taskNamePlaceholder', { lang: field.key.toUpperCase() })}
-                                        className={cn("bg-background border-input", errors.nameTranslations?.[index]?.value && "border-destructive focus-visible:ring-destructive")}
-                                        {...register(`nameTranslations.${index}.value` as const, {
-                                            required: field.key === 'vi' ? t('dailyQuest.nameRequiredVi') : false,
-                                        })}
-                                    />
-                                    {errors.nameTranslations?.[index]?.value && (
-                                        <p className="text-xs text-destructive mt-1">{errors.nameTranslations[index]?.value?.message}</p>
-                                    )}
-                                    <input type="hidden" {...register(`nameTranslations.${index}.key` as const)} />
-                                </TabsContent>
-                            ))}
-                        </Tabs>
-                        {errors.nameTranslations && !errors.nameTranslations[2]?.value && errors.nameTranslations[2]?.type === 'required' && (
-                            <p className="text-xs text-destructive mt-1">{t('dailyQuest.nameRequiredVi')}</p>
-                        )}
-                    </div>
+                    <MultilingualInput
+                        label={t('dailyQuest.nameLabel')}
+                        fields={nameFields}
+                        register={register}
+                        errors={errors.nameTranslations as Record<string, string>}
+                        placeholderKey="dailyQuest.taskNamePlaceholder"
+                        requiredKey="dailyQuest.nameRequiredVi"
+                    />
 
                     {/* Mô tả nhiệm vụ */}
-                    <div className="space-y-1.5">
-                        {/* --- THAY ĐỔI: Sử dụng <label> --- */}
-                        <label className={cn("text-sm font-medium text-foreground", errors.descriptionTranslations && "text-destructive")}>{t('dailyQuest.descriptionLabel')}</label>
-                        <Tabs defaultValue="vi" className="w-full">
-                            <TabsList className="grid w-full grid-cols-3">
-                                <TabsTrigger value="vi">{t('dailyQuest.languages.vi')} {errors.descriptionTranslations?.[2]?.value && <span className="text-destructive ml-1">*</span>}</TabsTrigger>
-                                <TabsTrigger value="en">{t('dailyQuest.languages.en')}</TabsTrigger>
-                                <TabsTrigger value="ja">{t('dailyQuest.languages.ja')}</TabsTrigger>
-                            </TabsList>
-                            {descriptionFields.map((field, index) => (
-                                <TabsContent key={field.id} value={field.key} className="mt-2"> {/* Thêm mt-2 */}
-                                    <Textarea
-                                        placeholder={t('dailyQuest.descriptionPlaceholder', { lang: field.key.toUpperCase() })}
-                                        className={cn("bg-background border-input min-h-[80px]", errors.descriptionTranslations?.[index]?.value && "border-destructive focus-visible:ring-destructive")}
-                                        {...register(`descriptionTranslations.${index}.value` as const, {
-                                            required: field.key === 'vi' ? t('dailyQuest.descriptionRequiredVi') : false,
-                                        })}
-                                    />
-                                    {errors.descriptionTranslations?.[index]?.value && (
-                                        <p className="text-xs text-destructive mt-1">{errors.descriptionTranslations[index]?.value?.message}</p>
-                                    )}
-                                    <input type="hidden" {...register(`descriptionTranslations.${index}.key` as const)} />
-                                </TabsContent>
-                            ))}
-                        </Tabs>
-                        {errors.descriptionTranslations && !errors.descriptionTranslations[2]?.value && errors.descriptionTranslations[2]?.type === 'required' && (
-                            <p className="text-xs text-destructive mt-1">{t('dailyQuest.descriptionRequiredVi')}</p>
-                        )}
-                    </div>
+                    <MultilingualInput
+                        label={t('dailyQuest.descriptionLabel')}
+                        fields={descriptionFields}
+                        register={register}
+                        errors={errors.descriptionTranslations}
+                        placeholderKey="dailyQuest.descriptionPlaceholder"
+                        requiredKey="dailyQuest.descriptionRequiredVi"
+                        isTextarea={true}
+                    />
 
                     {/* Kích hoạt & Streak */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

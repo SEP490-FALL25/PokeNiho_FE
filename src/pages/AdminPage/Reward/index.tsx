@@ -181,8 +181,8 @@ const RewardManagement = () => {
                                 <TableHeader>
                                     <TableRow className="border-border hover:bg-muted/50">
                                         <SortableTableHeader
-                                            title={t('reward.name')}
-                                            sortKey="name"
+                                            title={t('reward.nameKey')}
+                                            sortKey="nameKey"
                                             currentSortBy={sortBy}
                                             currentSort={sort}
                                             onSort={handleSort}
@@ -215,7 +215,7 @@ const RewardManagement = () => {
                                     {rewardList?.results && rewardList.results.length > 0 ? (
                                         rewardList.results.map((reward: any) => (
                                             <TableRow key={reward.id} className="border-border hover:bg-muted/50">
-                                                <TableCell className="font-medium text-foreground">{reward.name}</TableCell>
+                                                <TableCell className="font-medium text-foreground">{reward.nameKey}</TableCell>
                                                 <TableCell className="text-muted-foreground">
                                                     {getRewardTypeLabel(reward.rewardType)}
                                                 </TableCell>
