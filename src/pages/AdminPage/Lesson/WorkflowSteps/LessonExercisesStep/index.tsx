@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import CreateExerciseDialog from "../../Dialogs/CreateExerciseDialog";
 import { useLessonExercises } from "@hooks/useLessonExercises";
+import { useTranslation } from "react-i18next";
 
 interface LessonItem {
   id: number;
@@ -40,6 +41,7 @@ interface LessonExercisesStepProps {
 }
 
 const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProps) => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
   const [activeTypeTab, setActiveTypeTab] = useState<string>("all");
@@ -57,10 +59,10 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
 
   const getTypeBadge = (type: string) => {
     const types = {
-      multiple_choice: { label: "MC", color: "bg-blue-500" },
-      fill_blank: { label: "FB", color: "bg-green-500" },
-      listening: { label: "L", color: "bg-purple-500" },
-      speaking: { label: "S", color: "bg-orange-500" },
+      multiple_choice: { label: t('workflow.exercises.multipleChoice'), color: "bg-blue-500" },
+      fill_blank: { label: t('workflow.exercises.fillBlank'), color: "bg-green-500" },
+      listening: { label: t('workflow.exercises.listening'), color: "bg-purple-500" },
+      speaking: { label: t('workflow.exercises.speaking'), color: "bg-orange-500" },
     };
     return (
       types[type as keyof typeof types] || { label: type, color: "bg-gray-500" }
@@ -69,9 +71,9 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
 
   const getDifficultyBadge = (difficulty: string) => {
     const difficulties = {
-      easy: { label: "Easy", color: "bg-green-500" },
-      medium: { label: "Medium", color: "bg-yellow-500" },
-      hard: { label: "Hard", color: "bg-red-500" },
+      easy: { label: t('workflow.exercises.easy'), color: "bg-green-500" },
+      medium: { label: t('workflow.exercises.medium'), color: "bg-yellow-500" },
+      hard: { label: t('workflow.exercises.hard'), color: "bg-red-500" },
     };
     return (
       difficulties[difficulty as keyof typeof difficulties] || {
@@ -117,10 +119,10 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-xl font-semibold text-foreground">
-            Exercises Management
+            {t('workflow.exercises.title')}
           </h3>
           <p className="text-muted-foreground">
-            Manage exercises for lesson: {lesson.titleKey}
+            {t('workflow.exercises.manageForLesson')} {lesson.titleKey}
           </p>
         </div>
         <div className="flex gap-2">
@@ -129,17 +131,17 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
             onClick={onBack}
             className="border-border text-foreground hover:bg-muted"
           >
-            ← Back: Content
+            {t('workflow.exercises.backContent')}
           </Button>
           <Button
             variant="outline"
             onClick={onNext}
             className="border-border text-foreground hover:bg-muted"
           >
-            Skip Exercises
+            {t('workflow.exercises.skipExercises')}
           </Button>
           <Button onClick={onNext} className="bg-primary text-white">
-            Next: Question Sets <ArrowRight className="h-4 w-4 ml-2" />
+            {t('workflow.exercises.nextQuestionSets')} <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         </div>
       </div>
@@ -152,7 +154,7 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
-                  placeholder="Search exercises..."
+                  placeholder={t('workflow.exercises.searchPlaceholder')}
                   className="pl-10 bg-background border-border text-foreground"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -165,11 +167,11 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="multiple_choice">Multiple Choice</SelectItem>
-                  <SelectItem value="fill_blank">Fill Blank</SelectItem>
-                  <SelectItem value="listening">Listening</SelectItem>
-                  <SelectItem value="speaking">Speaking</SelectItem>
+                  <SelectItem value="all">{t('workflow.exercises.allTypes')}</SelectItem>
+                  <SelectItem value="multiple_choice">{t('workflow.exercises.multipleChoice')}</SelectItem>
+                  <SelectItem value="fill_blank">{t('workflow.exercises.fillBlank')}</SelectItem>
+                  <SelectItem value="listening">{t('workflow.exercises.listening')}</SelectItem>
+                  <SelectItem value="speaking">{t('workflow.exercises.speaking')}</SelectItem>
                 </SelectContent>
               </Select>
               <Select
@@ -180,10 +182,10 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Difficulty</SelectItem>
-                  <SelectItem value="easy">Easy</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="hard">Hard</SelectItem>
+                  <SelectItem value="all">{t('workflow.exercises.allDifficulty')}</SelectItem>
+                  <SelectItem value="easy">{t('workflow.exercises.easy')}</SelectItem>
+                  <SelectItem value="medium">{t('workflow.exercises.medium')}</SelectItem>
+                  <SelectItem value="hard">{t('workflow.exercises.hard')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -192,13 +194,13 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
           {/* Add Exercise Button */}
           <div className="flex justify-between items-center mb-6">
             <h4 className="text-lg font-semibold text-foreground">
-              Exercise Items ({filteredExercises.length})
+              {t('workflow.exercises.exerciseItems')} ({filteredExercises.length})
             </h4>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-primary text-white hover:bg-primary/90">
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Exercise
+                  {t('workflow.exercises.addExercise')}
                 </Button>
               </DialogTrigger>
               <CreateExerciseDialog
@@ -214,7 +216,7 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
               <span className="ml-2 text-muted-foreground">
-                Loading exercises...
+                {t('workflow.exercises.loading')}
               </span>
             </div>
           )}
@@ -227,7 +229,7 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
                 onClick={() => window.location.reload()}
                 variant="outline"
               >
-                Retry
+                {t('common.retry')}
               </Button>
             </div>
           )}
@@ -237,17 +239,17 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
             <div className="text-center py-12">
               <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2">
-                No exercises found
+                {t('workflow.exercises.noExercise')}
               </h3>
               <p className="text-muted-foreground mb-4">
-                Start by adding exercises to this lesson.
+                {t('workflow.exercises.noExerciseDescription')}
               </p>
               <Button
                 onClick={() => setIsAddDialogOpen(true)}
                 className="bg-primary text-white"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add First Exercise
+                {t('workflow.exercises.addFirstExercise')}
               </Button>
             </div>
           ) : !isLoading && !error ? (
@@ -289,21 +291,21 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
                                     : "bg-yellow-500 text-white"
                                 }
                               >
-                                {exercise.isActive ? "Active" : "Inactive"}
+                                {exercise.isActive ? t('workflow.exercises.active') : t('workflow.exercises.inactive')}
                               </Badge>
                             </div>
                             <div className="text-sm text-muted-foreground space-y-1">
                               <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-1">
                                   <BarChart3 className="h-4 w-4" />
-                                  <span>{exercise.questionCount} questions</span>
+                                  <span>{exercise.questionCount} {t('workflow.exercises.questions')}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                   <Clock className="h-4 w-4" />
-                                  <span>{exercise.estimatedTime} min</span>
+                                  <span>{exercise.estimatedTime} {t('workflow.exercises.min')}</span>
                                 </div>
                               </div>
-                              <div>Created: {exercise.createdAt}</div>
+                              <div>{t('workflow.exercises.created')} {exercise.createdAt}</div>
                             </div>
                           </div>
                         </div>

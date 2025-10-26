@@ -24,6 +24,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useLessonQuestions } from "@hooks/useLessonQuestions";
+import { useTranslation } from "react-i18next";
 
 interface LessonItem {
   id: number;
@@ -39,6 +40,7 @@ interface LessonQuestionsStepProps {
 }
 
 const LessonQuestionsStep = ({ lesson, onComplete, onBack }: LessonQuestionsStepProps) => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
   const [activeTypeTab, setActiveTypeTab] = useState<string>("all");
@@ -56,10 +58,10 @@ const LessonQuestionsStep = ({ lesson, onComplete, onBack }: LessonQuestionsStep
 
   const getTypeBadge = (type: string) => {
     const types = {
-      multiple_choice: { label: "MC", color: "bg-blue-500" },
-      fill_blank: { label: "FB", color: "bg-green-500" },
-      listening: { label: "L", color: "bg-purple-500" },
-      speaking: { label: "S", color: "bg-orange-500" },
+      multiple_choice: { label: t('workflow.questions.multipleChoice'), color: "bg-blue-500" },
+      fill_blank: { label: t('workflow.questions.fillBlank'), color: "bg-green-500" },
+      listening: { label: t('workflow.questions.listening'), color: "bg-purple-500" },
+      speaking: { label: t('workflow.questions.speaking'), color: "bg-orange-500" },
     };
     return (
       types[type as keyof typeof types] || { label: type, color: "bg-gray-500" }
@@ -68,9 +70,9 @@ const LessonQuestionsStep = ({ lesson, onComplete, onBack }: LessonQuestionsStep
 
   const getDifficultyBadge = (difficulty: string) => {
     const difficulties = {
-      easy: { label: "Easy", color: "bg-green-500" },
-      medium: { label: "Medium", color: "bg-yellow-500" },
-      hard: { label: "Hard", color: "bg-red-500" },
+      easy: { label: t('workflow.questions.easy'), color: "bg-green-500" },
+      medium: { label: t('workflow.questions.medium'), color: "bg-yellow-500" },
+      hard: { label: t('workflow.questions.hard'), color: "bg-red-500" },
     };
     return (
       difficulties[difficulty as keyof typeof difficulties] || {
@@ -116,10 +118,10 @@ const LessonQuestionsStep = ({ lesson, onComplete, onBack }: LessonQuestionsStep
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-xl font-semibold text-foreground">
-            Questions Management
+            {t('workflow.questions.title')}
           </h3>
           <p className="text-muted-foreground">
-            Manage questions for lesson: {lesson.titleKey}
+            {t('workflow.questions.manageForLesson')} {lesson.titleKey}
           </p>
         </div>
         <div className="flex gap-2">
@@ -128,14 +130,14 @@ const LessonQuestionsStep = ({ lesson, onComplete, onBack }: LessonQuestionsStep
             onClick={onBack}
             className="border-border text-foreground hover:bg-muted"
           >
-            ← Back: Question Sets
+            {t('workflow.questions.backQuestionSets')}
           </Button>
           <Button
             onClick={onComplete}
             className="bg-green-600 text-white"
           >
             <CheckCircle className="h-4 w-4 mr-2" />
-            Complete Lesson Setup
+            {t('workflow.questions.completeSetup')}
           </Button>
         </div>
       </div>
@@ -148,7 +150,7 @@ const LessonQuestionsStep = ({ lesson, onComplete, onBack }: LessonQuestionsStep
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
-                  placeholder="Search questions..."
+                  placeholder={t('workflow.questions.searchPlaceholder')}
                   className="pl-10 bg-background border-border text-foreground"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -161,11 +163,11 @@ const LessonQuestionsStep = ({ lesson, onComplete, onBack }: LessonQuestionsStep
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="multiple_choice">Multiple Choice</SelectItem>
-                  <SelectItem value="fill_blank">Fill Blank</SelectItem>
-                  <SelectItem value="listening">Listening</SelectItem>
-                  <SelectItem value="speaking">Speaking</SelectItem>
+                  <SelectItem value="all">{t('workflow.questions.allTypes')}</SelectItem>
+                  <SelectItem value="multiple_choice">{t('workflow.questions.multipleChoice')}</SelectItem>
+                  <SelectItem value="fill_blank">{t('workflow.questions.fillBlank')}</SelectItem>
+                  <SelectItem value="listening">{t('workflow.questions.listening')}</SelectItem>
+                  <SelectItem value="speaking">{t('workflow.questions.speaking')}</SelectItem>
                 </SelectContent>
               </Select>
               <Select
@@ -176,10 +178,10 @@ const LessonQuestionsStep = ({ lesson, onComplete, onBack }: LessonQuestionsStep
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Difficulty</SelectItem>
-                  <SelectItem value="easy">Easy</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="hard">Hard</SelectItem>
+                  <SelectItem value="all">{t('workflow.questions.allDifficulty')}</SelectItem>
+                  <SelectItem value="easy">{t('workflow.questions.easy')}</SelectItem>
+                  <SelectItem value="medium">{t('workflow.questions.medium')}</SelectItem>
+                  <SelectItem value="hard">{t('workflow.questions.hard')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -188,13 +190,13 @@ const LessonQuestionsStep = ({ lesson, onComplete, onBack }: LessonQuestionsStep
           {/* Add Question Button */}
           <div className="flex justify-between items-center mb-6">
             <h4 className="text-lg font-semibold text-foreground">
-              Question Items ({filteredQuestions.length})
+              {t('workflow.questions.questionItems')} ({filteredQuestions.length})
             </h4>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-primary text-white hover:bg-primary/90">
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Question
+                  {t('workflow.questions.addQuestion')}
                 </Button>
               </DialogTrigger>
               {/* TODO: Create CreateQuestionDialog */}
@@ -207,7 +209,7 @@ const LessonQuestionsStep = ({ lesson, onComplete, onBack }: LessonQuestionsStep
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
               <span className="ml-2 text-muted-foreground">
-                Loading questions...
+                {t('workflow.questions.loading')}
               </span>
             </div>
           )}
@@ -220,7 +222,7 @@ const LessonQuestionsStep = ({ lesson, onComplete, onBack }: LessonQuestionsStep
                 onClick={() => window.location.reload()}
                 variant="outline"
               >
-                Retry
+                {t('common.retry')}
               </Button>
             </div>
           )}
@@ -230,17 +232,17 @@ const LessonQuestionsStep = ({ lesson, onComplete, onBack }: LessonQuestionsStep
             <div className="text-center py-12">
               <HelpCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2">
-                No questions found
+                {t('workflow.questions.noQuestion')}
               </h3>
               <p className="text-muted-foreground mb-4">
-                Start by adding questions to this lesson.
+                {t('workflow.questions.noQuestionDescription')}
               </p>
               <Button
                 onClick={() => setIsAddDialogOpen(true)}
                 className="bg-primary text-white"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add First Question
+                {t('workflow.questions.addFirstQuestion')}
               </Button>
             </div>
           ) : !isLoading && !error ? (
@@ -282,19 +284,19 @@ const LessonQuestionsStep = ({ lesson, onComplete, onBack }: LessonQuestionsStep
                                     : "bg-yellow-500 text-white"
                                 }
                               >
-                                {question.isActive ? "Active" : "Inactive"}
+                                {question.isActive ? t('workflow.questions.active') : t('workflow.questions.inactive')}
                               </Badge>
                             </div>
                             <div className="text-sm text-muted-foreground space-y-1">
                               <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-1">
                                   <Hash className="h-4 w-4" />
-                                  <span>{question.points} points</span>
+                                  <span>{question.points} {t('workflow.questions.points')}</span>
                                 </div>
-                                <div>Set: {question.questionSetTitle}</div>
-                                <div>Exercise: {question.exerciseTitle}</div>
+                                <div>{t('workflow.questions.setTitle')} {question.questionSetTitle}</div>
+                                <div>{t('workflow.questions.exerciseTitle')} {question.exerciseTitle}</div>
                               </div>
-                              <div>Created: {question.createdAt}</div>
+                              <div>{t('workflow.questions.created')} {question.createdAt}</div>
                             </div>
                           </div>
                         </div>

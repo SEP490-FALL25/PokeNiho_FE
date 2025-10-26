@@ -24,6 +24,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useLessonQuestionSets } from "@hooks/useLessonQuestionSets";
+import { useTranslation } from "react-i18next";
 
 interface LessonItem {
   id: number;
@@ -39,6 +40,7 @@ interface LessonQuestionSetsStepProps {
 }
 
 const LessonQuestionSetsStep = ({ lesson, onNext, onBack }: LessonQuestionSetsStepProps) => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
   const [activeStatusTab, setActiveStatusTab] = useState<string>("all");
@@ -89,10 +91,10 @@ const LessonQuestionSetsStep = ({ lesson, onNext, onBack }: LessonQuestionSetsSt
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-xl font-semibold text-foreground">
-            Question Sets Management
+            {t('workflow.questionSets.title')}
           </h3>
           <p className="text-muted-foreground">
-            Manage question sets for lesson: {lesson.titleKey}
+            {t('workflow.questionSets.manageForLesson')} {lesson.titleKey}
           </p>
         </div>
         <div className="flex gap-2">
@@ -101,17 +103,17 @@ const LessonQuestionSetsStep = ({ lesson, onNext, onBack }: LessonQuestionSetsSt
             onClick={onBack}
             className="border-border text-foreground hover:bg-muted"
           >
-            ← Back: Exercises
+            {t('workflow.questionSets.backExercises')}
           </Button>
           <Button
             variant="outline"
             onClick={onNext}
             className="border-border text-foreground hover:bg-muted"
           >
-            Skip Question Sets
+            {t('workflow.questionSets.skipQuestionSets')}
           </Button>
           <Button onClick={onNext} className="bg-primary text-white">
-            Next: Questions <ArrowRight className="h-4 w-4 ml-2" />
+            {t('workflow.questionSets.nextQuestions')} <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         </div>
       </div>
@@ -124,7 +126,7 @@ const LessonQuestionSetsStep = ({ lesson, onNext, onBack }: LessonQuestionSetsSt
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
-                  placeholder="Search question sets..."
+                  placeholder={t('workflow.questionSets.searchPlaceholder')}
                   className="pl-10 bg-background border-border text-foreground"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -140,9 +142,9 @@ const LessonQuestionSetsStep = ({ lesson, onNext, onBack }: LessonQuestionSetsSt
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="all">{t('workflow.questionSets.allStatus')}</SelectItem>
+                  <SelectItem value="active">{t('workflow.questionSets.active')}</SelectItem>
+                  <SelectItem value="inactive">{t('workflow.questionSets.inactive')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -151,13 +153,13 @@ const LessonQuestionSetsStep = ({ lesson, onNext, onBack }: LessonQuestionSetsSt
           {/* Add Question Set Button */}
           <div className="flex justify-between items-center mb-6">
             <h4 className="text-lg font-semibold text-foreground">
-              Question Set Items ({filteredQuestionSets.length})
+              {t('workflow.questionSets.questionSetItems')} ({filteredQuestionSets.length})
             </h4>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-primary text-white hover:bg-primary/90">
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Question Set
+                  {t('workflow.questionSets.addQuestionSet')}
                 </Button>
               </DialogTrigger>
               {/* TODO: Create CreateQuestionSetDialog */}
@@ -170,7 +172,7 @@ const LessonQuestionSetsStep = ({ lesson, onNext, onBack }: LessonQuestionSetsSt
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
               <span className="ml-2 text-muted-foreground">
-                Loading question sets...
+                {t('workflow.questionSets.loading')}
               </span>
             </div>
           )}
@@ -183,7 +185,7 @@ const LessonQuestionSetsStep = ({ lesson, onNext, onBack }: LessonQuestionSetsSt
                 onClick={() => window.location.reload()}
                 variant="outline"
               >
-                Retry
+                {t('common.retry')}
               </Button>
             </div>
           )}
@@ -193,17 +195,17 @@ const LessonQuestionSetsStep = ({ lesson, onNext, onBack }: LessonQuestionSetsSt
             <div className="text-center py-12">
               <ClipboardList className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2">
-                No question sets found
+                {t('workflow.questionSets.noQuestionSet')}
               </h3>
               <p className="text-muted-foreground mb-4">
-                Start by adding question sets to this lesson.
+                {t('workflow.questionSets.noQuestionSetDescription')}
               </p>
               <Button
                 onClick={() => setIsAddDialogOpen(true)}
                 className="bg-primary text-white"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add First Question Set
+                {t('workflow.questionSets.addFirstQuestionSet')}
               </Button>
             </div>
           ) : !isLoading && !error ? (
@@ -232,22 +234,22 @@ const LessonQuestionSetsStep = ({ lesson, onNext, onBack }: LessonQuestionSetsSt
                                     : "bg-yellow-500 text-white"
                                 }
                               >
-                                {questionSet.isActive ? "Active" : "Inactive"}
+                                {questionSet.isActive ? t('workflow.questionSets.active') : t('workflow.questionSets.inactive')}
                               </Badge>
                             </div>
                             <div className="text-sm text-muted-foreground space-y-1">
                               <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-1">
                                   <Hash className="h-4 w-4" />
-                                  <span>{questionSet.questionCount} questions</span>
+                                  <span>{questionSet.questionCount} {t('workflow.exercises.questions')}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                   <Clock className="h-4 w-4" />
-                                  <span>{questionSet.timeLimit} min</span>
+                                  <span>{questionSet.timeLimit} {t('workflow.questionSets.timeLimit')}</span>
                                 </div>
                               </div>
-                              <div>Exercise: {questionSet.exerciseTitle}</div>
-                              <div>Created: {questionSet.createdAt}</div>
+                              <div>{t('workflow.questionSets.exerciseTitle')} {questionSet.exerciseTitle}</div>
+                              <div>{t('workflow.questionSets.created')} {questionSet.createdAt}</div>
                             </div>
                           </div>
                         </div>

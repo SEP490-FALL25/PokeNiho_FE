@@ -115,7 +115,7 @@ const LessonsManagement = () => {
                 {/* Breadcrumb */}
                 <Breadcrumb 
                     items={[
-                        { label: "Lessons Management", icon: <BookOpen className="h-4 w-4" /> }
+                        { label: t('lesson.breadcrumb'), icon: <BookOpen className="h-4 w-4" /> }
                     ]}
                     className="mb-6"
                 />
@@ -123,22 +123,22 @@ const LessonsManagement = () => {
                 {/* Lesson Selection */}
                 {!selectedLesson ? (
                     <div className="mb-8">
-                        <h3 className="text-lg font-semibold text-foreground mb-4">Select a Lesson to Manage</h3>
-                        <p className="text-muted-foreground mb-6">Choose a lesson below to manage its content, exercises, and questions.</p>
+                        <h3 className="text-lg font-semibold text-foreground mb-4">{t('lesson.selectLesson')}</h3>
+                        <p className="text-muted-foreground mb-6">{t('lesson.selectLessonDescription')}</p>
                     </div>
                 ) : (
                     <div className="mb-8">
                         <div className="flex items-center justify-between mb-6">
                             <div>
-                                <h3 className="text-lg font-semibold text-foreground">Managing: {selectedLesson.titleKey}</h3>
-                                <p className="text-sm text-muted-foreground">JLPT N{selectedLesson.levelJlpt} • {selectedLesson.isPublished ? 'Published' : 'Draft'}</p>
+                                <h3 className="text-lg font-semibold text-foreground">{t('lesson.managing')}: {selectedLesson.titleKey}</h3>
+                                <p className="text-sm text-muted-foreground">JLPT N{selectedLesson.levelJlpt} • {selectedLesson.isPublished ? t('lesson.published') : t('lesson.draft')}</p>
                             </div>
                             <Button 
                                 variant="outline" 
                                 onClick={() => setSelectedLesson(null)}
                                 className="border-border text-foreground hover:bg-muted"
                             >
-                                ← Back to Lessons
+                                {t('lesson.backToLessons')}
                             </Button>
                         </div>
                         
@@ -147,22 +147,22 @@ const LessonsManagement = () => {
                             <div className="flex items-center space-x-4">
                                 <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${activeStep === 'content' ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}>
                                     <FileText className="h-4 w-4" />
-                                    <span className="font-medium">Content</span>
+                                    <span className="font-medium">{t('lesson.workflowContent')}</span>
                                 </div>
                                 <ArrowRight className="h-4 w-4 text-muted-foreground" />
                                 <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${activeStep === 'exercises' ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}>
                                     <Target className="h-4 w-4" />
-                                    <span className="font-medium">Exercises</span>
+                                    <span className="font-medium">{t('lesson.workflowExercises')}</span>
                                 </div>
                                 <ArrowRight className="h-4 w-4 text-muted-foreground" />
                                 <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${activeStep === 'question-sets' ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}>
                                     <ClipboardList className="h-4 w-4" />
-                                    <span className="font-medium">Question Sets</span>
+                                    <span className="font-medium">{t('lesson.workflowQuestionSets')}</span>
                                 </div>
                                 <ArrowRight className="h-4 w-4 text-muted-foreground" />
                                 <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${activeStep === 'questions' ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}>
                                     <HelpCircle className="h-4 w-4" />
-                                    <span className="font-medium">Questions</span>
+                                    <span className="font-medium">{t('lesson.workflowQuestions')}</span>
                                 </div>
                             </div>
                         </div>
@@ -312,7 +312,7 @@ const LessonsManagement = () => {
                                                     <div className="space-y-2 text-sm text-muted-foreground mb-4">
                                                         <div className="flex justify-between">
                                                             <span>{t('lesson.estimatedTime')}:</span>
-                                                            <span className="text-foreground font-medium">{lesson.estimatedTimeMinutes} phút</span>
+                                                            <span className="text-foreground font-medium">{lesson.estimatedTimeMinutes} {t('common.minutes')}</span>
                                                         </div>
                                                         <div className="flex justify-between">
                                                             <span>{t('lesson.lessonOrder')}:</span>
@@ -327,7 +327,7 @@ const LessonsManagement = () => {
                                                             onClick={() => setSelectedLesson(lesson)}
                                                         >
                                                             <Eye className="h-4 w-4 mr-1" />
-                                                            Manage
+                                                            {t('lesson.manage')}
                                                         </Button>
                                                         <Button
                                                             variant="outline"
