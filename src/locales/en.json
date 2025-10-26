@@ -455,5 +455,45 @@
         "filterByTarget": "Filter by Target",
         "allTypes": "All Types",
         "allTargets": "All Targets"
+    },
+    "questionBank": {
+        "title": "Question Bank Management",
+        "subtitle": "Manage and organize questions for lessons",
+        "searchPlaceholder": "Search questions...",
+        "allLevels": "All Levels",
+        "allQuestionTypes": "All Question Types",
+        "addQuestion": "Add Question",
+        "questionId": "ID",
+        "question": "Question",
+        "questionType": "Type",
+        "level": "Level",
+        "pronunciation": "Pronunciation",
+        "meaning": "Meaning",
+        "createdAt": "Created At",
+        "actions": "Actions",
+        "noQuestions": "No questions found",
+        "createDialog": {
+            "title": "Add New Question",
+            "editTitle": "Edit Question",
+            "questionJpLabel": "Japanese Question",
+            "questionJpPlaceholder": "Enter Japanese question",
+            "questionTypeLabel": "Question Type",
+            "questionTypePlaceholder": "Select question type",
+            "levelLabel": "JLPT Level",
+            "levelPlaceholder": "Select JLPT level",
+            "pronunciationLabel": "Pronunciation",
+            "pronunciationPlaceholder": "Enter pronunciation",
+            "meaningLabel": "Meaning",
+            "meaningPlaceholder": "Enter meaning",
+            "createButton": "Create Question",
+            "updateButton": "Update",
+            "processing": "Processing..."
+        },
+        "deleteDialog": {
+            "title": "Confirm Delete",
+            "message": "Are you sure you want to delete this question? This action cannot be undone.",
+            "deleteButton": "Delete",
+            "deleting": "Deleting..."
+        }
     }
 }

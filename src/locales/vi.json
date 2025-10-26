@@ -48,11 +48,11 @@
         "tournaments": "Giải đấu",
         "analytics": "Thống kê",
         "settings": "Cài đặt",
+        "questionBank": "Quản lý Ngân hàng Câu hỏi",
         "packageManagement": "Gói dịch vụ",
         "aiPrompts": "AI Prompts",
         "rewards": "Phần thưởng",
         "lessonManagement": "Danh sách bài học",
-        "questionBank": "Ngân hàng câu hỏi",
         "lessonTypes": "Loại bài học",
         "lessonContent": "Nội dung bài học"
     },
@@ -417,5 +417,45 @@
         "filterByTarget": "Lọc theo mục tiêu",
         "allTypes": "Tất cả loại",
         "allTargets": "Tất cả mục tiêu"
+    },
+    "questionBank": {
+        "title": "Quản lý Ngân hàng Câu hỏi",
+        "subtitle": "Quản lý và tổ chức các câu hỏi cho bài học",
+        "searchPlaceholder": "Tìm kiếm câu hỏi...",
+        "allLevels": "Tất cả cấp độ",
+        "allQuestionTypes": "Tất cả loại câu hỏi",
+        "addQuestion": "Thêm câu hỏi",
+        "questionId": "ID",
+        "question": "Câu hỏi",
+        "questionType": "Loại",
+        "level": "Cấp độ",
+        "pronunciation": "Phiên âm",
+        "meaning": "Nghĩa",
+        "createdAt": "Ngày tạo",
+        "actions": "Thao tác",
+        "noQuestions": "Không có câu hỏi nào",
+        "createDialog": {
+            "title": "Thêm câu hỏi mới",
+            "editTitle": "Chỉnh sửa câu hỏi",
+            "questionJpLabel": "Câu hỏi tiếng Nhật",
+            "questionJpPlaceholder": "Nhập câu hỏi tiếng Nhật",
+            "questionTypeLabel": "Loại câu hỏi",
+            "questionTypePlaceholder": "Chọn loại câu hỏi",
+            "levelLabel": "Cấp độ JLPT",
+            "levelPlaceholder": "Chọn cấp độ JLPT",
+            "pronunciationLabel": "Phiên âm",
+            "pronunciationPlaceholder": "Nhập phiên âm",
+            "meaningLabel": "Nghĩa",
+            "meaningPlaceholder": "Nhập nghĩa",
+            "createButton": "Tạo câu hỏi",
+            "updateButton": "Cập nhật",
+            "processing": "Đang xử lý..."
+        },
+        "deleteDialog": {
+            "title": "Xác nhận xóa",
+            "message": "Bạn có chắc chắn muốn xóa câu hỏi này? Hành động này không thể hoàn tác.",
+            "deleteButton": "Xóa",
+            "deleting": "Đang xóa..."
+        }
     }
 }

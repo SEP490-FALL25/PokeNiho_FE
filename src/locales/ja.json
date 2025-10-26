@@ -417,5 +417,45 @@
         "filterByTarget": "対象でフィルター",
         "allTypes": "すべてのタイプ",
         "allTargets": "すべての対象"
+    },
+    "questionBank": {
+        "title": "問題バンク管理",
+        "subtitle": "レッスン用の問題を管理・整理",
+        "searchPlaceholder": "問題を検索...",
+        "allLevels": "すべてのレベル",
+        "allQuestionTypes": "すべての問題タイプ",
+        "addQuestion": "問題を追加",
+        "questionId": "ID",
+        "question": "問題",
+        "questionType": "タイプ",
+        "level": "レベル",
+        "pronunciation": "発音",
+        "meaning": "意味",
+        "createdAt": "作成日",
+        "actions": "アクション",
+        "noQuestions": "問題が見つかりません",
+        "createDialog": {
+            "title": "新しい問題を追加",
+            "editTitle": "問題を編集",
+            "questionJpLabel": "日本語の問題",
+            "questionJpPlaceholder": "日本語の問題を入力",
+            "questionTypeLabel": "問題タイプ",
+            "questionTypePlaceholder": "問題タイプを選択",
+            "levelLabel": "JLPTレベル",
+            "levelPlaceholder": "JLPTレベルを選択",
+            "pronunciationLabel": "発音",
+            "pronunciationPlaceholder": "発音を入力",
+            "meaningLabel": "意味",
+            "meaningPlaceholder": "意味を入力",
+            "createButton": "問題を作成",
+            "updateButton": "更新",
+            "processing": "処理中..."
+        },
+        "deleteDialog": {
+            "title": "削除の確認",
+            "message": "この問題を削除してもよろしいですか？この操作は元に戻せません。",
+            "deleteButton": "削除",
+            "deleting": "削除中..."
+        }
     }
 }

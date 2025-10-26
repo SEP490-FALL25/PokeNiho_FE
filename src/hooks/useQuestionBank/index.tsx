@@ -9,9 +9,13 @@ import { QuestionEntityType } from "@models/questionBank/entity";
 import {
   QUESTION_TYPE,
   JLPT_LEVEL,
+  QUESTION_TYPE_LABELS,
+  JLPT_LEVEL_LABELS,
   QuestionType,
   JLPTLevel,
 } from "@constants/questionBank";
+import { selectCurrentLanguage } from "@redux/features/language/selector";
+import { useSelector } from "react-redux";
 
 /**
  * Hook for managing QuestionBank list with filters and pagination
@@ -19,8 +23,10 @@ import {
  * @returns { data, isLoading, error, pagination }
  */
 export const useQuestionBankList = (filters: IQueryQuestionRequest) => {
+  const language = useSelector(selectCurrentLanguage);
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ["question-bank-list", filters],
+    queryKey: ["question-bank-list", filters, language],
     queryFn: () => questionBankService.getQuestionList(filters),
   });
   return {
@@ -242,32 +248,19 @@ export const useQuestionBank = (
     setEditingQuestion(null);
   }, []);
 
+  // Get current language
+  const language = useSelector(selectCurrentLanguage);
+
   // Utility functions
   const getQuestionTypeLabel = useCallback((type: string) => {
-    const QUESTION_TYPE_LABELS = {
-      [QUESTION_TYPE.VOCABULARY]: "Từ vựng",
-      [QUESTION_TYPE.GRAMMAR]: "Ngữ pháp",
-      [QUESTION_TYPE.KANJI]: "Kanji",
-      [QUESTION_TYPE.LISTENING]: "Nghe hiểu",
-      [QUESTION_TYPE.READING]: "Đọc hiểu",
-    };
-    return (
-      QUESTION_TYPE_LABELS[type as keyof typeof QUESTION_TYPE_LABELS] || type
-    );
-  }, []);
+    const labels = QUESTION_TYPE_LABELS[language as keyof typeof QUESTION_TYPE_LABELS];
+    return labels?.[type as keyof typeof labels] || type;
+  }, [language]);
 
   const getJLPTLevelLabel = useCallback((level: number) => {
-    const JLPT_LEVEL_LABELS = {
-      [JLPT_LEVEL.N5]: "N5",
-      [JLPT_LEVEL.N4]: "N4",
-      [JLPT_LEVEL.N3]: "N3",
-      [JLPT_LEVEL.N2]: "N2",
-      [JLPT_LEVEL.N1]: "N1",
-    };
-    return (
-      JLPT_LEVEL_LABELS[level as keyof typeof JLPT_LEVEL_LABELS] || `N${level}`
-    );
-  }, []);
+    const labels = JLPT_LEVEL_LABELS[language as keyof typeof JLPT_LEVEL_LABELS];
+    return labels?.[level as keyof typeof labels] || `N${level}`;
+  }, [language]);
 
   return {
     // Data

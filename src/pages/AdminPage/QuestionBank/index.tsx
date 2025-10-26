@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
 import { useQuestionBank } from "@hooks/useQuestionBank";
+import { selectCurrentLanguage } from "@redux/features/language/selector";
 import {
   QUESTION_TYPE_LABELS,
   JLPT_LEVEL_LABELS,
@@ -37,6 +40,8 @@ import { Badge } from "@ui/Badge";
 import { Textarea } from "@ui/Textarea";
 
 const QuestionBankManagement: React.FC = () => {
+  const { t } = useTranslation();
+  const language = useSelector(selectCurrentLanguage);
   const {
     questions,
     pagination,
@@ -81,10 +86,10 @@ const QuestionBankManagement: React.FC = () => {
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Quản lý Ngân hàng Câu hỏi
+            {t("questionBank.title")}
           </h1>
           <p className="text-gray-600">
-            Quản lý và tổ chức các câu hỏi cho bài học
+            {t("questionBank.subtitle")}
           </p>
         </div>
 
@@ -94,7 +99,7 @@ const QuestionBankManagement: React.FC = () => {
             <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
               <div className="flex flex-col sm:flex-row gap-4 flex-1">
                 <Input
-                  placeholder="Tìm kiếm câu hỏi..."
+                  placeholder={t("questionBank.searchPlaceholder")}
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   className="w-full sm:w-64"
@@ -110,11 +115,11 @@ const QuestionBankManagement: React.FC = () => {
                   }
                 >
                   <SelectTrigger className="w-full sm:w-48">
-                    <SelectValue placeholder="Tất cả cấp độ" />
+                    <SelectValue placeholder={t("questionBank.allLevels")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Tất cả cấp độ</SelectItem>
-                    {Object.entries(JLPT_LEVEL_LABELS).map(([key, label]) => (
+                    <SelectItem value="all">{t("questionBank.allLevels")}</SelectItem>
+                    {Object.entries(JLPT_LEVEL_LABELS[language as keyof typeof JLPT_LEVEL_LABELS] || {}).map(([key, label]) => (
                       <SelectItem key={key} value={key}>
                         {label}
                       </SelectItem>
@@ -131,11 +136,11 @@ const QuestionBankManagement: React.FC = () => {
                   }
                 >
                   <SelectTrigger className="w-full sm:w-48">
-                    <SelectValue placeholder="Tất cả loại câu hỏi" />
+                    <SelectValue placeholder={t("questionBank.allQuestionTypes")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Tất cả loại câu hỏi</SelectItem>
-                    {Object.entries(QUESTION_TYPE_LABELS).map(
+                    <SelectItem value="all">{t("questionBank.allQuestionTypes")}</SelectItem>
+                    {Object.entries(QUESTION_TYPE_LABELS[language as keyof typeof QUESTION_TYPE_LABELS] || {}).map(
                       ([key, label]) => (
                         <SelectItem key={key} value={key}>
                           {label}
@@ -147,7 +152,7 @@ const QuestionBankManagement: React.FC = () => {
               </div>
               <Button onClick={openCreateDialog} className="flex items-center">
                 <span className="mr-2">+</span>
-                Thêm câu hỏi
+                {t("questionBank.addQuestion")}
               </Button>
             </div>
           </CardContent>
@@ -159,27 +164,27 @@ const QuestionBankManagement: React.FC = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Câu hỏi</TableHead>
-                  <TableHead>Loại</TableHead>
-                  <TableHead>Cấp độ</TableHead>
-                  <TableHead>Phiên âm</TableHead>
-                  <TableHead>Nghĩa</TableHead>
-                  <TableHead>Ngày tạo</TableHead>
-                  <TableHead>Thao tác</TableHead>
+                  <TableHead>{t("questionBank.questionId")}</TableHead>
+                  <TableHead>{t("questionBank.question")}</TableHead>
+                  <TableHead>{t("questionBank.questionType")}</TableHead>
+                  <TableHead>{t("questionBank.level")}</TableHead>
+                  <TableHead>{t("questionBank.pronunciation")}</TableHead>
+                  <TableHead>{t("questionBank.meaning")}</TableHead>
+                  <TableHead>{t("questionBank.createdAt")}</TableHead>
+                  <TableHead>{t("questionBank.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center">
-                      Đang tải...
+                      {t("common.loading")}
                     </TableCell>
                   </TableRow>
                 ) : questions.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center">
-                      Không có câu hỏi nào
+                      {t("questionBank.noQuestions")}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -261,12 +266,12 @@ const QuestionBankManagement: React.FC = () => {
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
             <DialogHeader>
               <DialogTitle>
-                {isCreateDialogOpen ? "Thêm câu hỏi mới" : "Chỉnh sửa câu hỏi"}
+                {isCreateDialogOpen ? t("questionBank.createDialog.title") : t("questionBank.createDialog.editTitle")}
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <Input
-                label="Câu hỏi tiếng Nhật"
+                label={t("questionBank.createDialog.questionJpLabel")}
                 value={formData.questionJp}
                 onChange={(e) =>
                   setFormData((prev) => ({
@@ -274,12 +279,12 @@ const QuestionBankManagement: React.FC = () => {
                     questionJp: e.target.value,
                   }))
                 }
-                placeholder="Nhập câu hỏi tiếng Nhật"
+                placeholder={t("questionBank.createDialog.questionJpPlaceholder")}
               />
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Loại câu hỏi
+                    {t("questionBank.createDialog.questionTypeLabel")}
                   </label>
                   <Select
                     value={formData.questionType}
@@ -291,10 +296,10 @@ const QuestionBankManagement: React.FC = () => {
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Chọn loại câu hỏi" />
+                      <SelectValue placeholder={t("questionBank.createDialog.questionTypePlaceholder")} />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.entries(QUESTION_TYPE_LABELS).map(
+                      {Object.entries(QUESTION_TYPE_LABELS[language as keyof typeof QUESTION_TYPE_LABELS] || {}).map(
                         ([key, label]) => (
                           <SelectItem key={key} value={key}>
                             {label}
@@ -306,7 +311,7 @@ const QuestionBankManagement: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Cấp độ JLPT
+                    {t("questionBank.createDialog.levelLabel")}
                   </label>
                   <Select
                     value={formData.levelN.toString()}
@@ -318,10 +323,10 @@ const QuestionBankManagement: React.FC = () => {
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Chọn cấp độ JLPT" />
+                      <SelectValue placeholder={t("questionBank.createDialog.levelPlaceholder")} />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.entries(JLPT_LEVEL_LABELS).map(([key, label]) => (
+                      {Object.entries(JLPT_LEVEL_LABELS[language as keyof typeof JLPT_LEVEL_LABELS] || {}).map(([key, label]) => (
                         <SelectItem key={key} value={key}>
                           {label}
                         </SelectItem>
@@ -331,7 +336,7 @@ const QuestionBankManagement: React.FC = () => {
                 </div>
               </div>
               <Input
-                label="Phiên âm"
+                label={t("questionBank.createDialog.pronunciationLabel")}
                 value={formData.pronunciation}
                 onChange={(e) =>
                   setFormData((prev) => ({
@@ -339,11 +344,11 @@ const QuestionBankManagement: React.FC = () => {
                     pronunciation: e.target.value,
                   }))
                 }
-                placeholder="Nhập phiên âm"
+                placeholder={t("questionBank.createDialog.pronunciationPlaceholder")}
               />
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nghĩa
+                  {t("questionBank.createDialog.meaningLabel")}
                 </label>
                 <Textarea
                   value={formData.meaning}
@@ -353,14 +358,14 @@ const QuestionBankManagement: React.FC = () => {
                       meaning: e.target.value,
                     }))
                   }
-                  placeholder="Nhập nghĩa"
+                  placeholder={t("questionBank.createDialog.meaningPlaceholder")}
                   rows={3}
                 />
               </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={closeDialogs}>
-                Hủy
+                {t("common.cancel")}
               </Button>
               <Button
                 onClick={
@@ -369,10 +374,10 @@ const QuestionBankManagement: React.FC = () => {
                 disabled={isCreating || isUpdating}
               >
                 {isCreating || isUpdating
-                  ? "Đang xử lý..."
+                  ? t("questionBank.createDialog.processing")
                   : isCreateDialogOpen
-                  ? "Tạo câu hỏi"
-                  : "Cập nhật"}
+                  ? t("questionBank.createDialog.createButton")
+                  : t("questionBank.createDialog.updateButton")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -385,18 +390,17 @@ const QuestionBankManagement: React.FC = () => {
         >
           <DialogContent className="max-w-md bg-white">
             <DialogHeader>
-              <DialogTitle>Xác nhận xóa</DialogTitle>
+              <DialogTitle>{t("questionBank.deleteDialog.title")}</DialogTitle>
             </DialogHeader>
             <p className="text-gray-600 mb-6">
-              Bạn có chắc chắn muốn xóa câu hỏi này? Hành động này không thể
-              hoàn tác.
+              {t("questionBank.deleteDialog.message")}
             </p>
             <DialogFooter>
               <Button
                 variant="outline"
                 onClick={() => setDeleteQuestionId(null)}
               >
-                Hủy
+                {t("common.cancel")}
               </Button>
               <Button
                 variant="destructive"
@@ -404,7 +408,7 @@ const QuestionBankManagement: React.FC = () => {
                 onClick={handleDeleteQuestion}
                 disabled={isDeleting}
               >
-                {isDeleting ? "Đang xóa..." : "Xóa"}
+                {isDeleting ? t("questionBank.deleteDialog.deleting") : t("questionBank.deleteDialog.deleteButton")}
               </Button>
             </DialogFooter>
           </DialogContent>
