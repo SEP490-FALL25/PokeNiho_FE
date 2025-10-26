@@ -102,7 +102,11 @@
         "valueMin": "Giá trị phải lớn hơn 0.",
         "rewardRequired": "Vui lòng chọn phần thưởng.",
         "nameRequiredVi": "Vui lòng nhập tên nhiệm vụ (Tiếng Việt).",
+        "nameRequiredEn": "Vui lòng nhập tên nhiệm vụ (Tiếng Anh).",
+        "nameRequiredJa": "Vui lòng nhập tên nhiệm vụ (Tiếng Nhật).",
         "descriptionRequiredVi": "Vui lòng nhập mô tả nhiệm vụ (Tiếng Việt).",
+        "descriptionRequiredEn": "Vui lòng nhập mô tả nhiệm vụ (Tiếng Anh).",
+        "descriptionRequiredJa": "Vui lòng nhập mô tả nhiệm vụ (Tiếng Nhật).",
         "taskNamePlaceholder": "Tên nhiệm vụ ({{lang}})",
         "descriptionPlaceholder": "Mô tả nhiệm vụ ({{lang}})",
         "languages": {

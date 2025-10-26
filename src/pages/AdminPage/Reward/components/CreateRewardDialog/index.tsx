@@ -8,8 +8,11 @@ import { useCreateReward, useUpdateReward } from "@hooks/useReward";
 import { toast } from "react-toastify";
 import MultilingualInput from "@ui/MultilingualInput";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CreateRewardSchema } from "@models/reward/request";
 import { cn } from "@utils/CN";
 import { REWARD_TYPE, REWARD_TARGET } from "@constants/reward";
+import { ICreateRewardRequest } from "@models/reward/request";
 
 interface CreateRewardDialogProps {
     isOpen: boolean;
@@ -28,11 +31,12 @@ const CreateRewardDialog = ({ isOpen, onClose, editingReward }: CreateRewardDial
         register,
         formState: { errors },
         reset,
-    } = useForm({
+    } = useForm<ICreateRewardRequest>({
+        resolver: zodResolver(CreateRewardSchema),
         defaultValues: {
-            rewardType: "",
+            rewardType: undefined,
             rewardItem: 1,
-            rewardTarget: "",
+            rewardTarget: undefined,
             nameTranslations: [
                 { key: "en" as const, value: "" },
                 { key: "ja" as const, value: "" },
@@ -48,9 +52,9 @@ const CreateRewardDialog = ({ isOpen, onClose, editingReward }: CreateRewardDial
         if (isOpen) {
             if (editingReward) {
                 reset({
-                    rewardType: editingReward.rewardType || "",
+                    rewardType: editingReward.rewardType as any,
                     rewardItem: editingReward.rewardItem || 1,
-                    rewardTarget: editingReward.rewardTarget || "",
+                    rewardTarget: editingReward.rewardTarget as any,
                     nameTranslations: [
                         { key: "en" as const, value: editingReward.name || "" },
                         { key: "ja" as const, value: editingReward.name || "" },
@@ -59,9 +63,9 @@ const CreateRewardDialog = ({ isOpen, onClose, editingReward }: CreateRewardDial
                 });
             } else {
                 reset({
-                    rewardType: "",
+                    rewardType: undefined,
                     rewardItem: 1,
-                    rewardTarget: "",
+                    rewardTarget: undefined,
                     nameTranslations: [
                         { key: "en" as const, value: "" },
                         { key: "ja" as const, value: "" },
@@ -88,7 +92,7 @@ const CreateRewardDialog = ({ isOpen, onClose, editingReward }: CreateRewardDial
         { value: REWARD_TARGET.BADGE, label: t('reward.rewardTargetBADGE') },
     ];
 
-    const handleFormSubmit = async (data: any) => {
+    const handleFormSubmit = async (data: ICreateRewardRequest) => {
         try {
             if (editingReward) {
                 await updateRewardMutation.mutateAsync({ id: editingReward.id, data });
@@ -160,12 +164,13 @@ const CreateRewardDialog = ({ isOpen, onClose, editingReward }: CreateRewardDial
                     <Controller
                         name="rewardItem"
                         control={control}
-                        rules={{ required: t('reward.rewardItemRequired'), min: { value: 1, message: t('reward.rewardItemRequired') } }}
                         render={({ field }) => (
                             <Input
                                 label={t('reward.rewardItem')}
                                 type="number"
                                 {...field}
+                                value={field.value || ''}
+                                onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
                                 error={errors.rewardItem?.message}
                                 placeholder={t('reward.rewardItemPlaceholder')}
                                 className="bg-background border-border text-foreground h-11"

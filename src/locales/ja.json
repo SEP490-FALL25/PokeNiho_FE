@@ -103,7 +103,11 @@
         "valueMin": "値は0より大きくなければなりません。",
         "rewardRequired": "報酬を選択してください。",
         "nameRequiredVi": "クエスト名（ベトナム語）を入力してください。",
+        "nameRequiredEn": "クエスト名（英語）を入力してください。",
+        "nameRequiredJa": "クエスト名（日本語）を入力してください。",
         "descriptionRequiredVi": "クエスト説明（ベトナム語）を入力してください。",
+        "descriptionRequiredEn": "クエスト説明（英語）を入力してください。",
+        "descriptionRequiredJa": "クエスト説明（日本語）を入力してください。",
         "taskNamePlaceholder": "タスク名 ({{lang}})",
         "descriptionPlaceholder": "クエスト説明 ({{lang}})",
         "languages": {

@@ -103,7 +103,11 @@
         "valueMin": "Value must be greater than 0.",
         "rewardRequired": "Please select reward.",
         "nameRequiredVi": "Please enter quest name (Vietnamese).",
+        "nameRequiredEn": "Please enter quest name (English).",
+        "nameRequiredJa": "Please enter quest name (Japanese).",
         "descriptionRequiredVi": "Please enter quest description (Vietnamese).",
+        "descriptionRequiredEn": "Please enter quest description (English).",
+        "descriptionRequiredJa": "Please enter quest description (Japanese).",
         "taskNamePlaceholder": "Task name ({{lang}})",
         "descriptionPlaceholder": "Task description ({{lang}})",
         "languages": {

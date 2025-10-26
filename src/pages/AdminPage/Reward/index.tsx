@@ -144,32 +144,24 @@ const RewardManagement = () => {
                         searchValue={searchQuery}
                         onSearchChange={setSearchQuery}
                         searchPlaceholder={t('reward.searchPlaceholder')}
-                        filters={{
-                            type: {
+                        filters={[
+                            {
+                                key: "rewardType",
                                 value: typeFilter,
                                 onChange: setTypeFilter,
                                 options: typeOptions,
-                                placeholder: t('reward.filterByType')
+                                placeholder: t('reward.filterByType'),
+                                label: t('reward.rewardType')
                             },
-                            status: {
-                                value: "all",
-                                onChange: () => { },
-                                options: [{ value: "all", label: "All" }],
-                                placeholder: "Status"
-                            },
-                            streak: {
-                                value: "all",
-                                onChange: () => { },
-                                options: [{ value: "all", label: "All" }],
-                                placeholder: "Streak"
-                            },
-                            reward: {
+                            {
+                                key: "rewardTarget",
                                 value: targetFilter,
                                 onChange: setTargetFilter,
                                 options: targetOptions,
-                                placeholder: t('reward.filterByTarget')
+                                placeholder: t('reward.filterByTarget'),
+                                label: t('reward.rewardTarget')
                             }
-                        }}
+                        ]}
                         onClearAll={handleClearAllFilters}
                         showClearButton={true}
                     />
