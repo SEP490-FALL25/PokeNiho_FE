@@ -2,6 +2,8 @@ import lessonService from "@services/lesson";
 import { IQueryRequest } from "@models/common/request";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ICreateLessonRequest } from "@models/lesson/request";
+import { useSelector } from "react-redux";
+import { selectCurrentLanguage } from "@redux/features/language/selector";
 
 /**
  * hanlde Lesson List
@@ -9,9 +11,12 @@ import { ICreateLessonRequest } from "@models/lesson/request";
  * @returns { data: data?.data?.data, isLoading, error }
  */
 export const useLessonList = (params: IQueryRequest) => {
+    const currentLanguage = useSelector(selectCurrentLanguage);
+
+
     const { data, isLoading, error } = useQuery({
-        queryKey: ["lesson-list", params],
-        queryFn: () => lessonService.getLessonList(params),
+        queryKey: ["lesson-list", params, currentLanguage],
+        queryFn: () => lessonService.getLessonList({ ...params, language: currentLanguage }),
     })
     return { data: data?.data?.data, isLoading, error }
 }

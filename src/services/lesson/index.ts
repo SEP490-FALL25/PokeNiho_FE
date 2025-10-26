@@ -19,7 +19,7 @@ const lessonService = {
         levelJlpt?: number;
         isPublished?: boolean;
         sort?: "asc" | "desc" | string;
-    } = {}) => {
+        } = {}) => {
         const queryParams = new URLSearchParams();
         if (page !== undefined) queryParams.append("currentPage", String(page));
         if (limit !== undefined) queryParams.append("pageSize", String(limit));

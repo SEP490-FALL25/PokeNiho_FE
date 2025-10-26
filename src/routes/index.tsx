@@ -10,7 +10,7 @@ import { lazy } from "react"
 
 const AdminDashboard = lazy(() => import("@pages/AdminPage/Dashboard"))
 const UsersManagement = lazy(() => import("@pages/AdminPage/Users"))
-const LessonsManagement = lazy(() => import("@pages/AdminPage/Lesson"))
+const LessonsManagement = lazy(() => import("@pages/AdminPage/Lesson/Management"))
 const VocabularyManagement = lazy(() => import("@pages/AdminPage/Vocabulary"))
 const AnalyticsDashboard = lazy(() => import("@pages/AdminPage/Analytics"))
 const PackageManagement = lazy(() => import("@pages/AdminPage/PackageManagement"))
@@ -19,6 +19,7 @@ const TournamentManagement = lazy(() => import("@pages/AdminPage/Tournaments"))
 const AIPromptManagement = lazy(() => import("@pages/AdminPage/AIPrompts"))
 const DailyQuestManagement = lazy(() => import("@pages/AdminPage/DailyQuest"))
 const RewardManagement = lazy(() => import("@pages/AdminPage/Reward"))
+const QuestionBankManagement = lazy(() => import("@pages/AdminPage/QuestionBank"))
 const RouterComponent = () => {
     const router = createBrowserRouter([
         //#region Auth routes
@@ -41,7 +42,7 @@ const RouterComponent = () => {
                             children: [
                                 { path: ROUTES.ADMIN.ROOT, element: <AdminDashboard /> },
                                 { path: ROUTES.ADMIN.USERS, element: <UsersManagement /> },
-                                { path: ROUTES.ADMIN.LESSONS, element: <LessonsManagement /> },
+                                { path: ROUTES.LESSONS.MANAGEMENT, element: <LessonsManagement /> },
                                 { path: ROUTES.ADMIN.VOCABULARY, element: <VocabularyManagement /> },
                                 { path: ROUTES.ADMIN.ANALYTICS, element: <AnalyticsDashboard /> },
                                 { path: ROUTES.ADMIN.PACKAGE_MANAGEMENT, element: <PackageManagement /> },
@@ -50,6 +51,7 @@ const RouterComponent = () => {
                                 { path: ROUTES.ADMIN.AI_PROMPTS_MANAGEMENT, element: <AIPromptManagement /> },
                                 { path: ROUTES.ADMIN.DAILY_QUEST_MANAGEMENT, element: <DailyQuestManagement /> },
                                 { path: ROUTES.ADMIN.REWARD_MANAGEMENT, element: <RewardManagement /> },
+                                { path: ROUTES.ADMIN.QUESTION_BANK, element: <QuestionBankManagement /> },
                             ],
                         },
                     ],

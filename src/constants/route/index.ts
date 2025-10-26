@@ -25,6 +25,12 @@ const ADMIN = {
     AI_PROMPTS_MANAGEMENT: '/admin/ai-prompts-management',
     DAILY_QUEST_MANAGEMENT: '/admin/daily-quest-management',
     REWARD_MANAGEMENT: '/admin/reward-management',
+    QUESTION_BANK: '/admin/question-bank',
+};
+
+const LESSONS = {
+    ROOT: '/admin/lessons',
+    MANAGEMENT: '/admin/lessons/management',
 };
 
 const ROLE = {
@@ -37,6 +43,7 @@ export const ROUTES = {
     AUTH,
     PUBLIC,
     ADMIN,
+    LESSONS,
     ROLE,
 };
 
