@@ -15,6 +15,7 @@ import {
   Gift,
   LucideIcon,
   FileText,
+  Store,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@ui/Button";
@@ -98,6 +99,11 @@ const AdminLayout = () => {
       name: t("navigation.rewards"),
       href: ROUTES.ADMIN.REWARD_MANAGEMENT,
       icon: Gift,
+    },
+    {
+      name: t("navigation.configShop"),
+      href: ROUTES.ADMIN.CONFIG_SHOP,
+      icon: Store,
     },
   ];
 

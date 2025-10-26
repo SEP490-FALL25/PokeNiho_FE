@@ -26,6 +26,7 @@ const ADMIN = {
     DAILY_QUEST_MANAGEMENT: '/admin/daily-quest-management',
     REWARD_MANAGEMENT: '/admin/reward-management',
     QUESTION_BANK: '/admin/question-bank',
+    CONFIG_SHOP: '/admin/config-shop',
 };
 
 const LESSONS = {
