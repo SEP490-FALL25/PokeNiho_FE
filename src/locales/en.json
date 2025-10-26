@@ -33,7 +33,8 @@
         "required": "Required",
         "optional": "Optional",
         "view": "View",
-        "notFound": "Not found"
+        "notFound": "Not found",
+        "all": "All"
     },
     "navigation": {
         "dashboard": "Dashboard",

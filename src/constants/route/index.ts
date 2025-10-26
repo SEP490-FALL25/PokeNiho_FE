@@ -30,9 +30,6 @@ const ADMIN = {
 const LESSONS = {
     ROOT: '/admin/lessons',
     MANAGEMENT: '/admin/lessons/management',
-    QUESTION_BANK: '/admin/lessons/question-bank',
-    LESSON_TYPES: '/admin/lessons/lesson-types',
-    LESSON_CONTENT: '/admin/lessons/lesson-content',
 };
 
 const ROLE = {

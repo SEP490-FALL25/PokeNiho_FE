@@ -10,7 +10,7 @@ import { lazy } from "react"
 
 const AdminDashboard = lazy(() => import("@pages/AdminPage/Dashboard"))
 const UsersManagement = lazy(() => import("@pages/AdminPage/Users"))
-const LessonsManagement = lazy(() => import("@pages/AdminPage/Lesson"))
+const LessonsManagement = lazy(() => import("@pages/AdminPage/Lesson/Management"))
 const VocabularyManagement = lazy(() => import("@pages/AdminPage/Vocabulary"))
 const AnalyticsDashboard = lazy(() => import("@pages/AdminPage/Analytics"))
 const PackageManagement = lazy(() => import("@pages/AdminPage/PackageManagement"))
@@ -41,7 +41,7 @@ const RouterComponent = () => {
                             children: [
                                 { path: ROUTES.ADMIN.ROOT, element: <AdminDashboard /> },
                                 { path: ROUTES.ADMIN.USERS, element: <UsersManagement /> },
-                                { path: ROUTES.ADMIN.LESSONS, element: <LessonsManagement /> },
+                                { path: ROUTES.LESSONS.MANAGEMENT, element: <LessonsManagement /> },
                                 { path: ROUTES.ADMIN.VOCABULARY, element: <VocabularyManagement /> },
                                 { path: ROUTES.ADMIN.ANALYTICS, element: <AnalyticsDashboard /> },
                                 { path: ROUTES.ADMIN.PACKAGE_MANAGEMENT, element: <PackageManagement /> },

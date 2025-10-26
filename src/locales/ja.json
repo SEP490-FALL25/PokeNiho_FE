@@ -33,7 +33,8 @@
         "required": "必須",
         "optional": "オプション",
         "view": "表示",
-        "notFound": "見つかりません"
+        "notFound": "見つかりません",
+        "all": "すべて"
     },
     "navigation": {
         "dashboard": "ダッシュボード",

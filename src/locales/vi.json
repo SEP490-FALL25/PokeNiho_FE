@@ -33,7 +33,8 @@
         "required": "Bắt buộc",
         "optional": "Tùy chọn",
         "view": "Xem",
-        "notFound": "Không tìm thấy"
+        "notFound": "Không tìm thấy",
+        "all": "Tất cả"
     },
     "navigation": {
         "dashboard": "Tổng quan",
