@@ -106,7 +106,11 @@
             "vi": "Tiếng Việt",
             "en": "Tiếng Anh",
             "ja": "Tiếng Nhật"
-        }
+        },
+        "isActive": "Kích hoạt",
+        "isActiveOn": "Đang bật",
+        "isActiveOff": "Đang tắt",
+        "isStreak": "Chuỗi liên tiếp"
     },
     "lesson": {
         "title": "Quản lý bài học",
@@ -211,11 +215,7 @@
         "importPokemon": "Import Pokémon",
         "conditionValuePlaceholder": "Ví dụ: 7",
         "taskNamePlaceholder": "Tên nhiệm vụ ({{lang}})",
-        "descriptionPlaceholder": "Mô tả ({{lang}})",
-        "isActive": "Kích hoạt",
-        "isActiveOn": "Đang bật",
-        "isActiveOff": "Đang tắt",
-        "isStreak": "Chuỗi liên tiếp"
+        "descriptionPlaceholder": "Mô tả ({{lang}})"
     },
     "createVocabulary": {
         "createSuccess": "Tạo từ vựng thành công",
@@ -269,16 +269,16 @@
         "addTitle": "Thêm phần thưởng",
         "editTitle": "Sửa phần thưởng",
         "name": "Tên phần thưởng",
-        "namePlaceholder": "Nhập tên phần thưởng...",
+        "namePlaceholder": "Nhập tên phần thưởng... ({{lang}})",
         "nameRequired": "Vui lòng nhập tên phần thưởng",
         "nameVi": "Tên phần thưởng (Tiếng Việt)",
-        "nameViPlaceholder": "Nhập tên phần thưởng bằng tiếng Việt...",
+        "nameViPlaceholder": "Nhập tên phần thưởng bằng tiếng Việt... ({{lang}})",
         "nameViRequired": "Vui lòng nhập tên phần thưởng bằng tiếng Việt",
         "nameEn": "Tên phần thưởng (English)",
-        "nameEnPlaceholder": "Nhập tên phần thưởng bằng tiếng Anh...",
+        "nameEnPlaceholder": "Nhập tên phần thưởng bằng tiếng Anh... ({{lang}})",
         "nameEnRequired": "Vui lòng nhập tên phần thưởng bằng tiếng Anh",
         "nameJa": "Tên phần thưởng (日本語)",
-        "nameJaPlaceholder": "Nhập tên phần thưởng bằng tiếng Nhật...",
+        "nameJaPlaceholder": "Nhập tên phần thưởng bằng tiếng Nhật... ({{lang}})",
         "nameJaRequired": "Vui lòng nhập tên phần thưởng bằng tiếng Nhật",
         "rewardType": "Loại phần thưởng",
         "rewardTypePlaceholder": "Chọn loại phần thưởng",

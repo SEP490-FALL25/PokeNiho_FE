@@ -15,6 +15,8 @@ import { useCreateDailyRequest } from '@hooks/useDailyRequest';
 import { ICreateDailyRequestRequest } from '@models/dailyRequest/request';
 import { toast } from 'react-toastify';
 import { DAILY_REQUEST } from '@constants/dailyRequest';
+import { useGetRewardList } from '@hooks/useReward';
+import { IRewardEntityType } from '@models/reward/entity';
 
 
 interface CreateDailyQuestDialogProps {
@@ -32,6 +34,10 @@ const CreateDailyQuestDialog = ({
     const [openConditionSelect, setOpenConditionSelect] = useState<boolean>(false);
 
     const createDailyRequestMutation = useCreateDailyRequest();
+
+    const { data: rewardList } = useGetRewardList();
+    const rewards = rewardList?.results || [];
+
 
     const {
         control,
@@ -118,7 +124,6 @@ const CreateDailyQuestDialog = ({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Combobox Loại điều kiện */}
                         <div className="space-y-1.5">
-                            {/* --- THAY ĐỔI: Sử dụng <label> --- */}
                             <label htmlFor="dailyRequestType" className={cn("text-sm font-medium text-foreground", errors.dailyRequestType && "text-destructive")}>{t('dailyQuest.conditionTypeLabel')}</label>
                             <Controller
                                 name="dailyRequestType"
@@ -178,7 +183,6 @@ const CreateDailyQuestDialog = ({
                         </div>
                         {/* Giá trị điều kiện */}
                         <div className="space-y-1.5">
-                            {/* --- THAY ĐỔI: Sử dụng <label> --- */}
                             <label htmlFor="conditionValue" className={cn("text-sm font-medium text-foreground", errors.conditionValue && "text-destructive")}>{t('dailyQuest.conditionValueLabel')}</label>
                             <Input
                                 id="conditionValue"
@@ -197,7 +201,6 @@ const CreateDailyQuestDialog = ({
 
                     {/* Phần thưởng */}
                     <div className="space-y-1.5">
-                        {/* --- THAY ĐỔI: Sử dụng <label> --- */}
                         <label htmlFor="rewardId" className={cn("text-sm font-medium text-foreground", errors.rewardId && "text-destructive")}>{t('dailyQuest.rewardLabel')}</label>
                         <Controller
                             name="rewardId"
@@ -209,9 +212,9 @@ const CreateDailyQuestDialog = ({
                                         <SelectValue placeholder={t('dailyQuest.selectReward')} />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {mockRewards.map((reward) => (
+                                        {rewards.map((reward: IRewardEntityType) => (
                                             <SelectItem key={reward.id} value={reward.id.toString()}>
-                                                {reward.name} (ID: {reward.id})
+                                                {reward.nameTranslation}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>

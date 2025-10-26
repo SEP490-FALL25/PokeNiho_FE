@@ -142,7 +142,7 @@ const CreateRewardDialog = ({ isOpen, onClose, editingReward }: CreateRewardDial
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="bg-card border-border">
+            <DialogContent className="bg-white border-border">
                 <DialogHeader>
                     <DialogTitle className="text-foreground">
                         {editingReward ? t('reward.editTitle') : t('reward.addTitle')}
