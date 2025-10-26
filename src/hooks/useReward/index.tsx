@@ -33,6 +33,8 @@ export const useCreateReward = () => {
     });
     return createRewardMutation;
 };
+//----------------------End----------------------//
+
 
 /**
  * Handle Update Reward
@@ -48,6 +50,8 @@ export const useUpdateReward = () => {
     });
     return updateRewardMutation;
 };
+//----------------------End----------------------//
+
 
 /**
  * Handle Delete Reward

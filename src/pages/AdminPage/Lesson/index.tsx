@@ -55,8 +55,6 @@ const LessonsManagement = () => {
     const lessons: LessonItem[] = data?.results || []
     const pagination = data?.pagination
 
-    console.log(lessons);
-
     const getPublishedBadge = (published: boolean) => (published ? t('lesson.published') : t('lesson.draft'))
 
     /**

@@ -13,6 +13,7 @@ import PaginationControls from "@ui/PaginationControls";
 import SortableTableHeader from "@ui/SortableTableHeader";
 import FilterPanel from "@ui/FilterPanel";
 import TableSkeleton from "@ui/TableSkeleton";
+import { IRewardEntityType } from "@models/reward/entity";
 
 const RewardManagement = () => {
     const { t } = useTranslation();
@@ -181,8 +182,8 @@ const RewardManagement = () => {
                                 <TableHeader>
                                     <TableRow className="border-border hover:bg-muted/50">
                                         <SortableTableHeader
-                                            title={t('reward.nameKey')}
-                                            sortKey="nameKey"
+                                            title={t('reward.name')}
+                                            sortKey="nameTranslation"
                                             currentSortBy={sortBy}
                                             currentSort={sort}
                                             onSort={handleSort}
@@ -213,9 +214,9 @@ const RewardManagement = () => {
                                 </TableHeader>
                                 <TableBody>
                                     {rewardList?.results && rewardList.results.length > 0 ? (
-                                        rewardList.results.map((reward: any) => (
+                                        rewardList.results.map((reward: IRewardEntityType) => (
                                             <TableRow key={reward.id} className="border-border hover:bg-muted/50">
-                                                <TableCell className="font-medium text-foreground">{reward.nameKey}</TableCell>
+                                                <TableCell className="font-medium text-foreground">{reward.nameTranslation}</TableCell>
                                                 <TableCell className="text-muted-foreground">
                                                     {getRewardTypeLabel(reward.rewardType)}
                                                 </TableCell>

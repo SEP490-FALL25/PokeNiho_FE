@@ -208,7 +208,7 @@ const CreateDailyQuestDialog = ({
                             rules={{ required: t('dailyQuest.rewardRequired') }}
                             render={({ field }) => (
                                 <Select onValueChange={(value) => field.onChange(Number(value))} value={field.value?.toString()}>
-                                    <SelectTrigger id="rewardId" className={cn("bg-background border-input", errors.rewardId && "border-destructive focus-visible:ring-destructive")}>
+                                    <SelectTrigger id="rewardId" className={cn("bg-background border-input", errors.rewardId && "border-error focus-visible:ring-error")}>
                                         <SelectValue placeholder={t('dailyQuest.selectReward')} />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -232,6 +232,7 @@ const CreateDailyQuestDialog = ({
                         errors={errors.nameTranslations as Record<string, string>}
                         placeholderKey="dailyQuest.taskNamePlaceholder"
                         requiredKey="dailyQuest.nameRequiredVi"
+                        fieldName="name"
                     />
 
                     {/* Mô tả nhiệm vụ */}
@@ -243,6 +244,7 @@ const CreateDailyQuestDialog = ({
                         placeholderKey="dailyQuest.descriptionPlaceholder"
                         requiredKey="dailyQuest.descriptionRequiredVi"
                         isTextarea={true}
+                        fieldName="description"
                     />
 
                     {/* Kích hoạt & Streak */}

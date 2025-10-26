@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@ui/Dialog";
 import { Button } from "@ui/Button";
 import { Input } from "@ui/Input";
@@ -7,6 +7,9 @@ import { useTranslation } from "react-i18next";
 import { useCreateReward, useUpdateReward } from "@hooks/useReward";
 import { toast } from "react-toastify";
 import MultilingualInput from "@ui/MultilingualInput";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { cn } from "@utils/CN";
+import { REWARD_TYPE, REWARD_TARGET } from "@constants/reward";
 
 interface CreateRewardDialogProps {
     isOpen: boolean;
@@ -19,122 +22,85 @@ const CreateRewardDialog = ({ isOpen, onClose, editingReward }: CreateRewardDial
     const createRewardMutation = useCreateReward();
     const updateRewardMutation = useUpdateReward();
 
-    const [formData, setFormData] = useState({
-        nameVi: "",
-        nameEn: "",
-        nameJa: "",
-        rewardType: "",
-        rewardItem: "",
-        rewardTarget: "",
+    const {
+        control,
+        handleSubmit,
+        register,
+        formState: { errors },
+        reset,
+    } = useForm({
+        defaultValues: {
+            rewardType: "",
+            rewardItem: 1,
+            rewardTarget: "",
+            nameTranslations: [
+                { key: "en" as const, value: "" },
+                { key: "ja" as const, value: "" },
+                { key: "vi" as const, value: "" },
+            ],
+        },
     });
 
-    const [errors, setErrors] = useState<Record<string, string>>({});
+    const { fields: nameFields } = useFieldArray({ control, name: "nameTranslations" });
 
     // Reset form when dialog opens/closes
     useEffect(() => {
         if (isOpen) {
             if (editingReward) {
-                setFormData({
-                    nameVi: editingReward.name || "",
-                    nameEn: editingReward.name || "",
-                    nameJa: editingReward.name || "",
-                    rewardType: editingReward.rewardType,
-                    rewardItem: editingReward.rewardItem.toString(),
-                    rewardTarget: editingReward.rewardTarget,
+                reset({
+                    rewardType: editingReward.rewardType || "",
+                    rewardItem: editingReward.rewardItem || 1,
+                    rewardTarget: editingReward.rewardTarget || "",
+                    nameTranslations: [
+                        { key: "en" as const, value: editingReward.name || "" },
+                        { key: "ja" as const, value: editingReward.name || "" },
+                        { key: "vi" as const, value: editingReward.name || "" },
+                    ],
                 });
             } else {
-                setFormData({
-                    nameVi: "",
-                    nameEn: "",
-                    nameJa: "",
+                reset({
                     rewardType: "",
-                    rewardItem: "",
+                    rewardItem: 1,
                     rewardTarget: "",
+                    nameTranslations: [
+                        { key: "en" as const, value: "" },
+                        { key: "ja" as const, value: "" },
+                        { key: "vi" as const, value: "" },
+                    ],
                 });
             }
-            setErrors({});
         }
-    }, [isOpen, editingReward]);
+    }, [isOpen, editingReward, reset]);
 
+    // Get options using flattened JSON localization keys
     const rewardTypeOptions = [
-        { value: "DAILY_REQUEST", label: "Daily Request" },
-        { value: "LEVEL_UP", label: "Level Up" },
-        { value: "ACHIEVEMENT", label: "Achievement" },
-        { value: "SPECIAL_EVENT", label: "Special Event" },
+        { value: REWARD_TYPE.LESSON, label: t('reward.rewardTypeLESSON') },
+        { value: REWARD_TYPE.DAILY_REQUEST, label: t('reward.rewardTypeDAILY_REQUEST') },
+        { value: REWARD_TYPE.EVENT, label: t('reward.rewardTypeEVENT') },
+        { value: REWARD_TYPE.ACHIEVEMENT, label: t('reward.rewardTypeACHIEVEMENT') },
+        { value: REWARD_TYPE.LEVEL, label: t('reward.rewardTypeLEVEL') },
     ];
 
     const rewardTargetOptions = [
-        { value: "EXP", label: "Experience Points" },
-        { value: "GEM", label: "Gems" },
-        { value: "STAMINA", label: "Stamina" },
-        { value: "COIN", label: "Coins" },
-        { value: "ITEM", label: "Items" },
+        { value: REWARD_TARGET.EXP, label: t('reward.rewardTargetEXP') },
+        { value: REWARD_TARGET.POINT, label: t('reward.rewardTargetPOINT') },
+        { value: REWARD_TARGET.POKEMON, label: t('reward.rewardTargetPOKEMON') },
+        { value: REWARD_TARGET.BADGE, label: t('reward.rewardTargetBADGE') },
     ];
 
-    const validateForm = () => {
-        const newErrors: Record<string, string> = {};
-
-        if (!formData.nameVi.trim()) {
-            newErrors.nameVi = t('reward.nameViRequired');
-        }
-
-        if (!formData.nameEn.trim()) {
-            newErrors.nameEn = t('reward.nameEnRequired');
-        }
-
-        if (!formData.nameJa.trim()) {
-            newErrors.nameJa = t('reward.nameJaRequired');
-        }
-
-        if (!formData.rewardType) {
-            newErrors.rewardType = t('reward.rewardTypeRequired');
-        }
-
-        if (!formData.rewardItem || isNaN(Number(formData.rewardItem)) || Number(formData.rewardItem) <= 0) {
-            newErrors.rewardItem = t('reward.rewardItemRequired');
-        }
-
-        if (!formData.rewardTarget) {
-            newErrors.rewardTarget = t('reward.rewardTargetRequired');
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (!validateForm()) {
-            return;
-        }
-
-        const submitData = {
-            name: formData.nameVi.trim(), // Sử dụng tiếng Việt làm name chính
-            rewardType: formData.rewardType,
-            rewardItem: Number(formData.rewardItem),
-            rewardTarget: formData.rewardTarget,
-        };
-
+    const handleFormSubmit = async (data: any) => {
         try {
             if (editingReward) {
-                await updateRewardMutation.mutateAsync({ id: editingReward.id, data: submitData });
+                await updateRewardMutation.mutateAsync({ id: editingReward.id, data });
                 toast.success(t('reward.updateSuccess'));
             } else {
-                await createRewardMutation.mutateAsync(submitData);
+                await createRewardMutation.mutateAsync(data);
                 toast.success(t('reward.createSuccess'));
             }
             onClose();
         } catch (error) {
             console.error("Error saving reward:", error);
             toast.error(editingReward ? t('reward.updateError') : t('reward.createError'));
-        }
-    };
-
-    const handleInputChange = (field: string, value: string) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
-        if (errors[field]) {
-            setErrors(prev => ({ ...prev, [field]: "" }));
         }
     };
 
@@ -149,75 +115,91 @@ const CreateRewardDialog = ({ isOpen, onClose, editingReward }: CreateRewardDial
                     </DialogTitle>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
                     {/* Multilingual Name Input */}
                     <MultilingualInput
                         label={t('reward.name')}
-                        fields={[
-                            { id: "name-vi", key: "vi" },
-                            { id: "name-en", key: "en" },
-                            { id: "name-ja", key: "ja" }
-                        ]}
-                        values={formData}
-                        onChange={handleInputChange}
-                        errors={errors}
+                        fields={nameFields}
+                        register={register}
+                        errors={errors.nameTranslations}
                         placeholderKey="reward.namePlaceholder"
-                        requiredKey="reward.nameRequired"
+                        requiredKey="reward.nameRequiredVi"
+                        fieldName="name"
                     />
 
-                    <div>
+                    {/* Reward Type */}
+                    <>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             {t('reward.rewardType')}
                         </label>
-                        <Select value={formData.rewardType} onValueChange={(value) => handleInputChange('rewardType', value)}>
-                            <SelectTrigger className="bg-background border-border text-foreground">
-                                <SelectValue placeholder={t('reward.rewardTypePlaceholder')} />
-                            </SelectTrigger>
-                            <SelectContent className="bg-card border-border">
-                                {rewardTypeOptions.map((option) => (
-                                    <SelectItem key={option.value} value={option.value}>
-                                        {option.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        {errors.rewardType && (
-                            <p className="mt-1 text-xs text-red-500">{errors.rewardType}</p>
-                        )}
-                    </div>
-
-                    <div>
-                        <Input
-                            label={t('reward.rewardItem')}
-                            type="number"
-                            value={formData.rewardItem}
-                            onChange={(e) => handleInputChange('rewardItem', e.target.value)}
-                            error={errors.rewardItem}
-                            placeholder={t('reward.rewardItemPlaceholder')}
-                            variant="original"
+                        <Controller
+                            name="rewardType"
+                            control={control}
+                            rules={{ required: t('reward.rewardTypeRequired') }}
+                            render={({ field }) => (
+                                <Select value={field.value} onValueChange={field.onChange}>
+                                    <SelectTrigger className={cn("bg-background text-foreground", errors.rewardType && "border-error focus-visible:ring-destructive")}>
+                                        <SelectValue placeholder={t('reward.rewardTypePlaceholder')} />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-card border-border">
+                                        {rewardTypeOptions.map((option) => (
+                                            <SelectItem key={option.value} value={option.value}>
+                                                {option.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
                         />
-                    </div>
+                        {errors.rewardType && (
+                            <p className="mt-1 text-xs text-red-500">{errors.rewardType.message}</p>
+                        )}
+                    </>
 
-                    <div>
+                    {/* Reward Item */}
+                    <Controller
+                        name="rewardItem"
+                        control={control}
+                        rules={{ required: t('reward.rewardItemRequired'), min: { value: 1, message: t('reward.rewardItemRequired') } }}
+                        render={({ field }) => (
+                            <Input
+                                label={t('reward.rewardItem')}
+                                type="number"
+                                {...field}
+                                error={errors.rewardItem?.message}
+                                placeholder={t('reward.rewardItemPlaceholder')}
+                                className="bg-background border-border text-foreground h-11"
+                            />
+                        )}
+                    />
+
+                    <>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             {t('reward.rewardTarget')}
                         </label>
-                        <Select value={formData.rewardTarget} onValueChange={(value) => handleInputChange('rewardTarget', value)}>
-                            <SelectTrigger className="bg-background border-border text-foreground">
-                                <SelectValue placeholder={t('reward.rewardTargetPlaceholder')} />
-                            </SelectTrigger>
-                            <SelectContent className="bg-card border-border">
-                                {rewardTargetOptions.map((option) => (
-                                    <SelectItem key={option.value} value={option.value}>
-                                        {option.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <Controller
+                            name="rewardTarget"
+                            control={control}
+                            rules={{ required: t('reward.rewardTargetRequired') }}
+                            render={({ field }) => (
+                                <Select value={field.value} onValueChange={field.onChange}>
+                                    <SelectTrigger className={cn("bg-background text-foreground", errors.rewardTarget && "border-error focus-visible:ring-destructive")}>
+                                        <SelectValue placeholder={t('reward.rewardTargetPlaceholder')} />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-card border-border">
+                                        {rewardTargetOptions.map((option) => (
+                                            <SelectItem key={option.value} value={option.value}>
+                                                {option.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        />
                         {errors.rewardTarget && (
-                            <p className="mt-1 text-xs text-red-500">{errors.rewardTarget}</p>
+                            <p className="mt-1 text-xs text-red-500">{errors.rewardTarget.message}</p>
                         )}
-                    </div>
+                    </>
 
                     <div className="flex justify-end space-x-2 pt-4">
                         <Button

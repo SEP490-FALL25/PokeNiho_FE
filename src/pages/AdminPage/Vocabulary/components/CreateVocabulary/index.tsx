@@ -113,8 +113,6 @@ const CreateVocabulary = ({ setIsAddDialogOpen }: CreateVocabularyProps) => {
     });
 
     const onSubmit = async (data: ICreateVocabularyFullMultipartType) => {
-        console.log('data', data);
-
         setIsSubmitting(true);
         try {
             // Ensure files are passed along (service builds FormData)

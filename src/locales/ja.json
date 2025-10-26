@@ -5,6 +5,10 @@
         "edit": "編集",
         "delete": "削除",
         "add": "追加",
+        "create": "作成",
+        "update": "更新",
+        "saving": "保存中...",
+        "required": "必須",
         "search": "検索",
         "loading": "読み込み中...",
         "confirm": "確認",
@@ -102,13 +106,15 @@
         "descriptionRequiredVi": "クエスト説明（ベトナム語）を入力してください。",
         "taskNamePlaceholder": "タスク名 ({{lang}})",
         "descriptionPlaceholder": "クエスト説明 ({{lang}})",
-        "isActiveOff": "オフ",
-        "isActiveOn": "オン",
         "languages": {
             "vi": "ベトナム語",
             "en": "英語",
             "ja": "日本語"
-        }
+        },
+        "isActive": "アクティブ",
+        "isActiveOn": "オン",
+        "isActiveOff": "オフ",
+        "isStreak": "連続"
     },
     "lesson": {
         "title": "レッスン管理",
@@ -213,11 +219,7 @@
         "importPokemon": "ポケモンをインポート",
         "conditionValuePlaceholder": "例: 7",
         "taskNamePlaceholder": "タスク名 ({{lang}})",
-        "descriptionPlaceholder": "説明 ({{lang}})",
-        "isActive": "アクティブ",
-        "isActiveOn": "オン",
-        "isActiveOff": "オフ",
-        "isStreak": "連続"
+        "descriptionPlaceholder": "説明 ({{lang}})"
     },
     "createVocabulary": {
         "createSuccess": "語彙が正常に作成されました",
@@ -273,6 +275,13 @@
         "name": "報酬名",
         "namePlaceholder": "報酬名を入力... ({{lang}})",
         "nameRequired": "報酬名を入力してください",
+        "nameRequiredVi": "報酬名（ベトナム語）を入力してください",
+        "nameRequiredEn": "報酬名（英語）を入力してください",
+        "nameRequiredJa": "報酬名（日本語）を入力してください",
+        "missingLanguages": "必須項目をすべて入力してください",
+        "languageVi": "ベトナム語",
+        "languageEn": "英語",
+        "languageJa": "日本語",
         "nameVi": "報酬名 (Tiếng Việt)",
         "nameViPlaceholder": "ベトナム語で報酬名を入力... ({{lang}})",
         "nameViRequired": "ベトナム語で報酬名を入力してください",
@@ -294,6 +303,15 @@
         "filterByType": "タイプでフィルター",
         "filterByTarget": "対象でフィルター",
         "allTypes": "すべてのタイプ",
-        "allTargets": "すべての対象"
+        "allTargets": "すべての対象",
+        "rewardTypeLESSON": "レッスン",
+        "rewardTypeDAILY_REQUEST": "デイリークエスト",
+        "rewardTypeEVENT": "イベント",
+        "rewardTypeACHIEVEMENT": "実績",
+        "rewardTypeLEVEL": "レベル",
+        "rewardTargetEXP": "経験値",
+        "rewardTargetPOINT": "ポイント",
+        "rewardTargetPOKEMON": "ポケモン",
+        "rewardTargetBADGE": "バッジ"
     }
 }

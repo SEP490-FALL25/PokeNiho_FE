@@ -357,7 +357,6 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
                                     ))
                                 ) : (
                                     kanjiList?.results?.map((k: KanjiManagement) => (
-                                        console.log('k', k),
                                         <TableRow key={k.id}>
                                             <TableCell className="text-2xl font-bold w-24 whitespace-nowrap">{k.kanji}</TableCell>
                                             <TableCell className="w-56">{k.meaning || ''}</TableCell>
