@@ -7,8 +7,9 @@ export const RewardEntitySchema = z.object({
     rewardType: z.string(),
     rewardItem: z.number(),
     rewardTarget: z.string(),
+    nameTranslation: z.string().optional(),
     ...byUser,
     ...at,
 })
 
-export type RewardEntityType = z.infer<typeof RewardEntitySchema>;
+export type IRewardEntityType = z.infer<typeof RewardEntitySchema>;

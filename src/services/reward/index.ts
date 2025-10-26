@@ -52,12 +52,13 @@ const rewardService = {
         return axiosPrivate.post('/reward', data);
     },
 
-    updateReward: async (id: number, data: ICreateRewardRequest) => {
-        return axiosPrivate.put(`/reward/${id}`, data);
+    //TODO: Update reward sau khi Pilu thêm cái get by reward id cho admin
+    updateReward: async (rewardId: number, data: ICreateRewardRequest) => {
+        return axiosPrivate.put(`/reward/${rewardId}`, data);
     },
 
-    deleteReward: async (id: number) => {
-        return axiosPrivate.delete(`/reward/${id}`);
+    deleteReward: async (rewardId: number) => {
+        return axiosPrivate.delete(`/reward/${rewardId}`);
     },
 };
 

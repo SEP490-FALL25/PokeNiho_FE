@@ -1,13 +1,10 @@
 import { Button } from '@ui/Button';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@ui/Command';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@ui/Dialog';
 import { Input } from '@ui/Input';
-import { Popover, PopoverContent, PopoverTrigger } from '@ui/Popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ui/Select';
 import { Switch } from '@ui/Switch';
 import MultilingualInput from '@ui/MultilingualInput';
-import { Check, ChevronsUpDown } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Controller, useForm, useFieldArray } from 'react-hook-form';
 import { cn } from '@utils/CN';
 import { useTranslation } from 'react-i18next';
@@ -15,24 +12,43 @@ import { useCreateDailyRequest } from '@hooks/useDailyRequest';
 import { ICreateDailyRequestRequest } from '@models/dailyRequest/request';
 import { toast } from 'react-toastify';
 import { DAILY_REQUEST } from '@constants/dailyRequest';
+import { useGetRewardList } from '@hooks/useReward';
+import { IRewardEntityType } from '@models/reward/entity';
 
 
 interface CreateDailyQuestDialogProps {
     isOpen: boolean;
     onClose: () => void;
     mockRewards: Array<{ id: number; name: string }>;
+    editingQuest?: any | null;
 }
 
 const CreateDailyQuestDialog = ({
     isOpen,
     onClose,
-    mockRewards
+    mockRewards,
+    editingQuest
 }: CreateDailyQuestDialogProps) => {
     const { t } = useTranslation();
-    const [openConditionSelect, setOpenConditionSelect] = useState<boolean>(false);
 
+
+    /**
+     * Create daily request
+     */
     const createDailyRequestMutation = useCreateDailyRequest();
+    //------------------------End------------------------//
 
+    /**
+     * Get reward list
+     */
+    const { data: rewardList } = useGetRewardList();
+    const rewards = rewardList?.results || [];
+    //------------------------End------------------------//
+
+
+    /**
+     * Form hook
+     */
     const {
         control,
         handleSubmit,
@@ -59,33 +75,65 @@ const CreateDailyQuestDialog = ({
             ],
         },
     });
+    //------------------------End------------------------//
 
+    /**
+     * Field arrays
+     */
     const { fields: nameFields } = useFieldArray({ control, name: "nameTranslations" });
     const { fields: descriptionFields } = useFieldArray({ control, name: "descriptionTranslations" });
+    //------------------------End------------------------//
 
+    /**
+     * Watch form
+     */
     const isActive = watch("isActive");
 
-    // Reset form when editingQuest changes
+    /**
+     * Reset form when editingQuest changes
+     */
     useEffect(() => {
-
-        reset({
-            dailyRequestType: 'DAILY_LOGIN',
-            conditionValue: 1,
-            rewardId: mockRewards.length > 0 ? mockRewards[0].id : 1,
-            isActive: true,
-            isStreak: false,
-            nameTranslations: [
-                { key: "en" as const, value: "" },
-                { key: "ja" as const, value: "" },
-                { key: "vi" as const, value: "" },
-            ],
-            descriptionTranslations: [
-                { key: "en" as const, value: "" },
-                { key: "ja" as const, value: "" },
-                { key: "vi" as const, value: "" },
-            ],
-        });
-    }, [mockRewards, reset]);
+        if (isOpen) {
+            if (editingQuest) {
+                reset({
+                    dailyRequestType: editingQuest.dailyRequestType || 'DAILY_LOGIN',
+                    conditionValue: editingQuest.conditionValue || 1,
+                    rewardId: editingQuest.rewardId || (mockRewards.length > 0 ? mockRewards[0].id : 1),
+                    isActive: editingQuest.isActive ?? true,
+                    isStreak: editingQuest.isStreak ?? false,
+                    nameTranslations: [
+                        { key: "en" as const, value: editingQuest.nameTranslations?.find((t: any) => t.key === 'en')?.value || "" },
+                        { key: "ja" as const, value: editingQuest.nameTranslations?.find((t: any) => t.key === 'ja')?.value || "" },
+                        { key: "vi" as const, value: editingQuest.nameTranslations?.find((t: any) => t.key === 'vi')?.value || "" },
+                    ],
+                    descriptionTranslations: [
+                        { key: "en" as const, value: editingQuest.descriptionTranslations?.find((t: any) => t.key === 'en')?.value || "" },
+                        { key: "ja" as const, value: editingQuest.descriptionTranslations?.find((t: any) => t.key === 'ja')?.value || "" },
+                        { key: "vi" as const, value: editingQuest.descriptionTranslations?.find((t: any) => t.key === 'vi')?.value || "" },
+                    ],
+                });
+            } else {
+                reset({
+                    dailyRequestType: 'DAILY_LOGIN',
+                    conditionValue: 1,
+                    rewardId: mockRewards.length > 0 ? mockRewards[0].id : 1,
+                    isActive: true,
+                    isStreak: false,
+                    nameTranslations: [
+                        { key: "en" as const, value: "" },
+                        { key: "ja" as const, value: "" },
+                        { key: "vi" as const, value: "" },
+                    ],
+                    descriptionTranslations: [
+                        { key: "en" as const, value: "" },
+                        { key: "ja" as const, value: "" },
+                        { key: "vi" as const, value: "" },
+                    ],
+                });
+            }
+        }
+    }, [isOpen, editingQuest, mockRewards, reset]);
+    //------------------------End------------------------//
 
 
     /**
@@ -109,76 +157,45 @@ const CreateDailyQuestDialog = ({
             <DialogContent className="bg-white border-border max-w-2xl sm:max-w-3xl">
                 <DialogHeader>
                     <DialogTitle className="text-foreground">
-                        {t('dailyQuest.addTitle')}
+                        {editingQuest ? t('dailyQuest.editTitle') : t('dailyQuest.addTitle')}
                     </DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 py-4 max-h-[65vh] overflow-y-auto px-1 sm:px-6">
                     {/* Loại điều kiện & Giá trị */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Combobox Loại điều kiện */}
+                        {/* Select Loại điều kiện */}
                         <div className="space-y-1.5">
-                            {/* --- THAY ĐỔI: Sử dụng <label> --- */}
                             <label htmlFor="dailyRequestType" className={cn("text-sm font-medium text-foreground", errors.dailyRequestType && "text-destructive")}>{t('dailyQuest.conditionTypeLabel')}</label>
                             <Controller
                                 name="dailyRequestType"
                                 control={control}
                                 rules={{ required: t('dailyQuest.conditionRequired') }}
                                 render={({ field }) => (
-                                    <Popover open={openConditionSelect} onOpenChange={setOpenConditionSelect}>
-                                        <PopoverTrigger asChild>
-                                            <Button
-                                                id="dailyRequestType" // ID cho label
-                                                variant="outline"
-                                                role="combobox"
-                                                aria-expanded={openConditionSelect}
-                                                className={cn(
-                                                    "w-full justify-between bg-background border-input text-foreground hover:bg-accent hover:text-accent-foreground",
-                                                    errors.dailyRequestType && "border-destructive focus-visible:ring-destructive"
-                                                )}
-                                            >
-                                                {field.value
-                                                    ? DAILY_REQUEST.DAILY_REQUEST_TYPE[field.value as keyof typeof DAILY_REQUEST.DAILY_REQUEST_TYPE]?.label ?? t('dailyQuest.selectCondition')
-                                                    : t('dailyQuest.selectCondition')}
-                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                                            <Command>
-                                                <CommandInput placeholder={t('dailyQuest.searchCondition')} />
-                                                <CommandList>
-                                                    <CommandEmpty>{t('common.notFound')}</CommandEmpty>
-                                                    <CommandGroup>
-                                                        {Object.values(DAILY_REQUEST.DAILY_REQUEST_TYPE).map((conditionType) => (
-                                                            <CommandItem
-                                                                key={conditionType.value}
-                                                                value={`${conditionType.label} ${conditionType.value}`}
-                                                                onSelect={() => {
-                                                                    field.onChange(conditionType.value);
-                                                                    setOpenConditionSelect(false);
-                                                                }}
-                                                            >
-                                                                <Check
-                                                                    className={cn(
-                                                                        "mr-2 h-4 w-4",
-                                                                        field.value === conditionType.value ? "opacity-100" : "opacity-0"
-                                                                    )}
-                                                                />
-                                                                {conditionType.label} ({conditionType.value})
-                                                            </CommandItem>
-                                                        ))}
-                                                    </CommandGroup>
-                                                </CommandList>
-                                            </Command>
-                                        </PopoverContent>
-                                    </Popover>
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                        <SelectTrigger
+                                            id="dailyRequestType"
+                                            className={cn(
+                                                "w-full bg-background border-input text-foreground",
+                                                errors.dailyRequestType && "border-destructive focus-visible:ring-destructive"
+                                            )}
+                                        >
+                                            <SelectValue placeholder={t('dailyQuest.selectCondition')} />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-card border-border">
+                                            {Object.values(DAILY_REQUEST.DAILY_REQUEST_TYPE).map((conditionType) => (
+                                                <SelectItem key={conditionType.value} value={conditionType.value}>
+                                                    {conditionType.label} ({conditionType.value})
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                 )}
                             />
                             {errors.dailyRequestType && <p className="text-xs text-destructive mt-1">{errors.dailyRequestType.message}</p>}
                         </div>
                         {/* Giá trị điều kiện */}
                         <div className="space-y-1.5">
-                            {/* --- THAY ĐỔI: Sử dụng <label> --- */}
                             <label htmlFor="conditionValue" className={cn("text-sm font-medium text-foreground", errors.conditionValue && "text-destructive")}>{t('dailyQuest.conditionValueLabel')}</label>
                             <Input
                                 id="conditionValue"
@@ -197,7 +214,6 @@ const CreateDailyQuestDialog = ({
 
                     {/* Phần thưởng */}
                     <div className="space-y-1.5">
-                        {/* --- THAY ĐỔI: Sử dụng <label> --- */}
                         <label htmlFor="rewardId" className={cn("text-sm font-medium text-foreground", errors.rewardId && "text-destructive")}>{t('dailyQuest.rewardLabel')}</label>
                         <Controller
                             name="rewardId"
@@ -205,13 +221,13 @@ const CreateDailyQuestDialog = ({
                             rules={{ required: t('dailyQuest.rewardRequired') }}
                             render={({ field }) => (
                                 <Select onValueChange={(value) => field.onChange(Number(value))} value={field.value?.toString()}>
-                                    <SelectTrigger id="rewardId" className={cn("bg-background border-input", errors.rewardId && "border-destructive focus-visible:ring-destructive")}>
+                                    <SelectTrigger id="rewardId" className={cn("bg-background border-input", errors.rewardId && "border-error focus-visible:ring-error")}>
                                         <SelectValue placeholder={t('dailyQuest.selectReward')} />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {mockRewards.map((reward) => (
+                                        {rewards.map((reward: IRewardEntityType) => (
                                             <SelectItem key={reward.id} value={reward.id.toString()}>
-                                                {reward.name} (ID: {reward.id})
+                                                {reward.nameTranslation}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
@@ -229,6 +245,7 @@ const CreateDailyQuestDialog = ({
                         errors={errors.nameTranslations as Record<string, string>}
                         placeholderKey="dailyQuest.taskNamePlaceholder"
                         requiredKey="dailyQuest.nameRequiredVi"
+                        fieldName="name"
                     />
 
                     {/* Mô tả nhiệm vụ */}
@@ -240,6 +257,7 @@ const CreateDailyQuestDialog = ({
                         placeholderKey="dailyQuest.descriptionPlaceholder"
                         requiredKey="dailyQuest.descriptionRequiredVi"
                         isTextarea={true}
+                        fieldName="description"
                     />
 
                     {/* Kích hoạt & Streak */}

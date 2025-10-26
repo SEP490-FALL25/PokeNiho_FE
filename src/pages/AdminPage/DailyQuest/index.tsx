@@ -158,32 +158,36 @@ const DailyQuestManagement = () => {
                         searchValue={searchQuery}
                         onSearchChange={setSearchQuery}
                         searchPlaceholder={t('dailyQuest.searchPlaceholder')}
-                        filters={{
-                            type: {
+                        filters={[
+                            {
+                                key: "type",
                                 value: typeFilter,
                                 onChange: setTypeFilter,
                                 options: typeOptions,
                                 placeholder: t('dailyQuest.filterByType')
                             },
-                            status: {
+                            {
+                                key: "status",
                                 value: statusFilter,
                                 onChange: setStatusFilter,
                                 options: statusOptions,
                                 placeholder: t('dailyQuest.filterByStatus')
                             },
-                            streak: {
+                            {
+                                key: "streak",
                                 value: streakFilter,
                                 onChange: setStreakFilter,
                                 options: streakOptions,
                                 placeholder: t('dailyQuest.filterByStreak')
                             },
-                            reward: {
+                            {
+                                key: "reward",
                                 value: rewardFilter,
                                 onChange: setRewardFilter,
                                 options: rewardOptions,
                                 placeholder: t('dailyQuest.filterByReward')
                             }
-                        }}
+                        ]}
                         onClearAll={handleClearAllFilters}
                         showClearButton={true}
                     />
