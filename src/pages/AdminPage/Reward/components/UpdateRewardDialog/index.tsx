@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useTranslation } from "react-i18next";
 import { useUpdateReward } from "@hooks/useReward";
 import { toast } from "react-toastify";
+import MultilingualInput from "@ui/MultilingualInput";
 
 interface UpdateRewardDialogProps {
     isOpen: boolean;
@@ -132,41 +133,20 @@ const UpdateRewardDialog = ({ isOpen, onClose, editingReward }: UpdateRewardDial
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Vietnamese Name */}
-                    <div>
-                        <Input
-                            label={t('reward.nameVi')}
-                            value={formData.nameVi}
-                            onChange={(e) => handleInputChange('nameVi', e.target.value)}
-                            error={errors.nameVi}
-                            placeholder={t('reward.nameViPlaceholder')}
-                            variant="original"
-                        />
-                    </div>
-
-                    {/* English Name */}
-                    <div>
-                        <Input
-                            label={t('reward.nameEn')}
-                            value={formData.nameEn}
-                            onChange={(e) => handleInputChange('nameEn', e.target.value)}
-                            error={errors.nameEn}
-                            placeholder={t('reward.nameEnPlaceholder')}
-                            variant="original"
-                        />
-                    </div>
-
-                    {/* Japanese Name */}
-                    <div>
-                        <Input
-                            label={t('reward.nameJa')}
-                            value={formData.nameJa}
-                            onChange={(e) => handleInputChange('nameJa', e.target.value)}
-                            error={errors.nameJa}
-                            placeholder={t('reward.nameJaPlaceholder')}
-                            variant="original"
-                        />
-                    </div>
+                    {/* Multilingual Name Input */}
+                    <MultilingualInput
+                        label={t('reward.name')}
+                        fields={[
+                            { id: "name-vi", key: "vi" },
+                            { id: "name-en", key: "en" },
+                            { id: "name-ja", key: "ja" }
+                        ]}
+                        values={formData}
+                        onChange={handleInputChange}
+                        errors={errors}
+                        placeholderKey="reward.namePlaceholder"
+                        requiredKey="reward.nameRequired"
+                    />
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">

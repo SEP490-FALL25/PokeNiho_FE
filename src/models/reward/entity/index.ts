@@ -3,7 +3,7 @@ import z from "zod";
 
 export const RewardEntitySchema = z.object({
     id: z.number(),
-    name: z.string(),
+    nameKey: z.string(),
     rewardType: z.string(),
     rewardItem: z.number(),
     rewardTarget: z.string(),
