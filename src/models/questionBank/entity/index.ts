@@ -7,17 +7,10 @@ export const QuestionEntitySchema = z.object({
     questionJp: z.string(),
     questionType: z.enum(Object.values(QUESTION_TYPE) as [string, ...string[]]),
     audioUrl: z.string().nullable(),
-    pronunciation: z.string(),
+    pronunciation: z.string().optional(),
     levelN: z.number(),
-    meaning: z.string(),
-    // Optional fields that might be present in some questions
-    options: z.array(z.string()).optional(),
-    correctAnswer: z.string().optional(),
-    explanation: z.string().optional(),
-    difficulty: z.number().optional(),
-    points: z.number().optional(),
-    timeLimit: z.number().optional(),
-    tags: z.array(z.string()).optional(),
+    meaning: z.string().optional(), // Keep for backward compatibility
+    meanings: z.string().optional(),
     ...byUser,
     ...at,
 });

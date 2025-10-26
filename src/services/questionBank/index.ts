@@ -71,7 +71,7 @@ const questionBankService = {
   createQuestion: async (
     data: ICreateQuestionRequest
   ): Promise<{ data: QuestionEntityType }> => {
-    return axiosPrivate.post("/question-bank", data);
+    return axiosPrivate.post("/question-bank/with-meanings", data);
   },
 
   updateQuestion: async (
@@ -111,7 +111,7 @@ const questionBankService = {
     return Promise.resolve({
       data: Object.entries(QUESTION_TYPE_LABELS).map(([value, label]) => ({
         value,
-        label,
+        label: typeof label === 'string' ? label : Object.values(label)[0] as string,
       })),
     });
   },
@@ -123,7 +123,7 @@ const questionBankService = {
     return Promise.resolve({
       data: Object.entries(JLPT_LEVEL_LABELS).map(([key, label]) => ({
         value: JLPT_LEVEL[key as keyof typeof JLPT_LEVEL],
-        label,
+        label: typeof label === 'string' ? label : Object.values(label)[0] as string,
       })),
     });
   },
@@ -135,7 +135,7 @@ const questionBankService = {
     return Promise.resolve({
       data: Object.entries(QUESTION_STATUS_LABELS).map(([value, label]) => ({
         value,
-        label,
+        label: typeof label === 'string' ? label : Object.values(label)[0] as string,
       })),
     });
   },

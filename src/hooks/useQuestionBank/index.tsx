@@ -124,15 +124,15 @@ export const useQuestionBank = (
     questionType: QUESTION_TYPE.VOCABULARY,
     levelN: JLPT_LEVEL.N5,
     pronunciation: "",
-    meaning: "",
     audioUrl: "",
-    options: [],
-    correctAnswer: "",
-    explanation: "",
-    difficulty: 1,
-    points: 10,
-    timeLimit: 60,
-    tags: [],
+    meanings: [
+      {
+        translations: {
+          vi: "",
+          en: "",
+        },
+      },
+    ],
   });
 
   // API hooks
@@ -169,22 +169,31 @@ export const useQuestionBank = (
       questionType: QUESTION_TYPE.VOCABULARY,
       levelN: JLPT_LEVEL.N5,
       pronunciation: "",
-      meaning: "",
       audioUrl: "",
-      options: [],
-      correctAnswer: "",
-      explanation: "",
-      difficulty: 1,
-      points: 10,
-      timeLimit: 60,
-      tags: [],
+      meanings: [
+        {
+          translations: {
+            vi: "",
+            en: "",
+          },
+        },
+      ],
     });
   }, []);
 
   // CRUD operations
   const handleCreateQuestion = useCallback(async () => {
     try {
-      await createQuestionMutation.mutateAsync(formData);
+      // Clean up form data before sending
+      const cleanedFormData = {
+        ...formData,
+        audioUrl: formData.audioUrl === "" ? null : formData.audioUrl,
+        // Remove options for VOCABULARY type
+        ...(formData.questionType === "VOCABULARY" && { options: undefined }),
+        // Remove correctAnswer for all types
+        correctAnswer: undefined,
+      };
+      await createQuestionMutation.mutateAsync(cleanedFormData);
       setIsCreateDialogOpen(false);
       resetFormData();
     } catch (error) {
@@ -195,9 +204,18 @@ export const useQuestionBank = (
   const handleEditQuestion = useCallback(async () => {
     if (!editingQuestion) return;
     try {
+      // Clean up form data before sending
+      const cleanedFormData = {
+        ...formData,
+        audioUrl: formData.audioUrl === "" ? null : formData.audioUrl,
+        // Remove options for VOCABULARY type
+        ...(formData.questionType === "VOCABULARY" && { options: undefined }),
+        // Remove correctAnswer for all types
+        correctAnswer: undefined,
+      };
       await updateQuestionMutation.mutateAsync({
         id: editingQuestion.id,
-        data: formData,
+        data: cleanedFormData,
       });
       setIsEditDialogOpen(false);
       setEditingQuestion(null);
@@ -228,16 +246,16 @@ export const useQuestionBank = (
       questionJp: question.questionJp,
       questionType: question.questionType as QuestionType,
       levelN: question.levelN as JLPTLevel,
-      pronunciation: question.pronunciation,
-      meaning: question.meaning,
+      pronunciation: question.pronunciation || "",
       audioUrl: question.audioUrl || "",
-      options: question.options || [],
-      correctAnswer: question.correctAnswer || "",
-      explanation: question.explanation || "",
-      difficulty: question.difficulty || 1,
-      points: question.points || 10,
-      timeLimit: question.timeLimit || 60,
-      tags: question.tags || [],
+      meanings: question.meanings || [
+        {
+          translations: {
+            vi: question.meaning || "",
+            en: "",
+          },
+        },
+      ],
     });
     setIsEditDialogOpen(true);
   }, []);
@@ -298,5 +316,14 @@ export const useQuestionBank = (
     getQuestionTypeLabel,
     getJLPTLevelLabel,
     resetFormData,
+    
+    // Mutations for direct access
+    createQuestionMutation,
+    updateQuestionMutation,
+    deleteQuestionMutation,
+    
+    // Dialog state setters
+    setIsCreateDialogOpen,
+    setIsEditDialogOpen,
   };
 };

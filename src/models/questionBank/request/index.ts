@@ -5,9 +5,14 @@ export interface ICreateQuestionRequest {
     questionJp: string;
     questionType: QuestionType;
     levelN: JLPTLevel;
-    pronunciation: string;
-    meaning: string;
     audioUrl?: string | null;
+    pronunciation?: string;
+    meanings: Array<{
+        translations: {
+            vi: string;
+            en: string;
+        };
+    }>;
     options?: string[];
     correctAnswer?: string;
     explanation?: string;
