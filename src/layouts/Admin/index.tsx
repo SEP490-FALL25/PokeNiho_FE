@@ -14,6 +14,7 @@ import {
   Calendar,
   Gift,
   LucideIcon,
+  FileText,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@ui/Button";
@@ -57,6 +58,11 @@ const AdminLayout = () => {
       name: t("navigation.lessons"),
       href: ROUTES.ADMIN.LESSONS,
       icon: BookOpen,
+    },
+    {
+      name: t("navigation.questionBank"),
+      href: ROUTES.ADMIN.QUESTION_BANK,
+      icon: FileText,
     },
     {
       name: t("navigation.vocabulary"),

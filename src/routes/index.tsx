@@ -19,6 +19,7 @@ const TournamentManagement = lazy(() => import("@pages/AdminPage/Tournaments"))
 const AIPromptManagement = lazy(() => import("@pages/AdminPage/AIPrompts"))
 const DailyQuestManagement = lazy(() => import("@pages/AdminPage/DailyQuest"))
 const RewardManagement = lazy(() => import("@pages/AdminPage/Reward"))
+const QuestionBankManagement = lazy(() => import("@pages/AdminPage/QuestionBank"))
 const RouterComponent = () => {
     const router = createBrowserRouter([
         //#region Auth routes
@@ -50,6 +51,7 @@ const RouterComponent = () => {
                                 { path: ROUTES.ADMIN.AI_PROMPTS_MANAGEMENT, element: <AIPromptManagement /> },
                                 { path: ROUTES.ADMIN.DAILY_QUEST_MANAGEMENT, element: <DailyQuestManagement /> },
                                 { path: ROUTES.ADMIN.REWARD_MANAGEMENT, element: <RewardManagement /> },
+                                { path: ROUTES.ADMIN.QUESTION_BANK, element: <QuestionBankManagement /> },
                             ],
                         },
                     ],
