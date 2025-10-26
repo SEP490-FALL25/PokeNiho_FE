@@ -469,8 +469,11 @@
             "levelPlaceholder": "JLPTレベルを選択",
             "pronunciationLabel": "発音",
             "pronunciationPlaceholder": "発音を入力",
+            "audioUrlLabel": "オーディオURL",
+            "audioUrlPlaceholder": "オーディオURLを入力",
             "meaningLabel": "意味",
             "meaningPlaceholder": "意味を入力",
+            "meaningsLabel": "翻訳",
             "createButton": "問題を作成",
             "updateButton": "更新",
             "processing": "処理中..."

@@ -330,21 +330,6 @@ const LessonsManagement = () => {
                                                         <Button
                                                             variant="outline"
                                                             size="sm"
-                                                            className="flex-1 border-border text-foreground hover:bg-muted bg-transparent"
-                                                        >
-                                                            <Edit className="h-4 w-4 mr-1" />
-                                                            {t('common.edit')}
-                                                        </Button>
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            className="border-border text-foreground hover:bg-muted bg-transparent"
-                                                        >
-                                                            <Copy className="h-4 w-4" />
-                                                        </Button>
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
                                                             className="border-destructive text-destructive hover:bg-destructive/10 bg-transparent"
                                                         >
                                                             <Trash2 className="h-4 w-4" />

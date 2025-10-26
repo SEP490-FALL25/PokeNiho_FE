@@ -507,8 +507,11 @@
             "levelPlaceholder": "Select JLPT level",
             "pronunciationLabel": "Pronunciation",
             "pronunciationPlaceholder": "Enter pronunciation",
+            "audioUrlLabel": "Audio URL",
+            "audioUrlPlaceholder": "Enter audio URL",
             "meaningLabel": "Meaning",
             "meaningPlaceholder": "Enter meaning",
+            "meaningsLabel": "Translations",
             "createButton": "Create Question",
             "updateButton": "Update",
             "processing": "Processing..."

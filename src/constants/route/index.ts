@@ -15,7 +15,7 @@ const PUBLIC = {
 const ADMIN = {
     ROOT: '/admin/overview',
     USERS: '/admin/users',
-    LESSONS: '/admin/lessons',
+    LESSONS: '/admin/lessons/management',
     VOCABULARY: '/admin/vocabulary',
     ANALYTICS: '/admin/analytics',
     SETTINGS: '/admin/settings',
