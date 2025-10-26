@@ -1,8 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import { useQuestionBank } from '@hooks/useQuestionBank';
-import { QUESTION_TYPE_LABELS, JLPT_LEVEL_LABELS, QuestionType, JLPTLevel } from '@constants/questionBank';
-import { QuestionEntityType } from '@models/questionBank/entity';
-import PaginationControls from '@ui/PaginationControls';
+import React, { useState, useEffect } from "react";
+import { useQuestionBank } from "@hooks/useQuestionBank";
+import {
+  QUESTION_TYPE_LABELS,
+  JLPT_LEVEL_LABELS,
+  QuestionType,
+  JLPTLevel,
+} from "@constants/questionBank";
+import { QuestionEntityType } from "@models/questionBank/entity";
+import PaginationControls from "@ui/PaginationControls";
+import { Button } from "@ui/Button";
+import { Input } from "@ui/Input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@ui/Select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@ui/Table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@ui/Dialog";
+import { Card, CardContent } from "@ui/Card";
+import { Badge } from "@ui/Badge";
+import { Textarea } from "@ui/Textarea";
 
 const QuestionBankManagement: React.FC = () => {
   const {
@@ -28,16 +60,16 @@ const QuestionBankManagement: React.FC = () => {
     setFormData,
     setDeleteQuestionId,
     getQuestionTypeLabel,
-    getJLPTLevelLabel
+    getJLPTLevelLabel,
   } = useQuestionBank();
 
   // Local state for search input with debounce
-  const [searchInput, setSearchInput] = useState(filters.search || '');
+  const [searchInput, setSearchInput] = useState(filters.search || "");
 
   // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
-      handleFilterChange('search', searchInput);
+      handleFilterChange("search", searchInput);
     }, 500); // 500ms delay
 
     return () => clearTimeout(timer);
@@ -48,243 +80,335 @@ const QuestionBankManagement: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Quản lý Ngân hàng Câu hỏi</h1>
-          <p className="text-gray-600">Quản lý và tổ chức các câu hỏi cho bài học</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Quản lý Ngân hàng Câu hỏi
+          </h1>
+          <p className="text-gray-600">
+            Quản lý và tổ chức các câu hỏi cho bài học
+          </p>
         </div>
 
         {/* Filters and Actions */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-            <div className="flex flex-col sm:flex-row gap-4 flex-1">
-              <input
-                type="text"
-                placeholder="Tìm kiếm câu hỏi..."
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full sm:w-64 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <select
-                value={filters.levelN?.toString() || ''}
-                onChange={(e) => handleFilterChange('levelN', e.target.value ? parseInt(e.target.value) : undefined)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Tất cả cấp độ</option>
-                {Object.entries(JLPT_LEVEL_LABELS).map(([key, label]) => (
-                  <option key={key} value={key}>{label}</option>
-                ))}
-              </select>
-              <select
-                value={filters.questionType || ''}
-                onChange={(e) => handleFilterChange('questionType', e.target.value || undefined)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Tất cả loại câu hỏi</option>
-                {Object.entries(QUESTION_TYPE_LABELS).map(([key, label]) => (
-                  <option key={key} value={key}>{label}</option>
-                ))}
-              </select>
+        <Card className="mb-6">
+          <CardContent className="p-6">
+            <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+              <div className="flex flex-col sm:flex-row gap-4 flex-1">
+                <Input
+                  placeholder="Tìm kiếm câu hỏi..."
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  className="w-full sm:w-64"
+                  isSearch
+                />
+                <Select
+                  value={filters.levelN?.toString() || "all"}
+                  onValueChange={(value) =>
+                    handleFilterChange(
+                      "levelN",
+                      value === "all" ? undefined : parseInt(value)
+                    )
+                  }
+                >
+                  <SelectTrigger className="w-full sm:w-48">
+                    <SelectValue placeholder="Tất cả cấp độ" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả cấp độ</SelectItem>
+                    {Object.entries(JLPT_LEVEL_LABELS).map(([key, label]) => (
+                      <SelectItem key={key} value={key}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={filters.questionType || "all"}
+                  onValueChange={(value) =>
+                    handleFilterChange(
+                      "questionType",
+                      value === "all" ? undefined : value
+                    )
+                  }
+                >
+                  <SelectTrigger className="w-full sm:w-48">
+                    <SelectValue placeholder="Tất cả loại câu hỏi" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả loại câu hỏi</SelectItem>
+                    {Object.entries(QUESTION_TYPE_LABELS).map(
+                      ([key, label]) => (
+                        <SelectItem key={key} value={key}>
+                          {label}
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button onClick={openCreateDialog} className="flex items-center">
+                <span className="mr-2">+</span>
+                Thêm câu hỏi
+              </Button>
             </div>
-            <button 
-              onClick={openCreateDialog}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center"
-            >
-              <span className="mr-2">+</span>
-              Thêm câu hỏi
-            </button>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Questions Table */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Câu hỏi</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loại</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cấp độ</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phiên âm</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nghĩa</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày tạo</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+        <Card>
+          <CardContent className="p-6">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Câu hỏi</TableHead>
+                  <TableHead>Loại</TableHead>
+                  <TableHead>Cấp độ</TableHead>
+                  <TableHead>Phiên âm</TableHead>
+                  <TableHead>Nghĩa</TableHead>
+                  <TableHead>Ngày tạo</TableHead>
+                  <TableHead>Thao tác</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {isLoading ? (
-                  <tr>
-                    <td colSpan={8} className="px-6 py-4 text-center">Đang tải...</td>
-                  </tr>
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center">
+                      Đang tải...
+                    </TableCell>
+                  </TableRow>
                 ) : questions.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="px-6 py-4 text-center">Không có câu hỏi nào</td>
-                  </tr>
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center">
+                      Không có câu hỏi nào
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   questions.map((question: QuestionEntityType) => (
-                    <tr key={question.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{question.id}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">{question.questionJp}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                    <TableRow key={question.id}>
+                      <TableCell className="font-medium">
+                        {question.id}
+                      </TableCell>
+                      <TableCell className="max-w-xs truncate">
+                        {question.questionJp}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">
                           {getQuestionTypeLabel(question.questionType)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">
                           {getJLPTLevelLabel(question.levelN)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">{question.pronunciation}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">{question.meaning}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(question.createdAt).toLocaleDateString('vi-VN')}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="max-w-xs truncate">
+                        {question.pronunciation}
+                      </TableCell>
+                      <TableCell className="max-w-xs truncate">
+                        {question.meaning}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {new Date(question.createdAt).toLocaleDateString(
+                          "vi-VN"
+                        )}
+                      </TableCell>
+                      <TableCell>
                         <div className="flex gap-2">
-                          <button
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => openEditDialog(question)}
-                            className="text-indigo-600 hover:text-indigo-900 p-1"
                           >
                             ✏️
-                          </button>
-                          <button
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => setDeleteQuestionId(question.id)}
-                            className="text-red-600 hover:text-red-900 p-1"
                           >
                             🗑️
-                          </button>
+                          </Button>
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))
                 )}
-              </tbody>
-            </table>
-          </div>
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
 
-          {/* Pagination */}
-          {pagination.totalPage > 1 && (
-            <div className="mt-6">
-              <PaginationControls
-                currentPage={pagination.current}
-                totalPages={pagination.totalPage}
-                totalItems={pagination.totalItem}
-                itemsPerPage={pagination.pageSize}
-                onPageChange={handlePageChange}
-                onItemsPerPageChange={(size) => handleFilterChange('limit', size)}
-                isLoading={isLoading}
-              />
-            </div>
-          )}
-        </div>
+        {/* Pagination */}
+        {pagination.totalPage > 1 && (
+          <div className="mt-6">
+            <PaginationControls
+              currentPage={pagination.current}
+              totalPages={pagination.totalPage}
+              totalItems={pagination.totalItem}
+              itemsPerPage={pagination.pageSize}
+              onPageChange={handlePageChange}
+              onItemsPerPageChange={(size) => handleFilterChange("limit", size)}
+              isLoading={isLoading}
+            />
+          </div>
+        )}
 
         {/* Create/Edit Dialog */}
-        {(isCreateDialogOpen || isEditDialogOpen) && (
-          <div className="fixed inset-0 bg-white/80 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-              <h2 className="text-xl font-bold mb-4">
-                {isCreateDialogOpen ? 'Thêm câu hỏi mới' : 'Chỉnh sửa câu hỏi'}
-              </h2>
-              <div className="space-y-4">
+        <Dialog
+          open={isCreateDialogOpen || isEditDialogOpen}
+          onOpenChange={closeDialogs}
+        >
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
+            <DialogHeader>
+              <DialogTitle>
+                {isCreateDialogOpen ? "Thêm câu hỏi mới" : "Chỉnh sửa câu hỏi"}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Input
+                label="Câu hỏi tiếng Nhật"
+                value={formData.questionJp}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    questionJp: e.target.value,
+                  }))
+                }
+                placeholder="Nhập câu hỏi tiếng Nhật"
+              />
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Câu hỏi tiếng Nhật</label>
-                  <input
-                    type="text"
-                    value={formData.questionJp}
-                    onChange={(e) => setFormData(prev => ({ ...prev, questionJp: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Loại câu hỏi
+                  </label>
+                  <Select
+                    value={formData.questionType}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        questionType: value as QuestionType,
+                      }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn loại câu hỏi" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(QUESTION_TYPE_LABELS).map(
+                        ([key, label]) => (
+                          <SelectItem key={key} value={key}>
+                            {label}
+                          </SelectItem>
+                        )
+                      )}
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Loại câu hỏi</label>
-                    <select
-                      value={formData.questionType}
-                      onChange={(e) => setFormData(prev => ({ ...prev, questionType: e.target.value as QuestionType }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      {Object.entries(QUESTION_TYPE_LABELS).map(([key, label]) => (
-                        <option key={key} value={key}>{label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Cấp độ JLPT</label>
-                    <select
-                      value={formData.levelN}
-                      onChange={(e) => setFormData(prev => ({ ...prev, levelN: parseInt(e.target.value) as JLPTLevel }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Cấp độ JLPT
+                  </label>
+                  <Select
+                    value={formData.levelN.toString()}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        levelN: parseInt(value) as JLPTLevel,
+                      }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn cấp độ JLPT" />
+                    </SelectTrigger>
+                    <SelectContent>
                       {Object.entries(JLPT_LEVEL_LABELS).map(([key, label]) => (
-                        <option key={key} value={key}>{label}</option>
+                        <SelectItem key={key} value={key}>
+                          {label}
+                        </SelectItem>
                       ))}
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phiên âm</label>
-                  <input
-                    type="text"
-                    value={formData.pronunciation}
-                    onChange={(e) => setFormData(prev => ({ ...prev, pronunciation: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nghĩa</label>
-                  <textarea
-                    value={formData.meaning}
-                    onChange={(e) => setFormData(prev => ({ ...prev, meaning: e.target.value }))}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div className="flex justify-end gap-2">
-                  <button
-                    onClick={closeDialogs}
-                    className="cursor-pointer px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-                  >
-                    Hủy
-                  </button>
-                  <button
-                    onClick={isCreateDialogOpen ? handleCreateQuestion : handleEditQuestion}
-                    disabled={isCreating || isUpdating}
-                    className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isCreating || isUpdating ? 'Đang xử lý...' : (isCreateDialogOpen ? 'Tạo câu hỏi' : 'Cập nhật')}
-                  </button>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
+              <Input
+                label="Phiên âm"
+                value={formData.pronunciation}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    pronunciation: e.target.value,
+                  }))
+                }
+                placeholder="Nhập phiên âm"
+              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nghĩa
+                </label>
+                <Textarea
+                  value={formData.meaning}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      meaning: e.target.value,
+                    }))
+                  }
+                  placeholder="Nhập nghĩa"
+                  rows={3}
+                />
+              </div>
             </div>
-          </div>
-        )}
+            <DialogFooter>
+              <Button variant="outline" onClick={closeDialogs}>
+                Hủy
+              </Button>
+              <Button
+                onClick={
+                  isCreateDialogOpen ? handleCreateQuestion : handleEditQuestion
+                }
+                disabled={isCreating || isUpdating}
+              >
+                {isCreating || isUpdating
+                  ? "Đang xử lý..."
+                  : isCreateDialogOpen
+                  ? "Tạo câu hỏi"
+                  : "Cập nhật"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Delete Confirmation */}
-        {deleteQuestionId && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
-              <h2 className="text-xl font-bold mb-4">Xác nhận xóa</h2>
-              <p className="text-gray-600 mb-6">
-                Bạn có chắc chắn muốn xóa câu hỏi này? Hành động này không thể hoàn tác.
-              </p>
-              <div className="flex justify-end gap-2">
-                <button
-                  onClick={() => setDeleteQuestionId(null)}
-                  className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-                >
-                  Hủy
-                </button>
-                <button
-                  onClick={handleDeleteQuestion}
-                  disabled={isDeleting}
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isDeleting ? 'Đang xóa...' : 'Xóa'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <Dialog
+          open={!!deleteQuestionId}
+          onOpenChange={() => setDeleteQuestionId(null)}
+        >
+          <DialogContent className="max-w-md bg-white">
+            <DialogHeader>
+              <DialogTitle>Xác nhận xóa</DialogTitle>
+            </DialogHeader>
+            <p className="text-gray-600 mb-6">
+              Bạn có chắc chắn muốn xóa câu hỏi này? Hành động này không thể
+              hoàn tác.
+            </p>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setDeleteQuestionId(null)}
+              >
+                Hủy
+              </Button>
+              <Button
+                variant="destructive"
+                className="bg-red-500 text-white hover:bg-red-600"
+                onClick={handleDeleteQuestion}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Đang xóa..." : "Xóa"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
