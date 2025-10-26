@@ -60,6 +60,13 @@ const dailyRequestService = {
     createDailyRequest: async (data: ICreateDailyRequestRequest) => {
         return axiosPrivate.post('/daily-request', data);
     },
+    //TODO: Update daily request sau khi Pilu thêm cái get by daily request id cho admin
+    updateDailyRequest: async (dailyRequestId: number, data: ICreateDailyRequestRequest) => {
+        return axiosPrivate.put(`/daily-request/${dailyRequestId}`, data);
+    },
+    deleteDailyRequest: async (dailyRequestId: number) => {
+        return axiosPrivate.delete(`/daily-request/${dailyRequestId}`);
+    },
 };
 
 export default dailyRequestService;

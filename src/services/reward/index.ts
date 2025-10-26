@@ -52,6 +52,7 @@ const rewardService = {
         return axiosPrivate.post('/reward', data);
     },
 
+    //TODO: Update reward sau khi Pilu thêm cái get by reward id cho admin
     updateReward: async (rewardId: number, data: ICreateRewardRequest) => {
         return axiosPrivate.put(`/reward/${rewardId}`, data);
     },
