@@ -6,7 +6,7 @@ import { Badge } from "@ui/Badge"
 import { Dialog, DialogTrigger } from "@ui/Dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ui/Select";
 import { Search, Plus, Edit, Trash2, Eye, Copy } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/Tabs";
+import { Tabs } from "@ui/Tabs";
 import HeaderAdmin from "@organisms/Header/Admin"
 import { EnhancedPagination } from "@ui/Pagination"
 import { useLessonList } from "@hooks/useLesson"
@@ -14,12 +14,12 @@ import { Skeleton } from "@ui/Skeleton"
 import TabListLevelJLBT from "@organisms/TabListLevelJLBT"
 import { useTranslation } from "react-i18next"
 import CreateLesson from "../CreateLesson"
-import LessonContent from "../LessonContent"
-import QuestionBank from "../QuestionBank"
-import ExercisesManagement from "../Exercises"
-import QuestionSetsManagement from "../QuestionSets"
 import Breadcrumb from "@atoms/Breadcrumb"
-import { BookOpen, FileText, Target, ClipboardList, HelpCircle } from "lucide-react"
+import { BookOpen, FileText, Target, ClipboardList, HelpCircle, ArrowRight } from "lucide-react"
+import LessonContentStep from "../WorkflowSteps/LessonContentStep"
+import LessonExercisesStep from "../WorkflowSteps/LessonExercisesStep"
+import LessonQuestionSetsStep from "../WorkflowSteps/LessonQuestionSetsStep"
+import LessonQuestionsStep from "../WorkflowSteps/LessonQuestionsStep"
 
 interface LessonItem {
     id: number
@@ -38,6 +38,8 @@ const LessonsManagement = () => {
     const { t } = useTranslation();
     const [searchQuery, setSearchQuery] = useState<string>("")
     const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false)
+    const [selectedLesson, setSelectedLesson] = useState<LessonItem | null>(null)
+    const [activeStep, setActiveStep] = useState<string>("content") // content, exercises, question-sets, questions
     const [activeJlptTab, setActiveJlptTab] = useState<string>("all")
     const [activePublishTab, setActivePublishTab] = useState<string>("all")
     const [page, setPage] = useState<number>(1)
@@ -118,34 +120,60 @@ const LessonsManagement = () => {
                     className="mb-6"
                 />
 
-                {/* Navigation Tabs */}
-                <Tabs defaultValue="lessons" className="w-full">
-                    <TabsList className="grid w-full grid-cols-5 mb-8">
-                        <TabsTrigger value="lessons" className="flex items-center gap-2">
-                            <BookOpen className="h-4 w-4" />
-                            Lessons
-                        </TabsTrigger>
-                        <TabsTrigger value="content" className="flex items-center gap-2">
-                            <FileText className="h-4 w-4" />
-                            Content
-                        </TabsTrigger>
-                        <TabsTrigger value="exercises" className="flex items-center gap-2">
-                            <Target className="h-4 w-4" />
-                            Exercises
-                        </TabsTrigger>
-                        <TabsTrigger value="question-sets" className="flex items-center gap-2">
-                            <ClipboardList className="h-4 w-4" />
-                            Question Sets
-                        </TabsTrigger>
-                        <TabsTrigger value="questions" className="flex items-center gap-2">
-                            <HelpCircle className="h-4 w-4" />
-                            Questions
-                        </TabsTrigger>
-                    </TabsList>
+                {/* Lesson Selection */}
+                {!selectedLesson ? (
+                    <div className="mb-8">
+                        <h3 className="text-lg font-semibold text-foreground mb-4">Select a Lesson to Manage</h3>
+                        <p className="text-muted-foreground mb-6">Choose a lesson below to manage its content, exercises, and questions.</p>
+                    </div>
+                ) : (
+                    <div className="mb-8">
+                        <div className="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 className="text-lg font-semibold text-foreground">Managing: {selectedLesson.titleKey}</h3>
+                                <p className="text-sm text-muted-foreground">JLPT N{selectedLesson.levelJlpt} • {selectedLesson.isPublished ? 'Published' : 'Draft'}</p>
+                            </div>
+                            <Button 
+                                variant="outline" 
+                                onClick={() => setSelectedLesson(null)}
+                                className="border-border text-foreground hover:bg-muted"
+                            >
+                                ← Back to Lessons
+                            </Button>
+                        </div>
+                        
+                        {/* Workflow Steps */}
+                        <div className="flex items-center justify-center mb-8">
+                            <div className="flex items-center space-x-4">
+                                <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${activeStep === 'content' ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}>
+                                    <FileText className="h-4 w-4" />
+                                    <span className="font-medium">Content</span>
+                                </div>
+                                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                                <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${activeStep === 'exercises' ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}>
+                                    <Target className="h-4 w-4" />
+                                    <span className="font-medium">Exercises</span>
+                                </div>
+                                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                                <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${activeStep === 'question-sets' ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}>
+                                    <ClipboardList className="h-4 w-4" />
+                                    <span className="font-medium">Question Sets</span>
+                                </div>
+                                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                                <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${activeStep === 'questions' ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}>
+                                    <HelpCircle className="h-4 w-4" />
+                                    <span className="font-medium">Questions</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
-                    <TabsContent value="lessons">
-                {/* Stats Cards */}
-                <div className="grid gap-6 md:grid-cols-4 mb-8">
+                {/* Main Content */}
+                {!selectedLesson ? (
+                    <>
+                        {/* Stats Cards */}
+                        <div className="grid gap-6 md:grid-cols-4 mb-8">
                     <Card className="bg-card border-border">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-medium text-muted-foreground">{t('lesson.totalLessons')}</CardTitle>
@@ -296,10 +324,10 @@ const LessonsManagement = () => {
                                                             variant="outline"
                                                             size="sm"
                                                             className="flex-1 border-border text-foreground hover:bg-muted bg-transparent"
-                                                            // onClick={handleViewLessonDetails(lesson.id)}
+                                                            onClick={() => setSelectedLesson(lesson)}
                                                         >
                                                             <Eye className="h-4 w-4 mr-1" />
-                                                            {t('common.view')}
+                                                            Manage
                                                         </Button>
                                                         <Button
                                                             variant="outline"
@@ -344,24 +372,47 @@ const LessonsManagement = () => {
                         </div>
                     </CardContent>
                 </Card>
-                    </TabsContent>
+                    </>
+                ) : (
+                    /* Workflow Content */
+                    <div className="space-y-6">
+                        {activeStep === 'content' && (
+                            <LessonContentStep 
+                                lesson={selectedLesson} 
+                                onNext={() => setActiveStep('exercises')} 
+                            />
+                        )}
 
-                    <TabsContent value="content">
-                        <LessonContent />
-                    </TabsContent>
+                        {activeStep === 'exercises' && (
+                            <LessonExercisesStep 
+                                lesson={selectedLesson} 
+                                onNext={() => setActiveStep('question-sets')}
+                                onBack={() => setActiveStep('content')}
+                            />
+                        )}
 
-                    <TabsContent value="exercises">
-                        <ExercisesManagement />
-                    </TabsContent>
+                        {activeStep === 'question-sets' && (
+                            <LessonQuestionSetsStep 
+                                lesson={selectedLesson} 
+                                onNext={() => setActiveStep('questions')}
+                                onBack={() => setActiveStep('exercises')}
+                            />
+                        )}
 
-                    <TabsContent value="question-sets">
-                        <QuestionSetsManagement />
-                    </TabsContent>
-
-                    <TabsContent value="questions">
-                        <QuestionBank />
-                    </TabsContent>
-                </Tabs>
+                        {activeStep === 'questions' && (
+                            <LessonQuestionsStep 
+                                lesson={selectedLesson} 
+                                onComplete={() => {
+                                    // TODO: Handle lesson completion
+                                    console.log('Lesson setup completed!');
+                                    setSelectedLesson(null);
+                                    setActiveStep('content');
+                                }}
+                                onBack={() => setActiveStep('question-sets')}
+                            />
+                        )}
+                    </div>
+                )}
             </div>
         </>
     )
