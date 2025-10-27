@@ -110,6 +110,8 @@ export const useQuestionBank = (
     levelN: undefined,
     questionType: undefined,
     status: undefined,
+    sortBy: undefined,
+    sortOrder: undefined,
   }
 ) => {
   // State management
@@ -180,6 +182,33 @@ export const useQuestionBank = (
 
   const handlePageChange = useCallback((page: number) => {
     setFilters((prev) => ({ ...prev, page }));
+  }, []);
+
+  // Sort handler
+  const handleSort = useCallback((sortKey: string) => {
+    setFilters((prev) => {
+      const currentSortBy = prev.sortBy;
+      const currentSortOrder = prev.sortOrder;
+      
+      // If clicking the same column, toggle sort order
+      if (currentSortBy === sortKey) {
+        const newSortOrder = currentSortOrder === "asc" ? "desc" : "asc";
+        return {
+          ...prev,
+          sortBy: sortKey,
+          sortOrder: newSortOrder,
+          page: 1, // Reset to first page when sorting
+        };
+      }
+      
+      // If clicking a different column, set to ascending
+      return {
+        ...prev,
+        sortBy: sortKey,
+        sortOrder: "asc",
+        page: 1, // Reset to first page when sorting
+      };
+    });
   }, []);
 
   // Reset form data
@@ -418,6 +447,7 @@ export const useQuestionBank = (
     // Handlers
     handleFilterChange,
     handlePageChange,
+    handleSort,
     handleCreateQuestion,
     handleEditQuestion,
     handleDeleteQuestion,

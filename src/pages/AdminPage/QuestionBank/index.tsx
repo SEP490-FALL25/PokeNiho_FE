@@ -24,10 +24,10 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@ui/Table";
+import SortableTableHeader from "@ui/SortableTableHeader";
 import {
   Dialog,
   DialogContent,
@@ -58,6 +58,7 @@ const QuestionBankManagement: React.FC = () => {
     isLoadingAnswers,
     handleFilterChange,
     handlePageChange,
+    handleSort,
     handleCreateQuestion,
     handleEditQuestion,
     handleDeleteQuestion,
@@ -248,24 +249,51 @@ const QuestionBankManagement: React.FC = () => {
               <Table className="min-w-full">
                 <TableHeader>
                   <TableRow className="border-gray-200 hover:bg-gray-50">
-                    <TableHead className="text-gray-600 font-semibold w-12">
-                      {t("questionBank.questionId")}
-                    </TableHead>
-                    <TableHead className="text-gray-600 font-semibold w-64">
-                      {t("questionBank.question")}
-                    </TableHead>
-                    <TableHead className="text-gray-600 font-semibold w-20">
-                      {t("questionBank.questionType")}
-                    </TableHead>
-                    <TableHead className="text-gray-600 font-semibold w-16">
-                      {t("questionBank.level")}
-                    </TableHead>
-                    <TableHead className="text-gray-600 font-semibold w-32">
-                      {t("questionBank.meaning")}
-                    </TableHead>
-                    <TableHead className="text-right w-20">
-                      {t("questionBank.actions")}
-                    </TableHead>
+                    <SortableTableHeader
+                      title={t("questionBank.questionId")}
+                      sortKey="id"
+                      currentSortBy={filters.sortBy}
+                      currentSort={filters.sortOrder as "asc" | "desc"}
+                      onSort={handleSort}
+                      className="text-gray-600 font-semibold w-12"
+                    />
+                    <SortableTableHeader
+                      title={t("questionBank.question")}
+                      sortKey="questionJp"
+                      currentSortBy={filters.sortBy}
+                      currentSort={filters.sortOrder as "asc" | "desc"}
+                      onSort={handleSort}
+                      className="text-gray-600 font-semibold w-64"
+                    />
+                    <SortableTableHeader
+                      title={t("questionBank.questionType")}
+                      sortKey="questionType"
+                      currentSortBy={filters.sortBy}
+                      currentSort={filters.sortOrder as "asc" | "desc"}
+                      onSort={handleSort}
+                      className="text-gray-600 font-semibold w-20"
+                    />
+                    <SortableTableHeader
+                      title={t("questionBank.level")}
+                      sortKey="levelN"
+                      currentSortBy={filters.sortBy}
+                      currentSort={filters.sortOrder as "asc" | "desc"}
+                      onSort={handleSort}
+                      className="text-gray-600 font-semibold w-16"
+                    />
+                    <SortableTableHeader
+                      title={t("questionBank.meaning")}
+                      sortKey="meaning"
+                      currentSortBy={filters.sortBy}
+                      currentSort={filters.sortOrder as "asc" | "desc"}
+                      onSort={handleSort}
+                      className="text-gray-600 font-semibold w-32"
+                    />
+                    <SortableTableHeader
+                      title={t("questionBank.actions")}
+                      sortable={false}
+                      className="text-right w-20"
+                    />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
