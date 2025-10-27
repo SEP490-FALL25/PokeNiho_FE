@@ -22,10 +22,10 @@ export const useKanjiList = (params: IQueryRequest) => {
  * @param params 
  * @returns 
  */
-export const useKanjiListManagement = (params: IQueryRequest & { enabled?: boolean }) => {
-    const { enabled = true, ...queryParams } = params;
+export const useKanjiListManagement = (params: IQueryRequest & { enabled?: boolean; dialogKey?: number }) => {
+    const { enabled = true, dialogKey, ...queryParams } = params;
     const { data, isLoading, error } = useQuery({
-        queryKey: ["kanji-list-management", queryParams],
+        queryKey: ["kanji-list-management", queryParams, dialogKey],
         queryFn: () => kanjiService.getKanjiListManagement(queryParams),
         enabled,
     });

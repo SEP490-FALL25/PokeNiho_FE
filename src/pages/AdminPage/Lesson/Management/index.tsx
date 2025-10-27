@@ -5,7 +5,7 @@ import { Input } from "@ui/Input"
 import { Badge } from "@ui/Badge"
 import { Dialog, DialogTrigger } from "@ui/Dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ui/Select";
-import { Search, Plus, Edit, Trash2, Eye, Copy } from "lucide-react"
+import { Search, Plus, Trash2, Eye } from "lucide-react"
 import { Tabs } from "@ui/Tabs";
 import HeaderAdmin from "@organisms/Header/Admin"
 import { EnhancedPagination } from "@ui/Pagination"

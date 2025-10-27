@@ -40,6 +40,7 @@ const vocabularyService = {
         if (data.levelN) queryParams.append('levelN', data.levelN);
         if (data.sortBy) queryParams.append('sortBy', data.sortBy);
         if (data.sort) queryParams.append('sort', data.sort);
+        if (data.lessonId) queryParams.append('lessonId', data.lessonId.toString());
 
         return axiosPrivate.get(`/vocabulary?${queryParams.toString()}`);
     },

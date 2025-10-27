@@ -11,6 +11,7 @@ const grammarService = {
     if (data.levelN) queryParams.append("levelN", data.levelN.toString());
     if (data.sortBy) queryParams.append("sortBy", data.sortBy);
     if (data.sort) queryParams.append("sort", data.sort);
+    if (data.lessonId) queryParams.append("lessonId", data.lessonId.toString());
 
     return await axiosPrivate.get(`/grammars?${queryParams.toString()}`);
   },

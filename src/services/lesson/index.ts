@@ -93,6 +93,15 @@ const lessonService = {
   createLessonContent: async (data: ICreateLessonContentRequest) => {
     return axiosPrivate.post("/lesson-contents", data);
   },
+  updateContentOrder: async (  data: {
+    contentType: string;
+    lessonContentId: number[];
+  }) => {
+    return axiosPrivate.put(`/lesson-contents/order`, data);
+  },
+  getExercisesByLessonId: async (lessonId: number) => {
+    return axiosPrivate.get(`/exercises/lesson/${lessonId}`);
+  },
 };
 
 export default lessonService;

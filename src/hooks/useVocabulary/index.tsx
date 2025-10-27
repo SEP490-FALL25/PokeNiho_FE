@@ -7,11 +7,11 @@ import vocabularyService from "@services/vocabulary";
  * @param params 
  * @returns 
  */
-export const useVocabularyList = (params: IQueryRequest & { enabled?: boolean }) => {
-    const { page, limit, search, levelN, sortBy, sort, enabled = true } = params;
+export const useVocabularyList = (params: IQueryRequest & { enabled?: boolean; dialogKey?: number }) => {
+    const { page, limit, search, levelN, sortBy, sort, enabled = true, dialogKey, lessonId } = params;
 
     const { data, isLoading, error } = useQuery({
-        queryKey: ["vocabulary-list", page, limit, search, levelN, sortBy, sort],
+        queryKey: ["vocabulary-list", page, limit, search, levelN, sortBy, sort, dialogKey, lessonId],
         queryFn: () => vocabularyService.getAllVocabularies(params),
         enabled,
     });
