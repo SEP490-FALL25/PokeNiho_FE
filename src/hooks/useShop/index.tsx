@@ -165,6 +165,34 @@ export const useUpdateShopItemByShopItemId = () => {
 };
 //-------------------End-------------------//
 
+
+/**
+ * Handle Update Shop Banner
+ * @returns useMutation to update shop banner
+ */
+export const useUpdateShopBanner = () => {
+    const queryClient = useQueryClient();
+    const { t } = useTranslation();
+
+    return useMutation({
+        mutationFn: async ({ id, data }: { id: number; data: ICreateShopBannerRequest }) => {
+            const response = await shopService.updateShopBanner(id, data);
+            return response.data;
+        },
+        onSuccess: (data: any) => {
+            queryClient.invalidateQueries({ queryKey: ["shopBanners"] });
+            queryClient.invalidateQueries({ queryKey: ["shopBanner"] });
+            toast.success(data?.message || t('configShop.updateBannerSuccess'));
+        },
+        onError: (error: any) => {
+            toast.error(error.response?.data?.message || t('configShop.updateBannerError'));
+        },
+    });
+};
+//-------------------End-------------------//
+
+
+
 /**
  * Handle Delete Shop Item
  * @returns useMutation to delete shop item

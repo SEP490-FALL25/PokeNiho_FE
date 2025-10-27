@@ -2,7 +2,8 @@ import { useTranslation } from "react-i18next";
 import { Badge } from "@ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/Card";
 import { Button } from "@ui/Button";
-import { ArrowLeft, Plus, X, Edit } from "lucide-react";
+import { Separator } from "@ui/Separator";
+import { ArrowLeft, Plus, X, Edit, Settings, Calendar, TrendingUp, Package, Zap } from "lucide-react";
 import { Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AddRandomPokemonDialog from "../AddRandomPokemonDialog";
@@ -12,6 +13,7 @@ import { useDeleteShopItem } from "@hooks/useShop";
 import { RarityBadge } from "@atoms/BadgeRarity";
 import AddHandmadePokemonDialog from "../AddHandmadePokemonDialog";
 import EditPriceDialog from "../EditPriceDialog";
+import EditShopBannerDialog from "../EditShopBannerDialog";
 
 export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: IShopBannerSchema }) {
 
@@ -74,6 +76,16 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
 
     const handleCloseEditPrice = () => {
         setEditPriceState(null);
+    };
+    //------------------------End------------------------//
+
+
+    /**
+     * Handle Edit Shop Banner
+     */
+    const [isEditBannerDialogOpen, setIsEditBannerDialogOpen] = useState<boolean>(false);
+    const handleEditBanner = () => {
+        setIsEditBannerDialogOpen(true);
     };
     //------------------------End------------------------//
 
@@ -149,49 +161,118 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
                         </div>
 
                         {/* Button Actions */}
-                        <div className="flex flex-col items-end gap-2">
-                            {/* Add Random Pokemon Button */}
+                        <div className="flex items-center gap-2">
+                            {/* Edit Banner Button */}
                             <Button
-                                className="bg-primary text-primary-foreground hover:bg-primary/90"
-                                onClick={handleAddRandomPokemon}
+                                variant="outline"
+                                onClick={handleEditBanner}
+                                className="bg-blue-500 text-white hover:bg-blue-600 border-blue-500"
                             >
-                                <Sparkles className="h-4 w-4 mr-2" />
-                                {t('configShop.addRandomPokemon')}
+                                <Settings className="h-4 w-4 mr-2" />
+                                {t('common.edit')}
                             </Button>
 
-                            {/* Add Pokemon Not Random */}
-                            <Button
-                                className="bg-secondary text-white hover:bg-secondary/90"
-                                onClick={handleAddPokemonNotRandom}
-                            >
-                                <Plus className="h-4 w-4 mr-2" />
-                                {t('configShop.addPokemonNotRandom')}
-                            </Button>
+                            {/* Add Pokemon Buttons Group */}
+                            <div className="flex gap-2">
+                                <Button
+                                    className="bg-primary text-primary-foreground hover:bg-primary/90"
+                                    onClick={handleAddRandomPokemon}
+                                >
+                                    <Sparkles className="h-4 w-4 mr-2" />
+                                    {t('configShop.addRandomPokemon')}
+                                </Button>
+                                <Button
+                                    className="bg-secondary text-white hover:bg-secondary/90"
+                                    onClick={handleAddPokemonNotRandom}
+                                >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    {t('configShop.addPokemonNotRandom')}
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </CardHeader>
 
                 <CardContent>
                     <div className="space-y-6">
-                        {/* Info section */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <p className="text-sm text-muted-foreground mb-1">{t('configShop.startDate')}</p>
-                                <p className="text-foreground">{formatDate(bannerDetail?.startDate || '')}</p>
+                        {/* Basic Info section */}
+                        <div>
+                            <div className="flex items-center gap-2 mb-4">
+                                <Calendar className="h-5 w-5 text-muted-foreground" />
+                                <h3 className="text-base font-semibold text-foreground">{t('configShop.basicInfo')}</h3>
                             </div>
-                            <div>
-                                <p className="text-sm text-muted-foreground mb-1">{t('configShop.endDate')}</p>
-                                <p className="text-foreground">{formatDate(bannerDetail?.endDate || '')}</p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-muted-foreground mb-1">{t('configShop.minQuantity')}</p>
-                                <p className="text-foreground">{bannerDetail?.min}</p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-muted-foreground mb-1">{t('configShop.maxQuantity')}</p>
-                                <p className="text-foreground">{bannerDetail?.max}</p>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2 bg-muted/20 p-4 rounded-lg border border-border">
+                                    <div className="flex items-center gap-2">
+                                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('configShop.startDate')}</p>
+                                    </div>
+                                    <p className="text-base font-semibold text-foreground">{formatDate(bannerDetail?.startDate || '')}</p>
+                                </div>
+                                <div className="space-y-2 bg-muted/20 p-4 rounded-lg border border-border">
+                                    <div className="flex items-center gap-2">
+                                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('configShop.endDate')}</p>
+                                    </div>
+                                    <p className="text-base font-semibold text-foreground">{formatDate(bannerDetail?.endDate || '')}</p>
+                                </div>
+                                <div className="space-y-2 bg-muted/20 p-4 rounded-lg border border-border">
+                                    <div className="flex items-center gap-2">
+                                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('configShop.minQuantity')}</p>
+                                    </div>
+                                    <p className="text-base font-semibold text-foreground">{bannerDetail?.min}</p>
+                                </div>
+                                <div className="space-y-2 bg-muted/20 p-4 rounded-lg border border-border">
+                                    <div className="flex items-center gap-2">
+                                        <Package className="h-4 w-4 text-muted-foreground" />
+                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('configShop.maxQuantity')}</p>
+                                    </div>
+                                    <p className="text-base font-semibold text-foreground">{bannerDetail?.max}</p>
+                                </div>
                             </div>
                         </div>
+
+                        {/* Separator */}
+                        <Separator />
+
+                        {/* Auto Pre-create Settings section */}
+                        <div>
+                            <div className="flex items-center gap-2 mb-4">
+                                <Zap className="h-5 w-5 text-muted-foreground" />
+                                <h3 className="text-base font-semibold text-foreground">{t('configShop.autoPrecreateSettings')}</h3>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="space-y-2 bg-muted/20 p-4 rounded-lg border border-border">
+                                    <div className="flex items-center gap-2">
+                                        <Zap className="h-4 w-4 text-muted-foreground" />
+                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('configShop.enablePrecreate')}</p>
+                                    </div>
+                                    <Badge variant={bannerDetail?.enablePrecreate ? "default" : "outline"} className="mt-1">
+                                        {bannerDetail?.enablePrecreate ? t('common.active') : t('common.inactive')}
+                                    </Badge>
+                                </div>
+                                <div className="space-y-2 bg-muted/20 p-4 rounded-lg border border-border">
+                                    <div className="flex items-center gap-2">
+                                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('configShop.precreateBeforeEndDays')}</p>
+                                    </div>
+                                    <p className="text-base font-semibold text-foreground">{bannerDetail?.precreateBeforeEndDays} {t('configShop.days')}</p>
+                                </div>
+                                <div className="space-y-2 bg-muted/20 p-4 rounded-lg border border-border">
+                                    <div className="flex items-center gap-2">
+                                        <Sparkles className="h-4 w-4 text-muted-foreground" />
+                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('configShop.isRandomItemAgain')}</p>
+                                    </div>
+                                    <Badge variant={bannerDetail?.isRandomItemAgain ? "default" : "outline"} className="mt-1">
+                                        {bannerDetail?.isRandomItemAgain ? t('common.active') : t('common.inactive')}
+                                    </Badge>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Separator */}
+                        <Separator />
 
                         {/* Shop Items */}
                         <div>
@@ -246,7 +327,10 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
                                                 <div className="space-y-2 text-sm">
                                                     <div className="flex justify-between">
                                                         <span className="text-muted-foreground">{t('configShop.price')}:</span>
-                                                        <span className="font-medium text-foreground">{item.price.toLocaleString()} đ</span>
+                                                        <div className="flex items-center gap-1">
+                                                            <span className="font-medium text-foreground">{item.price.toLocaleString()}</span>
+                                                            <Sparkles className="w-4 h-4" />
+                                                        </div>
                                                     </div>
                                                     <div className="flex justify-between">
                                                         <span className="text-muted-foreground">{t('configShop.purchaseLimit')}:</span>
@@ -302,6 +386,13 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
                     pokemon={editPriceState.pokemon}
                 />
             )}
+
+            {/* Edit Shop Banner Dialog */}
+            <EditShopBannerDialog
+                isOpen={isEditBannerDialogOpen}
+                onClose={() => setIsEditBannerDialogOpen(false)}
+                bannerData={bannerDetail}
+            />
         </div>
     );
 }

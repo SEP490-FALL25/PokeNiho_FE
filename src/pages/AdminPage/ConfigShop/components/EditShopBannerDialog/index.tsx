@@ -9,27 +9,25 @@ import { Card } from '@ui/Card';
 import MultilingualInput from '@ui/MultilingualInput';
 import CustomDatePicker from '@ui/DatePicker';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
-import { useCreateShopBanner } from '@hooks/useShop';
+import { useUpdateShopBanner } from '@hooks/useShop';
 import { createCreateShopBannerSchema, ICreateShopBannerRequest } from '@models/shop/request';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SHOP } from '@constants/shop';
+import { IShopBannerSchema } from '@models/shop/entity';
 
-interface CreateShopBannerDialogProps {
+interface EditShopBannerDialogProps {
     isOpen: boolean;
     onClose: () => void;
+    bannerData: IShopBannerSchema;
 }
 
-const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps) => {
+const EditShopBannerDialog = ({ isOpen, onClose, bannerData }: EditShopBannerDialogProps) => {
     const { t } = useTranslation();
     const [selectedStartDate, setSelectedStartDate] = useState<Date | null>(null);
     const [selectedEndDate, setSelectedEndDate] = useState<Date | null>(null);
 
-    /**
-     * Handle Create Shop Banner
-     * @returns useMutation to create shop banner
-     */
-    const createShopBannerMutation = useCreateShopBanner();
+    const updateShopBannerMutation = useUpdateShopBanner();
     const {
         control,
         handleSubmit,
@@ -58,15 +56,8 @@ const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps
         },
     });
 
-    /**
-     * Field arrays
-     */
     const { fields: nameFields } = useFieldArray({ control, name: "nameTranslations" });
-    //------------------------End------------------------//
 
-    /**
-     * Format Date to YYYY-MM-DD for API
-     */
     const formatDateForForm = (date: Date | null) => {
         if (!date) return "";
         const year = date.getFullYear();
@@ -75,47 +66,48 @@ const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps
         return `${year}-${month}-${day}`;
     };
 
-    /**
-     * Reset form when dialog opens/closes
-     */
     useEffect(() => {
-        if (isOpen) {
-            setSelectedStartDate(null);
-            setSelectedEndDate(null);
+        if (isOpen && bannerData) {
+            const startDate = new Date(bannerData.startDate);
+            const endDate = new Date(bannerData.endDate);
+
+            setSelectedStartDate(startDate);
+            setSelectedEndDate(endDate);
+
+            // Use nameKey to translate for each language
             reset({
-                startDate: "",
-                endDate: "",
-                min: 4,
-                max: 8,
-                status: SHOP.ShopBannerStatus.PREVIEW,
-                enablePrecreate: true,
-                precreateBeforeEndDays: 2,
-                isRandomItemAgain: true,
+                startDate: formatDateForForm(startDate),
+                endDate: formatDateForForm(endDate),
+                min: bannerData.min,
+                max: bannerData.max,
+                status: bannerData.status,
+                enablePrecreate: bannerData.enablePrecreate,
+                precreateBeforeEndDays: bannerData.precreateBeforeEndDays,
+                isRandomItemAgain: bannerData.isRandomItemAgain,
                 nameTranslations: [
-                    { key: "en" as const, value: "" },
-                    { key: "ja" as const, value: "" },
-                    { key: "vi" as const, value: "" },
+                    { key: "en" as const, value: t(bannerData.nameKey, { lng: 'en' }) },
+                    { key: "ja" as const, value: t(bannerData.nameKey, { lng: 'ja' }) },
+                    { key: "vi" as const, value: t(bannerData.nameKey, { lng: 'vi' }) },
                 ],
             });
         }
-    }, [isOpen, reset]);
+    }, [isOpen, bannerData, reset, t]);
 
     const handleFormSubmit = async (data: ICreateShopBannerRequest) => {
         try {
-            await createShopBannerMutation.mutateAsync(data);
+            await updateShopBannerMutation.mutateAsync({ id: bannerData.id, data });
             onClose();
         } catch (error) {
-            console.error('Error creating shop banner:', error);
+            console.error('Error updating shop banner:', error);
         }
     };
-    //-------------------End-------------------//
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
             <DialogContent className="bg-white border-border max-w-2xl sm:max-w-3xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="text-foreground">
-                        {t('configShop.createBannerTitle')}
+                        {t('configShop.editBannerTitle')}
                     </DialogTitle>
                 </DialogHeader>
 
@@ -147,12 +139,13 @@ const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps
                                             setValue("startDate", formattedDate);
                                             clearErrors("startDate");
 
-                                            // Auto-set end date to 7 days later
                                             const endDate = new Date(date);
                                             endDate.setDate(endDate.getDate() + 7);
-                                            setSelectedEndDate(endDate);
-                                            setValue("endDate", formatDateForForm(endDate));
-                                            clearErrors("endDate");
+                                            if (!selectedEndDate || endDate > selectedEndDate) {
+                                                setSelectedEndDate(endDate);
+                                                setValue("endDate", formatDateForForm(endDate));
+                                                clearErrors("endDate");
+                                            }
                                         }
                                     }}
                                     placeholder={t('configShop.startDate')}
@@ -162,10 +155,7 @@ const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps
                                     }}
                                 />
                             </div>
-                            <input
-                                type="hidden"
-                                {...register("startDate")}
-                            />
+                            <input type="hidden" {...register("startDate")} />
                             {errors.startDate && <p className="text-xs mt-1" style={{ color: 'var(--color-error)' }}>{errors.startDate.message as string}</p>}
                         </div>
                         <div className="space-y-1.5">
@@ -189,10 +179,7 @@ const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps
                                     }}
                                 />
                             </div>
-                            <input
-                                type="hidden"
-                                {...register("endDate")}
-                            />
+                            <input type="hidden" {...register("endDate")} />
                             {errors.endDate && <p className="text-xs mt-1" style={{ color: 'var(--color-error)' }}>{errors.endDate.message as string}</p>}
                         </div>
                     </div>
@@ -368,8 +355,8 @@ const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps
                         <Button type="button" variant="outline" onClick={onClose}>
                             {t('common.cancel')}
                         </Button>
-                        <Button type="submit" disabled={createShopBannerMutation.isPending} className="bg-primary text-primary-foreground hover:bg-primary/90">
-                            {createShopBannerMutation.isPending ? t('configShop.creating') : t('common.create')}
+                        <Button type="submit" disabled={updateShopBannerMutation.isPending} className="bg-primary text-primary-foreground hover:bg-primary/90">
+                            {updateShopBannerMutation.isPending ? t('common.saving') : t('common.save')}
                         </Button>
                     </DialogFooter>
                 </form>
@@ -378,5 +365,4 @@ const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps
     );
 };
 
-export default CreateShopBannerDialog;
-
+export default EditShopBannerDialog;

@@ -71,6 +71,7 @@ interface CustomDatePickerProps {
     containerClassName?: string;
     popupClassName?: string;
     dayPickerProps?: Partial<DayPickerProps>;
+    hasError?: boolean;
 }
 
 export default function CustomDatePicker({
@@ -81,6 +82,7 @@ export default function CustomDatePicker({
     containerClassName,
     popupClassName,
     dayPickerProps = {},
+    hasError = false,
 }: CustomDatePickerProps) {
     const [open, setOpen] = useState(false);
     const [today, setToday] = useState<Date | null>(null);
@@ -236,7 +238,8 @@ export default function CustomDatePicker({
                     type="text"
                     readOnly
                     className={cn(
-                        "w-full px-4 py-2 border border-gray-600 rounded-lg cursor-pointer text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200",
+                        "w-full px-4 py-2 border rounded-lg cursor-pointer text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200",
+                        hasError ? "border-red-500 focus:ring-red-500" : "border-gray-600",
                         className
                     )}
                     placeholder={placeholder}
