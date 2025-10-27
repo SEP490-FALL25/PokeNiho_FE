@@ -24,8 +24,10 @@ export type AnswerResponseType = z.infer<typeof AnswerResponseSchema>;
 
 export const AnswerListResponseSchema = z.object({
   data: z.object({
-    results: z.array(AnswerResponseSchema),
-    pagination: PaginationMetaSchema,
+    data: z.object({
+      results: z.array(AnswerResponseSchema),
+      pagination: PaginationMetaSchema,
+    }),
   }),
 });
 

@@ -512,6 +512,8 @@
             "meaningLabel": "Meaning",
             "meaningPlaceholder": "Enter meaning",
             "meaningsLabel": "Translations",
+            "answersLabel": "Answers",
+            "answerLabel": "Answer",
             "createButton": "Create Question",
             "updateButton": "Update",
             "processing": "Processing..."

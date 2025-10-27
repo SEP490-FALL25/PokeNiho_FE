@@ -474,6 +474,8 @@
             "meaningLabel": "意味",
             "meaningPlaceholder": "意味を入力",
             "meaningsLabel": "翻訳",
+            "answersLabel": "回答",
+            "answerLabel": "回答",
             "createButton": "問題を作成",
             "updateButton": "更新",
             "processing": "処理中..."

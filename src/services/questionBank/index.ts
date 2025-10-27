@@ -71,7 +71,7 @@ const questionBankService = {
   createQuestion: async (
     data: ICreateQuestionRequest
   ): Promise<{ data: QuestionEntityType }> => {
-    return axiosPrivate.post("/question-bank/with-meanings", data);
+    return axiosPrivate.post("/question-bank/with-answers", data);
   },
 
   updateQuestion: async (

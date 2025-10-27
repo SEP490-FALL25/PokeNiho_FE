@@ -16,6 +16,8 @@ import {
 } from "@constants/questionBank";
 import { selectCurrentLanguage } from "@redux/features/language/selector";
 import { useSelector } from "react-redux";
+import answerService from "@services/answer";
+import { IQueryAnswerRequest } from "@models/answer/request";
 
 /**
  * Hook for managing QuestionBank list with filters and pagination
@@ -108,6 +110,8 @@ export const useQuestionBank = (
     levelN: undefined,
     questionType: undefined,
     status: undefined,
+    sortBy: undefined,
+    sortOrder: undefined,
   }
 ) => {
   // State management
@@ -130,6 +134,24 @@ export const useQuestionBank = (
         translations: {
           vi: "",
           en: "",
+        },
+      },
+    ],
+    answers: [
+      {
+        answerJp: "",
+        isCorrect: true,
+        translations: {
+          meaning: [
+            {
+              language_code: "vi",
+              value: "",
+            },
+            {
+              language_code: "en",
+              value: "",
+            },
+          ],
         },
       },
     ],
@@ -162,6 +184,33 @@ export const useQuestionBank = (
     setFilters((prev) => ({ ...prev, page }));
   }, []);
 
+  // Sort handler
+  const handleSort = useCallback((sortKey: string) => {
+    setFilters((prev) => {
+      const currentSortBy = prev.sortBy;
+      const currentSortOrder = prev.sortOrder;
+      
+      // If clicking the same column, toggle sort order
+      if (currentSortBy === sortKey) {
+        const newSortOrder = currentSortOrder === "asc" ? "desc" : "asc";
+        return {
+          ...prev,
+          sortBy: sortKey,
+          sortOrder: newSortOrder,
+          page: 1, // Reset to first page when sorting
+        };
+      }
+      
+      // If clicking a different column, set to ascending
+      return {
+        ...prev,
+        sortBy: sortKey,
+        sortOrder: "asc",
+        page: 1, // Reset to first page when sorting
+      };
+    });
+  }, []);
+
   // Reset form data
   const resetFormData = useCallback(() => {
     setFormData({
@@ -172,9 +221,27 @@ export const useQuestionBank = (
       audioUrl: "",
       meanings: [
         {
+        translations: {
+          vi: "",
+          en: "",
+        },
+        },
+      ],
+      answers: [
+        {
+          answerJp: "",
+          isCorrect: true,
           translations: {
-            vi: "",
-            en: "",
+            meaning: [
+              {
+                language_code: "vi",
+                value: "",
+              },
+              {
+                language_code: "en",
+                value: "",
+              },
+            ],
           },
         },
       ],
@@ -193,6 +260,10 @@ export const useQuestionBank = (
         // Remove correctAnswer for all types
         correctAnswer: undefined,
       };
+      
+      // Log the payload for debugging
+      console.log("Creating question with payload:", JSON.stringify(cleanedFormData, null, 2));
+      
       await createQuestionMutation.mutateAsync(cleanedFormData);
       setIsCreateDialogOpen(false);
       resetFormData();
@@ -234,21 +305,27 @@ export const useQuestionBank = (
     }
   }, [deleteQuestionId, deleteQuestionMutation]);
 
+  // State for loading answers
+  const [isLoadingAnswers, setIsLoadingAnswers] = useState(false);
+
   // Dialog handlers
   const openCreateDialog = useCallback(() => {
     resetFormData();
     setIsCreateDialogOpen(true);
   }, [resetFormData]);
 
-  const openEditDialog = useCallback((question: QuestionEntityType) => {
+  const openEditDialog = useCallback(async (question: QuestionEntityType) => {
     setEditingQuestion(question);
+    setIsEditDialogOpen(true);
+    
+    // Set basic question data immediately
     setFormData({
       questionJp: question.questionJp,
       questionType: question.questionType as QuestionType,
       levelN: question.levelN as JLPTLevel,
       pronunciation: question.pronunciation || "",
       audioUrl: question.audioUrl || "",
-      meanings: question.meanings || [
+      meanings: Array.isArray(question.meanings) ? question.meanings : [
         {
           translations: {
             vi: question.meaning || "",
@@ -256,8 +333,75 @@ export const useQuestionBank = (
           },
         },
       ],
+      answers: [], // Will be populated after fetching
     });
-    setIsEditDialogOpen(true);
+
+    // Fetch answers for this question
+    setIsLoadingAnswers(true);
+    try {
+      const filters: IQueryAnswerRequest = {
+        questionBankId: question.id,
+        limit: 10,
+      };
+      const response = await answerService.getAnswerList(filters);
+      const fetchedAnswers = response.data.data.results || [];
+      console.log(fetchedAnswers)
+      // Transform the fetched answers to match the form structure
+      const formattedAnswers = fetchedAnswers.map((answer) => ({
+        answerJp: answer.answerJp,
+        isCorrect: answer.isCorrect,
+        translations: answer.translations,
+      }));
+
+      // Update form data with fetched answers
+      setFormData((prev) => ({
+        ...prev,
+        answers: formattedAnswers.length > 0 ? formattedAnswers : [
+          {
+            answerJp: "",
+            isCorrect: true,
+            translations: {
+              meaning: [
+                {
+                  language_code: "vi",
+                  value: "",
+                },
+                {
+                  language_code: "en",
+                  value: "",
+                },
+              ],
+            },
+          },
+        ],
+      }));
+    } catch (error) {
+      console.error("Error fetching answers:", error);
+      // If fetching fails, use empty answers
+      setFormData((prev) => ({
+        ...prev,
+        answers: [
+          {
+            answerJp: "",
+            isCorrect: true,
+            translations: {
+              meaning: [
+                {
+                  language_code: "vi",
+                  value: "",
+                },
+                {
+                  language_code: "en",
+                  value: "",
+                },
+              ],
+            },
+          },
+        ],
+      }));
+    } finally {
+      setIsLoadingAnswers(false);
+    }
   }, []);
 
   const closeDialogs = useCallback(() => {
@@ -303,6 +447,7 @@ export const useQuestionBank = (
     // Handlers
     handleFilterChange,
     handlePageChange,
+    handleSort,
     handleCreateQuestion,
     handleEditQuestion,
     handleDeleteQuestion,
@@ -325,5 +470,8 @@ export const useQuestionBank = (
     // Dialog state setters
     setIsCreateDialogOpen,
     setIsEditDialogOpen,
+    
+    // Loading states
+    isLoadingAnswers,
   };
 };

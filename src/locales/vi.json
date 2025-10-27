@@ -472,6 +472,8 @@
             "meaningLabel": "Nghĩa",
             "meaningPlaceholder": "Nhập nghĩa",
             "meaningsLabel": "Bản dịch",
+            "answersLabel": "Đáp án",
+            "answerLabel": "Đáp án",
             "createButton": "Tạo câu hỏi",
             "updateButton": "Cập nhật",
             "processing": "Đang xử lý..."

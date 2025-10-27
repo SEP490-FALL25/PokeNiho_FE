@@ -11,6 +11,17 @@ export const QuestionEntitySchema = z.object({
     levelN: z.number(),
     meaning: z.string().optional(), // Keep for backward compatibility
     meanings: z.string().optional(),
+    answers: z.array(z.object({
+        id: z.number(),
+        answerJp: z.string(),
+        isCorrect: z.boolean(),
+        translations: z.object({
+            meaning: z.array(z.object({
+                language_code: z.string(),
+                value: z.string(),
+            })),
+        }),
+    })).optional(),
     ...byUser,
     ...at,
 });
