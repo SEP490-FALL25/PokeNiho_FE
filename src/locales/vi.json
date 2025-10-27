@@ -193,6 +193,8 @@
         "isRandomItemAgainDescription": "Danh sách Pokemon sẽ được random lại khi tạo shop banner",
         "autoPrecreateSettings": "Cấu hình tự động tạo shop banner",
         "autoPrecreateSettingsDescription": "Cấu hình tự động tạo shop banner",
+        "basicInfo": "Thông tin cơ bản",
+        "days": "ngày",
         "updateBannerSuccess": "Cập nhật shop banner thành công!",
         "updateBannerError": "Cập nhật shop banner thất bại",
         "bannerNotFound": "Không tìm thấy shop banner",

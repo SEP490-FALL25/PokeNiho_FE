@@ -214,6 +214,8 @@
         "isRandomItemAgainDescription": "Randomize the list of shop items when creating",
         "autoPrecreateSettings": "Auto Pre-create Settings",
         "autoPrecreateSettingsDescription": "Configure automatic creation of shop banners",
+        "basicInfo": "Basic Information",
+        "days": "days",
         "updateBannerSuccess": "Shop banner updated successfully!",
         "updateBannerError": "Failed to update shop banner",
         "bannerNotFound": "Shop banner not found",

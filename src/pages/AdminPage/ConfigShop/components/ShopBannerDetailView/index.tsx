@@ -2,7 +2,8 @@ import { useTranslation } from "react-i18next";
 import { Badge } from "@ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/Card";
 import { Button } from "@ui/Button";
-import { ArrowLeft, Plus, X, Edit } from "lucide-react";
+import { Separator } from "@ui/Separator";
+import { ArrowLeft, Plus, X, Edit, Settings } from "lucide-react";
 import { Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AddRandomPokemonDialog from "../AddRandomPokemonDialog";
@@ -160,58 +161,99 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
                         </div>
 
                         {/* Button Actions */}
-                        <div className="flex flex-col items-end gap-2">
+                        <div className="flex items-center gap-2">
                             {/* Edit Banner Button */}
                             <Button
-                                className="bg-blue-500 text-white hover:bg-blue-600"
+                                variant="outline"
                                 onClick={handleEditBanner}
+                                className="bg-blue-500 text-white hover:bg-blue-600 border-blue-500"
                             >
-                                <Edit className="h-4 w-4 mr-2" />
+                                <Settings className="h-4 w-4 mr-2" />
                                 {t('common.edit')}
                             </Button>
 
-                            {/* Add Random Pokemon Button */}
-                            <Button
-                                className="bg-primary text-primary-foreground hover:bg-primary/90"
-                                onClick={handleAddRandomPokemon}
-                            >
-                                <Sparkles className="h-4 w-4 mr-2" />
-                                {t('configShop.addRandomPokemon')}
-                            </Button>
-
-                            {/* Add Pokemon Not Random */}
-                            <Button
-                                className="bg-secondary text-white hover:bg-secondary/90"
-                                onClick={handleAddPokemonNotRandom}
-                            >
-                                <Plus className="h-4 w-4 mr-2" />
-                                {t('configShop.addPokemonNotRandom')}
-                            </Button>
+                            {/* Add Pokemon Buttons Group */}
+                            <div className="flex gap-2">
+                                <Button
+                                    className="bg-primary text-primary-foreground hover:bg-primary/90"
+                                    onClick={handleAddRandomPokemon}
+                                >
+                                    <Sparkles className="h-4 w-4 mr-2" />
+                                    {t('configShop.addRandomPokemon')}
+                                </Button>
+                                <Button
+                                    className="bg-secondary text-white hover:bg-secondary/90"
+                                    onClick={handleAddPokemonNotRandom}
+                                >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    {t('configShop.addPokemonNotRandom')}
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </CardHeader>
 
                 <CardContent>
                     <div className="space-y-6">
-                        {/* Info section */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <p className="text-sm text-muted-foreground mb-1">{t('configShop.startDate')}</p>
-                                <p className="text-foreground">{formatDate(bannerDetail?.startDate || '')}</p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-muted-foreground mb-1">{t('configShop.endDate')}</p>
-                                <p className="text-foreground">{formatDate(bannerDetail?.endDate || '')}</p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-muted-foreground mb-1">{t('configShop.minQuantity')}</p>
-                                <p className="text-foreground">{bannerDetail?.min}</p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-muted-foreground mb-1">{t('configShop.maxQuantity')}</p>
-                                <p className="text-foreground">{bannerDetail?.max}</p>
-                            </div>
+                        {/* Basic Info section */}
+                        <div>
+                            <h3 className="text-base font-semibold text-foreground mb-4">{t('configShop.basicInfo')}</h3>
+                            <Card className="bg-muted/20 border-border">
+                                <CardContent className="p-4">
+                                    <div className="grid grid-cols-2 gap-6">
+                                        <div className="space-y-1">
+                                            <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('configShop.startDate')}</p>
+                                            <p className="text-lg font-semibold text-foreground">{formatDate(bannerDetail?.startDate || '')}</p>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('configShop.endDate')}</p>
+                                            <p className="text-lg font-semibold text-foreground">{formatDate(bannerDetail?.endDate || '')}</p>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('configShop.minQuantity')}</p>
+                                            <p className="text-lg font-semibold text-foreground">{bannerDetail?.min}</p>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('configShop.maxQuantity')}</p>
+                                            <p className="text-lg font-semibold text-foreground">{bannerDetail?.max}</p>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         </div>
+
+                        {/* Separator */}
+                        <Separator />
+
+                        {/* Auto Pre-create Settings section */}
+                        <div>
+                            <h3 className="text-base font-semibold text-foreground mb-4">{t('configShop.autoPrecreateSettings')}</h3>
+                            <Card className="bg-muted/20 border-border">
+                                <CardContent className="p-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div className="flex flex-col space-y-2">
+                                            <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('configShop.enablePrecreate')}</p>
+                                            <Badge variant={bannerDetail?.enablePrecreate ? "default" : "outline"} className="w-fit">
+                                                {bannerDetail?.enablePrecreate ? t('common.active') : t('common.inactive')}
+                                            </Badge>
+                                        </div>
+                                        <div className="flex flex-col space-y-2">
+                                            <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('configShop.precreateBeforeEndDays')}</p>
+                                            <p className="text-lg font-semibold text-foreground">{bannerDetail?.precreateBeforeEndDays} {t('configShop.days')}</p>
+                                        </div>
+                                        <div className="flex flex-col space-y-2">
+                                            <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('configShop.isRandomItemAgain')}</p>
+                                            <Badge variant={bannerDetail?.isRandomItemAgain ? "default" : "outline"} className="w-fit">
+                                                {bannerDetail?.isRandomItemAgain ? t('common.active') : t('common.inactive')}
+                                            </Badge>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        {/* Separator */}
+                        <Separator />
 
                         {/* Shop Items */}
                         <div>

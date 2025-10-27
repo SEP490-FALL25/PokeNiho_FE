@@ -194,6 +194,8 @@
         "isRandomItemAgainDescription": "作成時にショップアイテムのリストをランダム化する",
         "autoPrecreateSettings": "自動事前作成設定",
         "autoPrecreateSettingsDescription": "ショップバナーの自動作成を設定",
+        "basicInfo": "基本情報",
+        "days": "日",
         "updateBannerSuccess": "ショップバナーが正常に更新されました！",
         "updateBannerError": "ショップバナーの更新に失敗しました",
         "bannerNotFound": "ショップバナーが見つかりません",
