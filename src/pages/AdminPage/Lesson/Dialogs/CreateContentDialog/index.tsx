@@ -19,6 +19,7 @@ import { useGrammarList } from "@hooks/useGrammar";
 import { useKanjiListManagement } from "@hooks/useKanji";
 import { useLessonContent } from "@hooks/useLessonContent";
 import { QUESTION_TYPE } from "@constants/questionBank";
+import { validateCreateContent, useFormValidation, commonValidationRules } from "@utils/validation";
 import { X, BookOpen, Search, Volume2, Check, Loader2, FileText, Square } from "lucide-react";
 
 // Base interface for all content types
@@ -38,14 +39,12 @@ interface Vocabulary extends BaseContent {
   };
 }
 
-interface Grammar extends BaseContent {
-  title: string;
-  description?: string;
-  usage?: string;
-  examples?: Array<{
-    japanese: string;
-    translation: string;
-  }>;
+interface Grammar {
+  id: number;
+  structure: string;
+  level: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface Kanji {
@@ -105,6 +104,7 @@ const CreateContentDialog = ({
     sort: "desc",
     enabled: shouldFetch && contentType === QUESTION_TYPE.VOCABULARY,
     dialogKey: dialogKey,
+    lessonId: lessonId,
   });
 
   const { data: grammars, isLoading: grammarLoading } = useGrammarList({
@@ -116,6 +116,7 @@ const CreateContentDialog = ({
     sort: "desc",
     enabled: shouldFetch && contentType === QUESTION_TYPE.GRAMMAR,
     dialogKey: dialogKey,
+    lessonId: lessonId,
   });
 
   const { data: kanjis, isLoading: kanjiLoading } = useKanjiListManagement({
@@ -127,6 +128,7 @@ const CreateContentDialog = ({
     sort: "asc",
     enabled: shouldFetch && contentType === QUESTION_TYPE.KANJI,
     dialogKey: dialogKey,
+    lessonId: lessonId,
   });
   // Determine which data to use based on content type
   const getCurrentData = () => {
@@ -146,6 +148,13 @@ const CreateContentDialog = ({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Initialize validation rules
+  const validationRules = {
+    items: commonValidationRules.items,
+  };
+
+  const { validateField } = useFormValidation(validationRules);
 
   // Use lesson content hook for creating multiple contents
   const { createMultipleContents } = useLessonContent(lessonId || null);
@@ -256,22 +265,63 @@ const CreateContentDialog = ({
 
   // Handle item selection
   const handleItemToggle = (itemId: number) => {
-    setSelectedItems((prev) =>
-      prev.includes(itemId)
+    setSelectedItems((prev) => {
+      const newItems = prev.includes(itemId)
         ? prev.filter((id) => id !== itemId)
-        : [...prev, itemId]
-    );
+        : [...prev, itemId];
+      
+      // Validate items
+      
+      const error = validateField('items', newItems);
+      if (error) {
+        setErrors(prev => ({ ...prev, items: error }));
+      } else {
+        setErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors.items;
+          return newErrors;
+        });
+      }
+      
+      return newItems;
+    });
   };
 
   const handleSelectAll = () => {
     if (allItems.length > 0) {
       const allIds = allItems.map((item: ContentItem) => item.id);
       setSelectedItems(allIds);
+      
+      // Validate items
+      
+      const error = validateField('items', allIds);
+      if (error) {
+        setErrors(prev => ({ ...prev, items: error }));
+      } else {
+        setErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors.items;
+          return newErrors;
+        });
+      }
     }
   };
 
   const handleDeselectAll = () => {
     setSelectedItems([]);
+    
+    // Validate items
+    
+    const error = validateField('items', []);
+    if (error) {
+      setErrors(prev => ({ ...prev, items: error }));
+    } else {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.items;
+        return newErrors;
+      });
+    }
   };
 
   const handlePlayAudio = (audioUrl: string) => {
@@ -411,29 +461,15 @@ const CreateContentDialog = ({
             <div className="flex-1">
               <div className="flex items-center gap-3">
                 <div className="font-semibold text-lg text-foreground">
-                  {grammar.title}
+                  {grammar.structure}
                 </div>
-                {grammar.description && (
-                  <div className="text-muted-foreground text-sm">
-                    {grammar.description}
-                  </div>
-                )}
                 <Badge className="text-white font-semibold">
-                  N{grammar.levelN || '?'}
+                  {grammar.level}
                 </Badge>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {grammar.audioUrl && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-blue-500 hover:bg-blue-100"
-                  onClick={() => handlePlayAudio(grammar.audioUrl!)}
-                >
-                  <Volume2 className="h-4 w-4" />
-                </Button>
-              )}
+              {/* Grammar doesn't have audio */}
             </div>
           </div>
         );
@@ -491,15 +527,7 @@ const CreateContentDialog = ({
   };
 
   const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (selectedItems.length === 0) {
-      const contentTypeLabel = contentType === QUESTION_TYPE.VOCABULARY ? "vocabulary" :
-                              contentType === QUESTION_TYPE.GRAMMAR ? "grammar" :
-                              contentType === QUESTION_TYPE.KANJI ? "kanji" : "content";
-      newErrors.items = `Please select at least one ${contentTypeLabel}`;
-    }
-
+    const newErrors = validateCreateContent({ items: selectedItems });
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };

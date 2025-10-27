@@ -242,7 +242,6 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
         });
 
         const contents: LessonContent[] = response.data?.data || [];
-        console.log(contents);
         setContentSections((prev) =>
           prev.map((section) =>
             section.type === sectionType
@@ -346,7 +345,7 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
       
       // Send each change to BE
       for (const payload of changes) {
-        const response = await lessonService.updateContentOrder(lesson.id, payload);
+        const response = await lessonService.updateContentOrder(payload);
         console.log(`✅ Order updated for ${payload.contentType}:`, response.data);
       }
 
@@ -618,7 +617,13 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
                           items={section.contents.map(item => item.id)}
                           strategy={verticalListSortingStrategy}
                         >
-                          <div className="space-y-3">
+                          {/* Scrollable container with fixed height */}
+                          <div 
+                            className="space-y-3 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+                            style={{
+                              scrollBehavior: 'smooth'
+                            }}
+                          >
                             {section.contents.map((content, index) => (
                               <SortableItem
                                 key={content.id}

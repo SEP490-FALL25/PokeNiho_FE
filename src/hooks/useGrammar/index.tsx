@@ -11,7 +11,7 @@ import { selectCurrentLanguage } from "@redux/features/language/selector";
  */
 export const useGrammarList = (params: IQueryRequest & { enabled?: boolean; dialogKey?: number }) => {
   const language = useSelector(selectCurrentLanguage);
-  const { page, limit, search, levelN, sortBy, sort, enabled = true, dialogKey } = params;
+  const { page, limit, search, levelN, sortBy, sort, enabled = true, dialogKey, lessonId } = params;
 
   const { data, isLoading, error } = useQuery({
     queryKey: [
@@ -24,6 +24,7 @@ export const useGrammarList = (params: IQueryRequest & { enabled?: boolean; dial
       sort,
       language,
       dialogKey,
+      lessonId,
     ],
     queryFn: () => grammarService.getAllGrammars(params),
     enabled,

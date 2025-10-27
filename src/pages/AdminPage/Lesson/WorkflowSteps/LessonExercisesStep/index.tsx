@@ -26,6 +26,7 @@ import {
 import CreateExerciseDialog from "../../Dialogs/CreateExerciseDialog";
 import { useLessonExercises } from "@hooks/useLessonExercises";
 import { useTranslation } from "react-i18next";
+import { ExerciseResponseType } from "@models/exercise/response";
 
 interface LessonItem {
   id: number;
@@ -45,72 +46,53 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
   const [activeTypeTab, setActiveTypeTab] = useState<string>("all");
-  const [activeDifficultyTab, setActiveDifficultyTab] = useState<string>("all");
 
   // Use hook to fetch exercises for this lesson
   const {
     exercises,
     isLoading,
     error,
-    createExercise,
-    updateExercise,
     deleteExercise,
   } = useLessonExercises(lesson.id);
 
-  const getTypeBadge = (type: string) => {
+  const getExerciseTypeBadge = (exerciseType: string) => {
     const types = {
-      multiple_choice: { label: t('workflow.exercises.multipleChoice'), color: "bg-blue-500" },
-      fill_blank: { label: t('workflow.exercises.fillBlank'), color: "bg-green-500" },
-      listening: { label: t('workflow.exercises.listening'), color: "bg-purple-500" },
-      speaking: { label: t('workflow.exercises.speaking'), color: "bg-orange-500" },
+      QUIZ: { label: t('workflow.exercises.quiz'), color: "bg-blue-500" },
+      MULTIPLE_CHOICE: { label: t('workflow.exercises.multipleChoice'), color: "bg-green-500" },
+      FILL_BLANK: { label: t('workflow.exercises.fillBlank'), color: "bg-purple-500" },
+      LISTENING: { label: t('workflow.exercises.listening'), color: "bg-orange-500" },
     };
     return (
-      types[type as keyof typeof types] || { label: type, color: "bg-gray-500" }
+      types[exerciseType as keyof typeof types] || { label: exerciseType, color: "bg-gray-500" }
     );
   };
 
-  const getDifficultyBadge = (difficulty: string) => {
-    const difficulties = {
-      easy: { label: t('workflow.exercises.easy'), color: "bg-green-500" },
-      medium: { label: t('workflow.exercises.medium'), color: "bg-yellow-500" },
-      hard: { label: t('workflow.exercises.hard'), color: "bg-red-500" },
-    };
-    return (
-      difficulties[difficulty as keyof typeof difficulties] || {
-        label: difficulty,
-        color: "bg-gray-500",
-      }
-    );
-  };
-
-  const handleViewExercise = (exercise: any) => {
+  const handleViewExercise = (exercise: ExerciseResponseType) => {
     // TODO: Implement view functionality
     console.log("View exercise:", exercise);
   };
 
-  const handleEditExercise = (exercise: any) => {
+  const handleEditExercise = (exercise: ExerciseResponseType) => {
     // TODO: Implement edit functionality
     console.log("Edit exercise:", exercise);
   };
 
-  const handleDeleteExercise = async (exerciseId: number) => {
+  const handleDeleteExercise = async () => {
     try {
-      await deleteExercise(exerciseId);
+      await deleteExercise();
     } catch (error) {
       console.error("Failed to delete exercise:", error);
     }
   };
 
-  const filteredExercises = exercises.filter((exercise) => {
-    const matchesSearch = exercise.title
+  const filteredExercises = exercises.filter((exercise: ExerciseResponseType) => {
+    const matchesSearch = `Exercise ${exercise.id}`
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
     const matchesType =
-      activeTypeTab === "all" || exercise.type === activeTypeTab;
-    const matchesDifficulty =
-      activeDifficultyTab === "all" || exercise.difficulty === activeDifficultyTab;
+      activeTypeTab === "all" || exercise.exerciseType === activeTypeTab;
 
-    return matchesSearch && matchesType && matchesDifficulty;
+    return matchesSearch && matchesType;
   });
 
   return (
@@ -168,24 +150,10 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t('workflow.exercises.allTypes')}</SelectItem>
-                  <SelectItem value="multiple_choice">{t('workflow.exercises.multipleChoice')}</SelectItem>
-                  <SelectItem value="fill_blank">{t('workflow.exercises.fillBlank')}</SelectItem>
-                  <SelectItem value="listening">{t('workflow.exercises.listening')}</SelectItem>
-                  <SelectItem value="speaking">{t('workflow.exercises.speaking')}</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select
-                value={activeDifficultyTab}
-                onValueChange={setActiveDifficultyTab}
-              >
-                <SelectTrigger className="w-32 bg-background border-border text-foreground">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t('workflow.exercises.allDifficulty')}</SelectItem>
-                  <SelectItem value="easy">{t('workflow.exercises.easy')}</SelectItem>
-                  <SelectItem value="medium">{t('workflow.exercises.medium')}</SelectItem>
-                  <SelectItem value="hard">{t('workflow.exercises.hard')}</SelectItem>
+                  <SelectItem value="QUIZ">{t('workflow.exercises.quiz')}</SelectItem>
+                  <SelectItem value="MULTIPLE_CHOICE">{t('workflow.exercises.multipleChoice')}</SelectItem>
+                  <SelectItem value="FILL_BLANK">{t('workflow.exercises.fillBlank')}</SelectItem>
+                  <SelectItem value="LISTENING">{t('workflow.exercises.listening')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -254,9 +222,8 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
             </div>
           ) : !isLoading && !error ? (
             <div className="grid gap-4">
-              {filteredExercises.map((exercise) => {
-                const typeInfo = getTypeBadge(exercise.type);
-                const difficultyInfo = getDifficultyBadge(exercise.difficulty);
+              {filteredExercises.map((exercise: ExerciseResponseType) => {
+                const typeInfo = getExerciseTypeBadge(exercise.exerciseType);
 
                 return (
                   <Card
@@ -272,7 +239,7 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
                               <h4 className="font-semibold text-foreground">
-                                {exercise.title}
+                                Exercise {exercise.id}
                               </h4>
                               <Badge
                                 className={`${typeInfo.color} text-white text-xs`}
@@ -280,32 +247,27 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
                                 {typeInfo.label}
                               </Badge>
                               <Badge
-                                className={`${difficultyInfo.color} text-white text-xs`}
-                              >
-                                {difficultyInfo.label}
-                              </Badge>
-                              <Badge
                                 className={
-                                  exercise.isActive
+                                  !exercise.isBlocked
                                     ? "bg-green-500 text-white"
-                                    : "bg-yellow-500 text-white"
+                                    : "bg-red-500 text-white"
                                 }
                               >
-                                {exercise.isActive ? t('workflow.exercises.active') : t('workflow.exercises.inactive')}
+                                {!exercise.isBlocked ? t('workflow.exercises.active') : t('workflow.exercises.blocked')}
                               </Badge>
                             </div>
                             <div className="text-sm text-muted-foreground space-y-1">
                               <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-1">
                                   <BarChart3 className="h-4 w-4" />
-                                  <span>{exercise.questionCount} {t('workflow.exercises.questions')}</span>
+                                  <span>Test Set ID: {exercise.testSetId}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                   <Clock className="h-4 w-4" />
-                                  <span>{exercise.estimatedTime} {t('workflow.exercises.min')}</span>
+                                  <span>Lesson ID: {exercise.lessonId}</span>
                                 </div>
                               </div>
-                              <div>{t('workflow.exercises.created')} {exercise.createdAt}</div>
+                              <div>{t('workflow.exercises.created')} {new Date(exercise.createdAt).toLocaleDateString()}</div>
                             </div>
                           </div>
                         </div>
@@ -329,7 +291,7 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleDeleteExercise(exercise.id)}
+                            onClick={() => handleDeleteExercise()}
                             className="border-destructive text-destructive hover:bg-destructive/10"
                           >
                             <Trash2 className="h-4 w-4" />
