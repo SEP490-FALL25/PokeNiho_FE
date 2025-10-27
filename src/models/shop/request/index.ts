@@ -11,6 +11,9 @@ export const createCreateShopBannerSchema = (t: (key: string) => string) => z.ob
     min: z.number().min(4, t('configShop.minMustBeAtLeast4')).max(7, t('configShop.minMustBeAtMost7')),
     max: z.number().min(5, t('configShop.maxMustBeAtLeast5')).max(8, t('configShop.maxMustBeAtMost8')),
     status: z.enum(["PREVIEW", "EXPIRED", "INACTIVE", "ACTIVE"]),
+    enablePrecreate: z.boolean(), //Cho phép tạo lại
+    precreateBeforeEndDays: z.number().min(1, t('configShop.precreateBeforeEndDaysRequired')).max(7, t('configShop.precreateBeforeEndDaysMax')), //Cách endDate + time
+    isRandomItemAgain: z.boolean(), //Random list shopItem
     nameTranslations: z.array(TranslationRequest).superRefine((translations, ctx) => {
         translations.forEach((translation, index) => {
             if (!translation.value || translation.value.trim().length === 0) {

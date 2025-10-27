@@ -83,6 +83,10 @@ const shopService = {
         return axiosPrivate.put(`/shop-item/${id}`, data);
     },
 
+    updateShopBanner: async (id: number, data: ICreateShopBannerRequest) => {
+        return axiosPrivate.put(`/shop-banner/${id}`, data);
+    },
+
     deleteShopItem: async (id: number) => {
         return axiosPrivate.delete(`/shop-item/${id}`);
     },

@@ -3,6 +3,9 @@ import { Button } from '@ui/Button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@ui/Dialog';
 import { Input } from '@ui/Input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ui/Select';
+import { Switch } from '@ui/Switch';
+import { Separator } from '@ui/Separator';
+import { Card } from '@ui/Card';
 import MultilingualInput from '@ui/MultilingualInput';
 import CustomDatePicker from '@ui/DatePicker';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
@@ -34,6 +37,8 @@ const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps
         formState: { errors },
         reset,
         setValue,
+        watch,
+        clearErrors,
     } = useForm<ICreateShopBannerRequest>({
         resolver: zodResolver(createCreateShopBannerSchema(t)),
         defaultValues: {
@@ -42,6 +47,9 @@ const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps
             min: 4,
             max: 8,
             status: SHOP.ShopBannerStatus.PREVIEW,
+            enablePrecreate: true,
+            precreateBeforeEndDays: 2,
+            isRandomItemAgain: true,
             nameTranslations: [
                 { key: "en" as const, value: "" },
                 { key: "ja" as const, value: "" },
@@ -80,6 +88,9 @@ const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps
                 min: 4,
                 max: 8,
                 status: SHOP.ShopBannerStatus.PREVIEW,
+                enablePrecreate: true,
+                precreateBeforeEndDays: 2,
+                isRandomItemAgain: true,
                 nameTranslations: [
                     { key: "en" as const, value: "" },
                     { key: "ja" as const, value: "" },
@@ -109,6 +120,17 @@ const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 py-4">
+                    {/* Multilingual Input */}
+                    <MultilingualInput
+                        label={t('configShop.bannerName')}
+                        fields={nameFields}
+                        register={register}
+                        errors={errors.nameTranslations}
+                        placeholderKey="configShop.bannerNamePlaceholder"
+                        requiredKey="configShop.nameRequiredVi"
+                        fieldName="name"
+                    />
+
                     {/* Date Range */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
@@ -123,15 +145,18 @@ const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps
                                         if (date) {
                                             const formattedDate = formatDateForForm(date);
                                             setValue("startDate", formattedDate);
+                                            clearErrors("startDate");
 
                                             // Auto-set end date to 7 days later
                                             const endDate = new Date(date);
                                             endDate.setDate(endDate.getDate() + 7);
                                             setSelectedEndDate(endDate);
                                             setValue("endDate", formatDateForForm(endDate));
+                                            clearErrors("endDate");
                                         }
                                     }}
                                     placeholder={t('configShop.startDate')}
+                                    hasError={!!errors.startDate}
                                     dayPickerProps={{
                                         disabled: { before: new Date() }
                                     }}
@@ -154,9 +179,11 @@ const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps
                                         setSelectedEndDate(date);
                                         if (date) {
                                             setValue("endDate", formatDateForForm(date));
+                                            clearErrors("endDate");
                                         }
                                     }}
                                     placeholder={t('configShop.endDate')}
+                                    hasError={!!errors.endDate}
                                     dayPickerProps={{
                                         disabled: selectedStartDate ? { before: selectedStartDate } : { before: new Date() }
                                     }}
@@ -244,16 +271,98 @@ const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps
                         />
                     </div>
 
-                    {/* Multilingual Input */}
-                    <MultilingualInput
-                        label={t('configShop.bannerName')}
-                        fields={nameFields}
-                        register={register}
-                        errors={errors.nameTranslations}
-                        placeholderKey="dailyQuest.taskNamePlaceholder"
-                        requiredKey="configShop.nameRequiredVi"
-                        fieldName="name"
-                    />
+                    {/* Separator */}
+                    <Separator className="my-6" />
+
+                    {/* Auto Pre-create Settings Section */}
+                    <div className="space-y-4">
+                        <div>
+                            <h3 className="text-sm font-semibold text-foreground mb-1">
+                                {t('configShop.autoPrecreateSettings')}
+                            </h3>
+                            <p className="text-xs text-muted-foreground italic">
+                                {t('configShop.autoPrecreateSettingsDescription')}
+                            </p>
+                        </div>
+
+                        <Card className="bg-muted/30 p-4 space-y-4">
+                            {/* Enable Precreate */}
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <label htmlFor="enablePrecreate" className="text-sm font-medium text-foreground">
+                                        {t('configShop.enablePrecreate')}
+                                    </label>
+                                    <p className="text-xs text-muted-foreground mt-0.5 italic">
+                                        {t('configShop.enablePrecreateDescription')}
+                                    </p>
+                                </div>
+                                <Controller
+                                    name="enablePrecreate"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Switch
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                        />
+                                    )}
+                                />
+                            </div>
+
+                            {/* Precreate Before End Days */}
+                            {watch('enablePrecreate') && (
+                                <div className="space-y-1.5 pt-2 border-t border-border">
+                                    <label htmlFor="precreateBeforeEndDays" className="text-sm font-medium text-foreground">
+                                        {t('configShop.precreateBeforeEndDays')}
+                                    </label>
+                                    <Controller
+                                        name="precreateBeforeEndDays"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <>
+                                                <Input
+                                                    id="precreateBeforeEndDays"
+                                                    type="number"
+                                                    value={field.value}
+                                                    onChange={(e) => field.onChange(Number(e.target.value))}
+                                                    variant={errors.precreateBeforeEndDays ? "destructive" : "default"}
+                                                    min={1}
+                                                    max={7}
+                                                />
+                                                {errors.precreateBeforeEndDays && <p className="text-xs mt-1" style={{ color: 'var(--color-error)' }}>{errors.precreateBeforeEndDays.message as string}</p>}
+                                                <p className="text-xs text-muted-foreground italic">
+                                                    {t('configShop.precreateBeforeEndDaysDescription')}
+                                                </p>
+                                            </>
+                                        )}
+                                    />
+                                </div>
+                            )}
+
+                            {/* Is Random Item Again */}
+                            {watch('enablePrecreate') && (
+                                <div className="flex items-center justify-between pt-2 border-t border-border">
+                                    <div>
+                                        <label htmlFor="isRandomItemAgain" className="text-sm font-medium text-foreground">
+                                            {t('configShop.isRandomItemAgain')}
+                                        </label>
+                                        <p className="text-xs text-muted-foreground mt-0.5 italic">
+                                            {t('configShop.isRandomItemAgainDescription')}
+                                        </p>
+                                    </div>
+                                    <Controller
+                                        name="isRandomItemAgain"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Switch
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                            />
+                                        )}
+                                    />
+                                </div>
+                            )}
+                        </Card>
+                    </div>
 
                     <DialogFooter className="mt-6 pt-4 border-t border-border">
                         <Button type="button" variant="outline" onClick={onClose}>
