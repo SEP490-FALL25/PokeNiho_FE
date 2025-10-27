@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@ui/Skeleton';
 import { useCreateShopItems, useShopBannerById, useShopBannerAllPokemonByShopBannerId } from '@hooks/useShop';
 import { useElementalTypeList } from '@hooks/useElemental';
+import { useDebounce } from '@hooks/useDebounce';
 import { IShopBannerAllPokemonResponseSchema } from '@models/shop/response';
 import { cn } from '@utils/CN';
 import { Loader2, Plus, Search, Filter } from "lucide-react";
@@ -30,6 +31,11 @@ const AddHandmadePokemonDialog = ({ isOpen, onClose, bannerId }: AddHandmadePoke
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [selectedPokemon, setSelectedPokemon] = useState<Map<number, IShopBannerAllPokemonResponseSchema>>(new Map());
     const observerRef = useRef<IntersectionObserver | null>(null);
+
+    /**
+     * Debounce search input
+     */
+    const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
     /**
      * Pokemon Skeleton Component
@@ -67,7 +73,7 @@ const AddHandmadePokemonDialog = ({ isOpen, onClose, bannerId }: AddHandmadePoke
     const { data: pokemonData, isLoading: isPokemonLoading } = useShopBannerAllPokemonByShopBannerId(bannerId, {
         page: currentPage,
         limit: 15,
-        search: searchQuery || undefined,
+        search: debouncedSearchQuery || undefined,
         rarity: selectedRarity !== 'all' ? selectedRarity : undefined,
         types: selectedType !== 'all' ? selectedType : undefined,
     });
@@ -104,7 +110,7 @@ const AddHandmadePokemonDialog = ({ isOpen, onClose, bannerId }: AddHandmadePoke
     useEffect(() => {
         setCurrentPage(1);
         setAccumulatedResults([]);
-    }, [searchQuery, selectedRarity, selectedType]);
+    }, [debouncedSearchQuery, selectedRarity, selectedType]);
 
     // Reset selectedPokemon when dialog opens
     useEffect(() => {

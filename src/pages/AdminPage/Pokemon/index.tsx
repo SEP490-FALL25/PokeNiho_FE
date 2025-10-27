@@ -11,6 +11,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import PaginationControls from "@ui/PaginationControls";
 import { usePokemonList } from "@hooks/usePokemon";
 import { useElementalTypeList } from "@hooks/useElemental";
+import { useDebounce } from "@hooks/useDebounce";
 import { RarityPokemon } from "@constants/pokemon";
 import CreatePokemon from "./components/CreatePokemon";
 import { useTranslation } from "react-i18next";
@@ -29,11 +30,13 @@ export default function PokemonManagement() {
     const [selectedType, setSelectedType] = useState<string>("all");
     const [itemsPerPage, setItemsPerPage] = useState<number>(15);
     const [currentPage, setCurrentPage] = useState<number>(1);
+    const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
     const { data: pokemonData, isLoading: isPokemonLoading, error: pokemonError } = usePokemonList({
         page: currentPage,
         limit: itemsPerPage,
         type: selectedType === 'all' ? undefined : selectedType,
-        search: searchQuery || undefined,
+        search: debouncedSearchQuery || undefined,
         rarity: selectedRarity === 'all' ? undefined : selectedRarity,
     });
 

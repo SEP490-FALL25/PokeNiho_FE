@@ -8,6 +8,7 @@ import { Input } from "@ui/Input";
 import { Edit, Plus, Rows, Trash2, ChevronUp, ChevronDown, ChevronsUpDown, Minus } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/Tabs";
 import { useKanjiListManagement, useCreateKanjiWithMeaning } from "@hooks/useKanji";
+import { useDebounce } from "@hooks/useDebounce";
 import { useEffect, useState } from "react";
 import { KanjiManagement } from "@models/kanji/entity";
 import { EnhancedPagination as Pagination } from "@ui/Pagination";
@@ -33,6 +34,7 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
     const [sortBy, setSortBy] = useState<string>("id");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
     const [searchQuery, setSearchQuery] = useState<string>("");
+    const debouncedSearchQuery = useDebounce(searchQuery, 500);
     //--------------------End--------------------//
 
     /**
@@ -41,7 +43,7 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
     const { data, isLoading } = useKanjiListManagement({
         page,
         limit: itemsPerPage,
-        search: searchQuery,
+        search: debouncedSearchQuery,
         sortOrder,
         sortBy,
         jlptLevel: activeTab === 'all' ? undefined : activeTab,
