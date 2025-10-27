@@ -1,12 +1,14 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import { ROUTES } from "@constants/route"
-import PrivateRoute from "../layouts/PrivateProute"
-import { ROLE } from "@constants/common"
-import PersistToken from "../layouts/PersistToken"
+// import PrivateRoute from "../layouts/PrivateProute"
+// import { ROLE } from "@constants/common"
+// import PersistToken from "../layouts/PersistToken"
 import LoginPage from "@pages/AuthPage/LoginPage"
 import AuthLayout from "@layouts/Auth"
 import AdminLayout from "@layouts/Admin"
 import { lazy } from "react"
+import ConfigShop from "@pages/AdminPage/ConfigShop"
+import ShopBannerDetail from "@pages/AdminPage/ConfigShop/ShopBannerDetail"
 
 const AdminDashboard = lazy(() => import("@pages/AdminPage/Dashboard"))
 const UsersManagement = lazy(() => import("@pages/AdminPage/Users"))
@@ -51,6 +53,8 @@ const RouterComponent = () => {
                                 { path: ROUTES.ADMIN.AI_PROMPTS_MANAGEMENT, element: <AIPromptManagement /> },
                                 { path: ROUTES.ADMIN.DAILY_QUEST_MANAGEMENT, element: <DailyQuestManagement /> },
                                 { path: ROUTES.ADMIN.REWARD_MANAGEMENT, element: <RewardManagement /> },
+                                { path: ROUTES.ADMIN.CONFIG_SHOP, element: <ConfigShop /> },
+                                { path: ROUTES.ADMIN.CONFIG_SHOP_BANNER_DETAIL, element: <ShopBannerDetail /> },
                                 { path: ROUTES.ADMIN.QUESTION_BANK, element: <QuestionBankManagement /> },
                             ],
                         },

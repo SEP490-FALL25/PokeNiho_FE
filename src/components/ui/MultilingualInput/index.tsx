@@ -66,11 +66,7 @@ const MultilingualInput: React.FC<MultilingualInputProps> = ({
                         {isReactHookForm ? (
                             <InputComponent
                                 placeholder={t(placeholderKey, { lang: field.key.toUpperCase() })}
-                                className={cn(
-                                    "bg-background border-input",
-                                    isTextarea && "min-h-[80px]",
-                                    errors?.[index]?.value && "border-error focus-visible:ring-destructive"
-                                )}
+                                variant={errors?.[index]?.value ? "destructive" : "default"}
                                 {...register(`${fieldName}Translations.${index}.value` as const, {
                                     required: field.key === 'vi'
                                         ? t(requiredKey || 'common.required')
@@ -84,11 +80,7 @@ const MultilingualInput: React.FC<MultilingualInputProps> = ({
                                 placeholder={t(placeholderKey, { lang: field.key.toUpperCase() })}
                                 value={values?.[`name${field.key.charAt(0).toUpperCase() + field.key.slice(1)}`] || ""}
                                 onChange={(e) => onChange?.(`name${field.key.charAt(0).toUpperCase() + field.key.slice(1)}`, e.target.value)}
-                                className={cn(
-                                    "bg-background border-input",
-                                    isTextarea && "min-h-[80px]",
-                                    errors?.[`name${field.key.charAt(0).toUpperCase() + field.key.slice(1)}`] && "border-error focus-visible:ring-destructive"
-                                )}
+                                variant={errors?.[`name${field.key.charAt(0).toUpperCase() + field.key.slice(1)}`] ? "destructive" : "default"}
                             />
                         )}
                         {isReactHookForm ? (
