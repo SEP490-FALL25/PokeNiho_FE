@@ -39,7 +39,10 @@ export const useGetRandomPokemon = () => {
     });
 };
 
-// Hook to create shop banner
+/**
+ * Handle Create Shop Banner
+ * @returns useMutation to create shop banner
+ */
 export const useCreateShopBanner = () => {
     const queryClient = useQueryClient();
     const { t } = useTranslation();
@@ -58,6 +61,8 @@ export const useCreateShopBanner = () => {
         },
     });
 };
+//-------------------End-------------------//
+
 
 // Hook to create shop items
 export const useCreateShopItems = () => {

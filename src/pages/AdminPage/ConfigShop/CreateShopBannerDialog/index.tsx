@@ -1,13 +1,15 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from '@ui/Button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@ui/Dialog';
 import { Input } from '@ui/Input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ui/Select';
 import MultilingualInput from '@ui/MultilingualInput';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { useCreateShopBanner } from '@hooks/useShop';
-import { ICreateShopBannerRequest } from '@models/shop/request';
+import { createCreateShopBannerSchema, ICreateShopBannerRequest } from '@models/shop/request';
 import { useTranslation } from 'react-i18next';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { SHOP } from '@constants/shop';
 
 interface CreateShopBannerDialogProps {
     isOpen: boolean;
@@ -16,22 +18,28 @@ interface CreateShopBannerDialogProps {
 
 const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps) => {
     const { t } = useTranslation();
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
-    const [min, setMin] = useState(4);
-    const [max, setMax] = useState(8);
-    const [status, setStatus] = useState<"PREVIEW" | "EXPIRED" | "INACTIVE" | "ACTIVE">("PREVIEW");
+    const [selectedStartDate, setSelectedStartDate] = useState<string>("");
 
+    /**
+     * Handle Create Shop Banner
+     * @returns useMutation to create shop banner
+     */
     const createShopBannerMutation = useCreateShopBanner();
-
     const {
         control,
         handleSubmit,
         register,
         formState: { errors },
         reset,
-    } = useForm<{ nameTranslations: Array<{ key: "en" | "ja" | "vi"; value: string }> }>({
+        setValue,
+    } = useForm<ICreateShopBannerRequest>({
+        resolver: zodResolver(createCreateShopBannerSchema(t)),
         defaultValues: {
+            startDate: "",
+            endDate: "",
+            min: 4,
+            max: 8,
+            status: SHOP.ShopBannerStatus.PREVIEW,
             nameTranslations: [
                 { key: "en" as const, value: "" },
                 { key: "ja" as const, value: "" },
@@ -40,47 +48,43 @@ const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps
         },
     });
 
+    /**
+     * Field arrays
+     */
     const { fields: nameFields } = useFieldArray({ control, name: "nameTranslations" });
+    //------------------------End------------------------//
 
+
+    /**
+     * Reset form when dialog opens/closes
+     */
     useEffect(() => {
         if (isOpen) {
+            setSelectedStartDate("");
             reset({
+                startDate: "",
+                endDate: "",
+                min: 4,
+                max: 8,
+                status: SHOP.ShopBannerStatus.PREVIEW,
                 nameTranslations: [
                     { key: "en" as const, value: "" },
                     { key: "ja" as const, value: "" },
                     { key: "vi" as const, value: "" },
                 ],
             });
-            setStartDate("");
-            setEndDate("");
-            setMin(4);
-            setMax(8);
-            setStatus("PREVIEW");
         }
     }, [isOpen, reset]);
 
-    const handleFormSubmit = async (data: { nameTranslations: Array<{ key: "en" | "ja" | "vi"; value: string }> }) => {
-        if (!startDate || !endDate) {
-            alert(t('configShop.selectDates'));
-            return;
-        }
-
-        const requestData: ICreateShopBannerRequest = {
-            startDate: new Date(startDate).toISOString(),
-            endDate: new Date(endDate).toISOString(),
-            min,
-            max,
-            status,
-            nameTranslations: data.nameTranslations,
-        };
-
+    const handleFormSubmit = async (data: ICreateShopBannerRequest) => {
         try {
-            await createShopBannerMutation.mutateAsync(requestData);
+            await createShopBannerMutation.mutateAsync(data);
             onClose();
         } catch (error) {
             console.error('Error creating shop banner:', error);
         }
     };
+    //-------------------End-------------------//
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -98,26 +102,53 @@ const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps
                             <label htmlFor="startDate" className="text-sm font-medium text-foreground">
                                 {t('configShop.startDate')}
                             </label>
-                            <Input
-                                id="startDate"
-                                type="datetime-local"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                                className="bg-background border-input"
-                                required
+                            <Controller
+                                name="startDate"
+                                control={control}
+                                render={({ field }) => (
+                                    <>
+                                        <Input
+                                            id="startDate"
+                                            type="datetime-local"
+                                            value={field.value}
+                                            onChange={(e) => {
+                                                field.onChange(e);
+                                                setSelectedStartDate(e.target.value);
+                                                if (e.target.value) {
+                                                    const startDate = new Date(e.target.value);
+                                                    const endDate = new Date(startDate);
+                                                    endDate.setDate(endDate.getDate() + 7);
+                                                    setValue("endDate", endDate.toISOString().slice(0, 16));
+                                                }
+                                            }}
+                                            variant={errors.startDate ? "destructive" : "default"}
+                                            min={new Date().toISOString().slice(0, 16)}
+                                        />
+                                        {errors.startDate && <p className="text-xs mt-1" style={{ color: 'var(--color-error)' }}>{errors.startDate.message as string}</p>}
+                                    </>
+                                )}
                             />
                         </div>
                         <div className="space-y-1.5">
                             <label htmlFor="endDate" className="text-sm font-medium text-foreground">
                                 {t('configShop.endDate')}
                             </label>
-                            <Input
-                                id="endDate"
-                                type="datetime-local"
-                                value={endDate}
-                                onChange={(e) => setEndDate(e.target.value)}
-                                className="bg-background border-input"
-                                required
+                            <Controller
+                                name="endDate"
+                                control={control}
+                                render={({ field }) => (
+                                    <>
+                                        <Input
+                                            id="endDate"
+                                            type="datetime-local"
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            variant={errors.endDate ? "destructive" : "default"}
+                                            min={selectedStartDate || new Date().toISOString().slice(0, 16)}
+                                        />
+                                        {errors.endDate && <p className="text-xs mt-1" style={{ color: 'var(--color-error)' }}>{errors.endDate.message as string}</p>}
+                                    </>
+                                )}
                             />
                         </div>
                     </div>
@@ -128,28 +159,46 @@ const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps
                             <label htmlFor="min" className="text-sm font-medium text-foreground">
                                 {t('configShop.minQuantity')}
                             </label>
-                            <Input
-                                id="min"
-                                type="number"
-                                value={min}
-                                onChange={(e) => setMin(Number(e.target.value))}
-                                className="bg-background border-input"
-                                min={1}
-                                required
+                            <Controller
+                                name="min"
+                                control={control}
+                                render={({ field }) => (
+                                    <>
+                                        <Input
+                                            id="min"
+                                            type="number"
+                                            value={field.value}
+                                            onChange={(e) => field.onChange(Number(e.target.value))}
+                                            variant={errors.min ? "destructive" : "default"}
+                                            min={4}
+                                            max={7}
+                                        />
+                                        {errors.min && <p className="text-xs mt-1" style={{ color: 'var(--color-error)' }}>{errors.min.message as string}</p>}
+                                    </>
+                                )}
                             />
                         </div>
                         <div className="space-y-1.5">
                             <label htmlFor="max" className="text-sm font-medium text-foreground">
                                 {t('configShop.maxQuantity')}
                             </label>
-                            <Input
-                                id="max"
-                                type="number"
-                                value={max}
-                                onChange={(e) => setMax(Number(e.target.value))}
-                                className="bg-background border-input"
-                                min={min}
-                                required
+                            <Controller
+                                name="max"
+                                control={control}
+                                render={({ field }) => (
+                                    <>
+                                        <Input
+                                            id="max"
+                                            type="number"
+                                            value={field.value}
+                                            onChange={(e) => field.onChange(Number(e.target.value))}
+                                            variant={errors.max ? "destructive" : "default"}
+                                            min={5}
+                                            max={8}
+                                        />
+                                        {errors.max && <p className="text-xs mt-1" style={{ color: 'var(--color-error)' }}>{errors.max.message as string}</p>}
+                                    </>
+                                )}
                             />
                         </div>
                     </div>
@@ -159,17 +208,23 @@ const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps
                         <label htmlFor="status" className="text-sm font-medium text-foreground">
                             {t('configShop.status')}
                         </label>
-                        <Select value={status} onValueChange={(value) => setStatus(value as any)}>
-                            <SelectTrigger className="bg-background border-input">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="bg-card border-border">
-                                <SelectItem value="PREVIEW">{t('configShop.preview')}</SelectItem>
-                                <SelectItem value="ACTIVE">{t('common.active')}</SelectItem>
-                                <SelectItem value="INACTIVE">{t('common.inactive')}</SelectItem>
-                                <SelectItem value="EXPIRED">{t('configShop.expired')}</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <Controller
+                            name="status"
+                            control={control}
+                            render={({ field }) => (
+                                <Select value={field.value} onValueChange={field.onChange}>
+                                    <SelectTrigger className="bg-background border-input">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-card border-border">
+                                        <SelectItem value={SHOP.ShopBannerStatus.PREVIEW}>{t('configShop.preview')}</SelectItem>
+                                        <SelectItem value={SHOP.ShopBannerStatus.ACTIVE}>{t('common.active')}</SelectItem>
+                                        <SelectItem value={SHOP.ShopBannerStatus.INACTIVE}>{t('common.inactive')}</SelectItem>
+                                        <SelectItem value={SHOP.ShopBannerStatus.EXPIRED}>{t('configShop.expired')}</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        />
                     </div>
 
                     {/* Multilingual Input */}
@@ -177,9 +232,9 @@ const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps
                         label={t('configShop.bannerName')}
                         fields={nameFields}
                         register={register}
-                        errors={errors.nameTranslations as any}
-                        placeholderKey=""
-                        requiredKey=""
+                        errors={errors.nameTranslations}
+                        placeholderKey="dailyQuest.taskNamePlaceholder"
+                        requiredKey="configShop.nameRequiredVi"
                         fieldName="name"
                     />
 

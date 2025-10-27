@@ -15,7 +15,6 @@ const shopService = {
         return axiosPrivate.get(`/shop-banner/${id}`);
     },
 
-    // Create shop banner
     createShopBanner: async (data: ICreateShopBannerRequest) => {
         return axiosPrivate.post('/shop-banner', data);
     },
