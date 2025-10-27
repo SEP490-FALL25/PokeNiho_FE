@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Input } from '@ui/Input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ui/Select';
 import MultilingualInput from '@ui/MultilingualInput';
+import CustomDatePicker from '@ui/DatePicker';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { useCreateShopBanner } from '@hooks/useShop';
 import { createCreateShopBannerSchema, ICreateShopBannerRequest } from '@models/shop/request';
@@ -18,7 +19,8 @@ interface CreateShopBannerDialogProps {
 
 const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps) => {
     const { t } = useTranslation();
-    const [selectedStartDate, setSelectedStartDate] = useState<string>("");
+    const [selectedStartDate, setSelectedStartDate] = useState<Date | null>(null);
+    const [selectedEndDate, setSelectedEndDate] = useState<Date | null>(null);
 
     /**
      * Handle Create Shop Banner
@@ -54,13 +56,24 @@ const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps
     const { fields: nameFields } = useFieldArray({ control, name: "nameTranslations" });
     //------------------------End------------------------//
 
+    /**
+     * Format Date to YYYY-MM-DD for API
+     */
+    const formatDateForForm = (date: Date | null) => {
+        if (!date) return "";
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
 
     /**
      * Reset form when dialog opens/closes
      */
     useEffect(() => {
         if (isOpen) {
-            setSelectedStartDate("");
+            setSelectedStartDate(null);
+            setSelectedEndDate(null);
             reset({
                 startDate: "",
                 endDate: "",
@@ -102,54 +115,58 @@ const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps
                             <label htmlFor="startDate" className="text-sm font-medium text-foreground">
                                 {t('configShop.startDate')}
                             </label>
-                            <Controller
-                                name="startDate"
-                                control={control}
-                                render={({ field }) => (
-                                    <>
-                                        <Input
-                                            id="startDate"
-                                            type="datetime-local"
-                                            value={field.value}
-                                            onChange={(e) => {
-                                                field.onChange(e);
-                                                setSelectedStartDate(e.target.value);
-                                                if (e.target.value) {
-                                                    const startDate = new Date(e.target.value);
-                                                    const endDate = new Date(startDate);
-                                                    endDate.setDate(endDate.getDate() + 7);
-                                                    setValue("endDate", endDate.toISOString().slice(0, 16));
-                                                }
-                                            }}
-                                            variant={errors.startDate ? "destructive" : "default"}
-                                            min={new Date().toISOString().slice(0, 16)}
-                                        />
-                                        {errors.startDate && <p className="text-xs mt-1" style={{ color: 'var(--color-error)' }}>{errors.startDate.message as string}</p>}
-                                    </>
-                                )}
+                            <div>
+                                <CustomDatePicker
+                                    value={selectedStartDate}
+                                    onChange={(date) => {
+                                        setSelectedStartDate(date);
+                                        if (date) {
+                                            const formattedDate = formatDateForForm(date);
+                                            setValue("startDate", formattedDate);
+
+                                            // Auto-set end date to 7 days later
+                                            const endDate = new Date(date);
+                                            endDate.setDate(endDate.getDate() + 7);
+                                            setSelectedEndDate(endDate);
+                                            setValue("endDate", formatDateForForm(endDate));
+                                        }
+                                    }}
+                                    placeholder={t('configShop.startDate')}
+                                    dayPickerProps={{
+                                        disabled: { before: new Date() }
+                                    }}
+                                />
+                            </div>
+                            <input
+                                type="hidden"
+                                {...register("startDate")}
                             />
+                            {errors.startDate && <p className="text-xs mt-1" style={{ color: 'var(--color-error)' }}>{errors.startDate.message as string}</p>}
                         </div>
                         <div className="space-y-1.5">
                             <label htmlFor="endDate" className="text-sm font-medium text-foreground">
                                 {t('configShop.endDate')}
                             </label>
-                            <Controller
-                                name="endDate"
-                                control={control}
-                                render={({ field }) => (
-                                    <>
-                                        <Input
-                                            id="endDate"
-                                            type="datetime-local"
-                                            value={field.value}
-                                            onChange={field.onChange}
-                                            variant={errors.endDate ? "destructive" : "default"}
-                                            min={selectedStartDate || new Date().toISOString().slice(0, 16)}
-                                        />
-                                        {errors.endDate && <p className="text-xs mt-1" style={{ color: 'var(--color-error)' }}>{errors.endDate.message as string}</p>}
-                                    </>
-                                )}
+                            <div>
+                                <CustomDatePicker
+                                    value={selectedEndDate}
+                                    onChange={(date) => {
+                                        setSelectedEndDate(date);
+                                        if (date) {
+                                            setValue("endDate", formatDateForForm(date));
+                                        }
+                                    }}
+                                    placeholder={t('configShop.endDate')}
+                                    dayPickerProps={{
+                                        disabled: selectedStartDate ? { before: selectedStartDate } : { before: new Date() }
+                                    }}
+                                />
+                            </div>
+                            <input
+                                type="hidden"
+                                {...register("endDate")}
                             />
+                            {errors.endDate && <p className="text-xs mt-1" style={{ color: 'var(--color-error)' }}>{errors.endDate.message as string}</p>}
                         </div>
                     </div>
 

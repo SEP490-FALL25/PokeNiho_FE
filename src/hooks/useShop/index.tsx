@@ -1,24 +1,57 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import shopService from "@services/shop";
-import { IShopBannerListResponse, IShopBannerDetailResponse, IRandomPokemonResponse } from "@models/shop/response";
-import { ICreateShopBannerRequest, IGetRandomPokemonRequest, ICreateShopItemsRequest } from "@models/shop/request";
+import { IShopBannerSchema } from "@models/shop/entity";
+import { IShopItemRandomSchema } from "@models/shop/response";
+import { ICreateShopBannerRequest, ICreateShopItemsRequest } from "@models/shop/request";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
+import { selectCurrentLanguage } from "@redux/features/language/selector";
+import { PaginationResponseType } from "@models/common/response";
 
-// Hook to get all shop banners
-export const useShopBannerList = (params: { page?: number; limit?: number }) => {
-    return useQuery<{ data: IShopBannerListResponse }>({
-        queryKey: ["shopBanners", params],
+/**
+ * Handle Shop Banner List
+ * @param params 
+ * @returns 
+ */
+export const useShopBannerList = (params: { page?: number; limit?: number; startDate?: string; endDate?: string; status?: string[] }) => {
+    const currentLanguage = useSelector(selectCurrentLanguage);
+    return useQuery<{ data: PaginationResponseType<IShopBannerSchema> }>({
+        queryKey: ["shopBanners", params, currentLanguage],
         queryFn: async () => {
             const response = await shopService.getAllShopBanners(params);
             return response.data;
         },
     });
 };
+//------------------------End------------------------//
 
-// Hook to get shop banner by ID
+
+/**
+ * Handle Get Shop Item Random
+ * @param shopBannerId 
+ * @param amount 
+ * @returns 
+ */
+export const useShopItemRandom = (shopBannerId: number, amount: number) => {
+    return useQuery<PaginationResponseType<IShopItemRandomSchema>>({
+        queryKey: ["shopItemRandom", shopBannerId, amount],
+        queryFn: async () => {
+            const response = await shopService.getShopItemRandom(shopBannerId, amount);
+            return response.data;
+        },
+    });
+};
+//------------------------End------------------------//
+
+
+/**
+ * Handle Get Shop Banner By ID
+ * @param id 
+ * @returns 
+ */
 export const useShopBannerById = (id: number | null) => {
-    return useQuery<{ data: IShopBannerDetailResponse }>({
+    return useQuery<{ data: IShopBannerSchema }>({
         queryKey: ["shopBanner", id],
         queryFn: async () => {
             if (!id) throw new Error("Shop banner ID is required");
@@ -28,16 +61,8 @@ export const useShopBannerById = (id: number | null) => {
         enabled: !!id,
     });
 };
+//------------------------End------------------------//
 
-// Hook to get random Pokemon
-export const useGetRandomPokemon = () => {
-    return useMutation<{ data: IRandomPokemonResponse[] }, Error, IGetRandomPokemonRequest>({
-        mutationFn: async (data) => {
-            const response = await shopService.getRandomPokemon(data);
-            return response.data;
-        },
-    });
-};
 
 /**
  * Handle Create Shop Banner

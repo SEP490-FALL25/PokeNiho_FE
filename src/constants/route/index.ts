@@ -27,6 +27,7 @@ const ADMIN = {
     REWARD_MANAGEMENT: '/admin/reward-management',
     QUESTION_BANK: '/admin/question-bank',
     CONFIG_SHOP: '/admin/config-shop',
+    CONFIG_SHOP_BANNER_DETAIL: '/admin/config-shop/:bannerId',
 };
 
 const LESSONS = {

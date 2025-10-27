@@ -182,6 +182,13 @@
         "nameRequiredVi": "ショップバナー名（ベトナム語）を入力してください",
         "nameRequiredEn": "ショップバナー名（英語）を入力してください",
         "nameRequiredJa": "ショップバナー名（日本語）を入力してください",
+        "filterStartDate": "開始日でフィルター",
+        "filterEndDate": "終了日でフィルター",
+        "filterStatus": "ステータスでフィルター",
+        "selectStartDate": "開始日を選択",
+        "selectEndDate": "終了日を選択",
+        "selectStatus": "ステータスを選択",
+        "clearFilters": "フィルターをクリア",
         "languages": {
             "vi": "ベトナム語",
             "en": "英語",

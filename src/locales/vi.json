@@ -181,6 +181,13 @@
         "nameRequiredVi": "Vui lòng nhập tên shop banner (Tiếng Việt)",
         "nameRequiredEn": "Vui lòng nhập tên shop banner (Tiếng Anh)",
         "nameRequiredJa": "Vui lòng nhập tên shop banner (Tiếng Nhật)",
+        "filterStartDate": "Lọc theo ngày bắt đầu",
+        "filterEndDate": "Lọc theo ngày kết thúc",
+        "filterStatus": "Lọc theo trạng thái",
+        "selectStartDate": "Chọn ngày bắt đầu",
+        "selectEndDate": "Chọn ngày kết thúc",
+        "selectStatus": "Chọn trạng thái",
+        "clearFilters": "Xóa bộ lọc",
         "languages": {
             "vi": "Tiếng Việt",
             "en": "Tiếng Anh",

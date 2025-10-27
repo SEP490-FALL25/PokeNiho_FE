@@ -3,8 +3,9 @@ import { Button } from '@ui/Button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@ui/Dialog';
 import { Input } from '@ui/Input';
 import { Badge } from "@ui/Badge";
-import { useGetRandomPokemon, useCreateShopItems, useShopBannerById } from '@hooks/useShop';
-import { IRandomPokemonResponse } from '@models/shop/response';
+import { useCreateShopItems, useShopBannerById, useShopItemRandom } from '@hooks/useShop';
+import { IShopItemRandomSchema } from '@models/shop/response';
+import { IShopBannerSchema } from '@models/shop/entity';
 import { cn } from '@utils/CN';
 import { Loader2, Sparkles } from "lucide-react";
 import { useTranslation } from 'react-i18next';
@@ -16,13 +17,18 @@ interface AddRandomPokemonDialogProps {
 }
 
 const AddRandomPokemonDialog = ({ isOpen, onClose, bannerId }: AddRandomPokemonDialogProps) => {
+    /**
+     * Define Variables
+     */
     const { t } = useTranslation();
-    const [amount, setAmount] = useState(8);
-    const [randomPokemon, setRandomPokemon] = useState<IRandomPokemonResponse[]>([]);
-    const [isLoadingRandom, setIsLoadingRandom] = useState(false);
+    const [amount, setAmount] = useState<number>(8);
+    //------------------------End------------------------//
+
+    const [randomPokemon, setRandomPokemon] = useState<IShopItemRandomSchema[]>([]);
+    const [isLoadingRandom, setIsLoadingRandom] = useState<boolean>(false);
 
     const { data: bannerDetail } = useShopBannerById(bannerId);
-    const getRandomPokemonMutation = useGetRandomPokemon();
+    const getRandomPokemonMutation = useShopItemRandom(bannerId, amount);
     const createShopItemsMutation = useCreateShopItems();
 
     useEffect(() => {
@@ -34,19 +40,17 @@ const AddRandomPokemonDialog = ({ isOpen, onClose, bannerId }: AddRandomPokemonD
 
     const handleGetRandom = async () => {
         setIsLoadingRandom(true);
+
         try {
-            const response = await getRandomPokemonMutation.mutateAsync({
-                shopBannerId: bannerId,
-                amount,
-            });
-            setRandomPokemon(response.data);
+            const response = await getRandomPokemonMutation.refetch();
+            console.log(response.data);
         } catch (error) {
-            console.error('Error getting random Pokemon:', error);
-        } finally {
-            setIsLoadingRandom(false);
+            console.error('Error getting random pokemon:', error);
         }
+        setIsLoadingRandom(false);
     };
 
+    //TODO:
     const handleSubmit = async () => {
         if (randomPokemon.length === 0) {
             alert(t('configShop.getRandomFirstError'));
@@ -145,12 +149,12 @@ const AddRandomPokemonDialog = ({ isOpen, onClose, bannerId }: AddRandomPokemonD
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <img
                                                         src={item.pokemon.imageUrl}
-                                                        alt={item.pokemon.nameTranslations.vi}
+                                                        alt={item.pokemon.nameTranslations.en}
                                                         className="w-16 h-16 rounded-lg bg-gray-200 object-contain"
                                                     />
                                                     <div>
                                                         <p className="font-semibold text-foreground">
-                                                            {item.pokemon.nameTranslations.vi}
+                                                            {item.pokemon.nameTranslations.en}
                                                         </p>
                                                         <p className="text-sm text-muted-foreground">
                                                             {item.pokemon.nameJp}

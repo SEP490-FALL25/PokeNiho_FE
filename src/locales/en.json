@@ -202,6 +202,13 @@
         "nameRequiredVi": "Please enter shop banner name (Vietnamese)",
         "nameRequiredEn": "Please enter shop banner name (English)",
         "nameRequiredJa": "Please enter shop banner name (Japanese)",
+        "filterStartDate": "Filter by Start Date",
+        "filterEndDate": "Filter by End Date",
+        "filterStatus": "Filter by Status",
+        "selectStartDate": "Select Start Date",
+        "selectEndDate": "Select End Date",
+        "selectStatus": "Select Status",
+        "clearFilters": "Clear Filters",
         "languages": {
             "vi": "Vietnamese",
             "en": "English",
