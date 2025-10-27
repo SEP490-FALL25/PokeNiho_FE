@@ -93,6 +93,7 @@ const CreateContentDialog = ({
 
   // State to control when to fetch data
   const [shouldFetch, setShouldFetch] = useState<boolean>(false);
+  const [dialogKey, setDialogKey] = useState<number>(0);
 
   // Fetch data based on content type - only when shouldFetch is true
   const { data: vocabularies, isLoading: vocabLoading } = useVocabularyList({
@@ -103,6 +104,7 @@ const CreateContentDialog = ({
     sortBy: "createdAt",
     sort: "desc",
     enabled: shouldFetch && contentType === QUESTION_TYPE.VOCABULARY,
+    dialogKey: dialogKey,
   });
 
   const { data: grammars, isLoading: grammarLoading } = useGrammarList({
@@ -113,6 +115,7 @@ const CreateContentDialog = ({
     sortBy: "createdAt",
     sort: "desc",
     enabled: shouldFetch && contentType === QUESTION_TYPE.GRAMMAR,
+    dialogKey: dialogKey,
   });
 
   const { data: kanjis, isLoading: kanjiLoading } = useKanjiListManagement({
@@ -123,6 +126,7 @@ const CreateContentDialog = ({
     sortBy: "character",
     sort: "asc",
     enabled: shouldFetch && contentType === QUESTION_TYPE.KANJI,
+    dialogKey: dialogKey,
   });
   // Determine which data to use based on content type
   const getCurrentData = () => {
@@ -148,15 +152,9 @@ const CreateContentDialog = ({
 
   // Trigger fetch when dialog opens
   useEffect(() => {
-    if (contentType) {
-      setShouldFetch(true);
-    }
-  }, [contentType]);
-
-  // Reset state when dialog closes
-  useEffect(() => {
-    if (!isOpen) {
-      setShouldFetch(false);
+    if (contentType && isOpen) {
+      console.log('Setting shouldFetch to true for contentType:', contentType);
+      // Reset all state first
       setAllItems([]);
       setSelectedItems([]);
       setPage(1);
@@ -164,8 +162,30 @@ const CreateContentDialog = ({
       setSelectedLevel("all");
       setHasMore(true);
       setIsLoadingMore(false);
+      // Reset scroll position
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.scrollTop = 0;
+      }
+      // Then enable fetching
+      setShouldFetch(true);
+      setDialogKey(prev => prev + 1); // Increment key to force fresh data
+    }
+  }, [contentType, isOpen]);
+
+  // Reset state when dialog closes
+  useEffect(() => {
+    if (!isOpen) {
+      console.log('Resetting state - dialog closed');
+      setShouldFetch(false);
     }
   }, [isOpen]);
+
+  // Reset page when search or filter changes
+  useEffect(() => {
+    setPage(1);
+    setSelectedItems([]);
+    // Don't reset allItems here - let the API call handle it
+  }, [searchQuery, selectedLevel]);
 
   // Update all items when new data comes in
   useEffect(() => {
@@ -197,7 +217,7 @@ const CreateContentDialog = ({
     }
   }, [currentData, page, contentType]);
 
-  // Reset when search or filter changes
+  // Reset page when search or filter changes
   useEffect(() => {
     setPage(1);
     setSelectedItems([]);
