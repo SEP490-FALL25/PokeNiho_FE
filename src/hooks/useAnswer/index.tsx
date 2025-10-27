@@ -47,7 +47,7 @@ export const useCreateAnswer = () => {
       queryClient.invalidateQueries({ queryKey: ["answer-list"] });
     },
   });
-  console.log("createAnswerMutation", createAnswerMutation);
+  console.log(createAnswerMutation);
   return createAnswerMutation;
 };
 

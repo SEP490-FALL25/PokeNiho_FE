@@ -13,13 +13,16 @@ export interface ICreateQuestionRequest {
             en: string;
         };
     }>;
-    options?: string[];
-    correctAnswer?: string;
-    explanation?: string;
-    difficulty?: number;
-    points?: number;
-    timeLimit?: number; // in seconds
-    tags?: string[];
+    answers?: Array<{
+        answerJp: string;
+        isCorrect: boolean;
+        translations: {
+            meaning: Array<{
+                language_code: string;
+                value: string;
+            }>;
+        };
+    }>;
 }
 
 export interface IUpdateQuestionRequest extends Partial<ICreateQuestionRequest> {
