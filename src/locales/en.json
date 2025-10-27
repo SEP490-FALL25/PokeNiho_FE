@@ -154,6 +154,7 @@
         "bannerList": "Shop Banner List",
         "createBanner": "Create Shop Banner",
         "addRandomPokemon": "Add Random Pokemon",
+        "addPokemonNotRandom": "Add Pokemon Manually",
         "bannerName": "Shop Banner Name",
         "startDate": "Start Date",
         "endDate": "End Date",

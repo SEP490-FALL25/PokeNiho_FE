@@ -2,13 +2,15 @@ import { useTranslation } from "react-i18next";
 import { Badge } from "@ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/Card";
 import { Button } from "@ui/Button";
-import { ArrowLeft, X } from "lucide-react";
+import { ArrowLeft, Plus, X } from "lucide-react";
 import { Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import AddRandomPokemonDialog from "../../AddRandomPokemonDialog";
+import AddRandomPokemonDialog from "../AddRandomPokemonDialog";
 import { useState } from "react";
 import { IShopBannerSchema } from "@models/shop/entity";
 import { useDeleteShopItem } from "@hooks/useShop";
+import { RarityBadge } from "@atoms/BadgeRarity";
+import AddHandmadePokemonDialog from "../AddHandmadePokemonDialog";
 
 export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: IShopBannerSchema }) {
 
@@ -19,6 +21,22 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
      */
     const { t } = useTranslation();
     const navigate = useNavigate();
+    //------------------------End------------------------//
+
+
+    /**
+     * Handle Back to List
+     */
+    const handleBackToList = () => {
+        navigate(-1);
+    };
+    //------------------------End------------------------//
+
+
+    /**
+     * Handle Hover for Delete Button
+     */
+    const [hoveredItemId, setHoveredItemId] = useState<number | null>(null);
     //------------------------End------------------------//
 
 
@@ -53,6 +71,17 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
     };
     //------------------------End------------------------//
 
+
+    /**
+     * Handle Add Pokemon Not Random
+     */
+    const [isAddPokemonNotRandomDialogOpen, setIsAddPokemonNotRandomDialogOpen] = useState<boolean>(false);
+    const handleAddPokemonNotRandom = () => {
+        setIsAddPokemonNotRandomDialogOpen(true);
+    };
+    //------------------------End------------------------//
+
+
     /**
      * Handle Delete Shop Item
      */
@@ -62,20 +91,8 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
     };
     //------------------------End------------------------//
 
-    /**
-     * Handle Hover for Delete Button
-     */
-    const [hoveredItemId, setHoveredItemId] = useState<number | null>(null);
-    //------------------------End------------------------//
 
 
-    /**
-     * Handle Back to List
-     */
-    const handleBackToList = () => {
-        navigate(-1);
-    };
-    //------------------------End------------------------//
 
     return (
 
@@ -94,13 +111,27 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
                                 </div>
                             </div>
                         </div>
-                        <Button
-                            className="bg-primary text-primary-foreground hover:bg-primary/90"
-                            onClick={handleAddRandomPokemon}
-                        >
-                            <Sparkles className="h-4 w-4 mr-2" />
-                            {t('configShop.addRandomPokemon')}
-                        </Button>
+
+                        {/* Button Actions */}
+                        <div className="flex flex-col items-end gap-2">
+                            {/* Add Random Pokemon Button */}
+                            <Button
+                                className="bg-primary text-primary-foreground hover:bg-primary/90"
+                                onClick={handleAddRandomPokemon}
+                            >
+                                <Sparkles className="h-4 w-4 mr-2" />
+                                {t('configShop.addRandomPokemon')}
+                            </Button>
+
+                            {/* Add Pokemon Not Random */}
+                            <Button
+                                className="bg-secondary text-white hover:bg-secondary/90"
+                                onClick={handleAddPokemonNotRandom}
+                            >
+                                <Plus className="h-4 w-4 mr-2" />
+                                {t('configShop.addPokemonNotRandom')}
+                            </Button>
+                        </div>
                     </div>
                 </CardHeader>
 
@@ -136,7 +167,7 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
                                     {bannerDetail?.shopItems.map((item: any) => (
                                         <Card
                                             key={item.id}
-                                            className="bg-muted/30 border-border relative group"
+                                            className="bg-muted/30 relative group hover:border-primary transition-colors"
                                             onMouseEnter={() => setHoveredItemId(item.id)}
                                             onMouseLeave={() => setHoveredItemId(null)}
                                         >
@@ -182,9 +213,7 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
                                                         <span className="font-medium text-foreground">{item.purchasedCount}</span>
                                                     </div>
                                                     <div className="mt-2">
-                                                        <Badge variant={item.isActive ? "default" : "secondary"}>
-                                                            {item.isActive ? t('common.active') : t('common.inactive')}
-                                                        </Badge>
+                                                        <RarityBadge level={item.pokemon.rarity as any} />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -201,9 +230,17 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
                 </CardContent>
             </Card>
 
+            {/* Add Random Pokemon Dialog */}
             <AddRandomPokemonDialog
                 isOpen={isAddRandomDialogOpen}
                 onClose={() => setIsAddRandomDialogOpen(false)}
+                bannerId={bannerDetail?.id || 0}
+            />
+            
+            {/* Add Handmade Pokemon Dialog */}
+            <AddHandmadePokemonDialog
+                isOpen={isAddPokemonNotRandomDialogOpen}
+                onClose={() => setIsAddPokemonNotRandomDialogOpen(false)}
                 bannerId={bannerDetail?.id || 0}
             />
         </div>

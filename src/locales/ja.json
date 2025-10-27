@@ -134,6 +134,7 @@
         "bannerList": "ショップバナー一覧",
         "createBanner": "ショップバナー作成",
         "addRandomPokemon": "ランダムポケモン追加",
+        "addPokemonNotRandom": "手動でポケモンを追加",
         "bannerName": "ショップバナー名",
         "startDate": "開始日",
         "endDate": "終了日",

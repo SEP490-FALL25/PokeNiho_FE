@@ -1,11 +1,11 @@
 import { useShopBannerById } from "@hooks/useShop";
 import { Card, CardContent, CardHeader } from "@ui/Card";
 import { Skeleton } from "@ui/Skeleton";
-import ShopBannerDetailView from "../components/ShopBannerDetailView";
 import { useParams } from "react-router-dom";
 import HeaderAdmin from "@organisms/Header/Admin";
 import { useTranslation } from "react-i18next";
 import { IShopBannerSchema } from "@models/shop/entity";
+import ShopBannerDetailView from "../ShopBannerDetailView";
 
 export default function ShopBannerDetail() {
     const { t } = useTranslation();

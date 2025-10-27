@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { selectCurrentLanguage } from "@redux/features/language/selector";
 import { PaginationResponseType } from "@models/common/response";
+import { PokemonEntityType } from "@models/pokemon/entity";
 
 /**
  * Handle Shop Banner List
@@ -44,6 +45,24 @@ export const useShopItemRandom = (shopBannerId: number, amount: number) => {
 };
 //------------------------End------------------------//
 
+
+export const useShopBannerAllPokemonByShopBannerId = (shopBannerId: number, params?: {
+    page?: number;
+    limit?: number;
+    sort?: string;
+    search?: string;
+    rarity?: string;
+    types?: string | number;
+}) => {
+    return useQuery<{ data: PaginationResponseType<PokemonEntityType> }>({
+        queryKey: ["shopBannerAllPokemon", shopBannerId, params],
+        queryFn: async () => {
+            const response = await shopService.getShopBannerAllPokemonByShopBannerId(shopBannerId, params);
+            return response.data;
+        },
+    });
+};
+//------------------------End------------------------//
 
 /**
  * Handle Create Shop Banner
