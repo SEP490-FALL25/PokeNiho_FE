@@ -28,4 +28,5 @@ export const ShopBannerAllPokemonResponseSchema = z.object({
     imageUrl: z.string().url(),
     isExist: z.boolean(),
 });
+export type IShopBannerAllPokemonResponseSchema = z.infer<typeof ShopBannerAllPokemonResponseSchema>;
 //------------------------End------------------------//

@@ -1,14 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import shopService from "@services/shop";
 import { IShopBannerSchema } from "@models/shop/entity";
-import { IShopItemRandomSchema } from "@models/shop/response";
+import { IShopBannerAllPokemonResponseSchema, IShopItemRandomSchema } from "@models/shop/response";
 import { ICreateShopBannerRequest, ICreateShopItemsRequest } from "@models/shop/request";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { selectCurrentLanguage } from "@redux/features/language/selector";
 import { PaginationResponseType } from "@models/common/response";
-import { PokemonEntityType } from "@models/pokemon/entity";
 
 /**
  * Handle Shop Banner List
@@ -46,6 +45,12 @@ export const useShopItemRandom = (shopBannerId: number, amount: number) => {
 //------------------------End------------------------//
 
 
+/**
+ * Handle Get Shop Banner All Pokemon By Shop Banner ID
+ * @param shopBannerId 
+ * @param params 
+ * @returns 
+ */
 export const useShopBannerAllPokemonByShopBannerId = (shopBannerId: number, params?: {
     page?: number;
     limit?: number;
@@ -54,7 +59,7 @@ export const useShopBannerAllPokemonByShopBannerId = (shopBannerId: number, para
     rarity?: string;
     types?: string | number;
 }) => {
-    return useQuery<{ data: PaginationResponseType<PokemonEntityType> }>({
+    return useQuery<{ data: PaginationResponseType<IShopBannerAllPokemonResponseSchema> }>({
         queryKey: ["shopBannerAllPokemon", shopBannerId, params],
         queryFn: async () => {
             const response = await shopService.getShopBannerAllPokemonByShopBannerId(shopBannerId, params);
@@ -63,6 +68,7 @@ export const useShopBannerAllPokemonByShopBannerId = (shopBannerId: number, para
     });
 };
 //------------------------End------------------------//
+
 
 /**
  * Handle Create Shop Banner

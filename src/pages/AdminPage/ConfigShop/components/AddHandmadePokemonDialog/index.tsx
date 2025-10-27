@@ -37,7 +37,6 @@ const AddHandmadePokemonDialog = ({ isOpen, onClose, bannerId }: AddHandmadePoke
     //------------------------End------------------------//
 
 
-
     /**
      * Handle Create Shop Items
      * @returns useMutation to create shop items

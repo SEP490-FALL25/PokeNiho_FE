@@ -16,3 +16,4 @@ export const useElementalTypeList = (params: IQueryRequest) => {
 
     return { data: data?.data?.data, isLoading, error };
 }
+//------------------------End------------------------//
