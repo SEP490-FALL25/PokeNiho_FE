@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { useQuestionBank } from "@hooks/useQuestionBank";
+import { useDebounce } from "@hooks/useDebounce";
 import { selectCurrentLanguage } from "@redux/features/language/selector";
 import {
   QUESTION_TYPE_LABELS,
@@ -72,15 +73,12 @@ const QuestionBankManagement: React.FC = () => {
 
   // Local state for search input with debounce
   const [searchInput, setSearchInput] = useState(filters.search || "");
+  const debouncedSearchInput = useDebounce(searchInput, 500);
 
-  // Debounce search input
+  // Update filters when debounced search changes
   useEffect(() => {
-    const timer = setTimeout(() => {
-      handleFilterChange("search", searchInput);
-    }, 500); // 500ms delay
-
-    return () => clearTimeout(timer);
-  }, [searchInput, handleFilterChange]);
+    handleFilterChange("search", debouncedSearchInput);
+  }, [debouncedSearchInput, handleFilterChange]);
 
   return (
     <>
@@ -1018,8 +1016,8 @@ const QuestionBankManagement: React.FC = () => {
                 {isCreating || isUpdating
                   ? t("questionBank.createDialog.processing")
                   : isCreateDialogOpen
-                  ? t("questionBank.createDialog.createButton")
-                  : t("questionBank.createDialog.updateButton")}
+                    ? t("questionBank.createDialog.createButton")
+                    : t("questionBank.createDialog.updateButton")}
               </Button>
             </DialogFooter>
           </DialogContent>

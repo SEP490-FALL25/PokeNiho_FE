@@ -8,7 +8,7 @@ import AuthLayout from "@layouts/Auth"
 import AdminLayout from "@layouts/Admin"
 import { lazy } from "react"
 import ConfigShop from "@pages/AdminPage/ConfigShop"
-import ShopBannerDetail from "@pages/AdminPage/ConfigShop/ShopBannerDetail"
+import ShopBannerDetail from "@pages/AdminPage/ConfigShop/components/ShopBannerDetail"
 
 const AdminDashboard = lazy(() => import("@pages/AdminPage/Dashboard"))
 const UsersManagement = lazy(() => import("@pages/AdminPage/Users"))

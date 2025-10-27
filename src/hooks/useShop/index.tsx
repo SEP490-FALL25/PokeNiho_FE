@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import shopService from "@services/shop";
 import { IShopBannerSchema } from "@models/shop/entity";
-import { IShopItemRandomSchema } from "@models/shop/response";
-import { ICreateShopBannerRequest, ICreateShopItemsRequest } from "@models/shop/request";
+import { IShopBannerAllPokemonResponseSchema, IShopItemRandomSchema } from "@models/shop/response";
+import { ICreateShopBannerRequest, ICreateShopItemsRequest, IUpdateShopItemsRequest } from "@models/shop/request";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
@@ -38,6 +38,31 @@ export const useShopItemRandom = (shopBannerId: number, amount: number) => {
         queryKey: ["shopItemRandom", shopBannerId, amount],
         queryFn: async () => {
             const response = await shopService.getShopItemRandom(shopBannerId, amount);
+            return response.data;
+        },
+    });
+};
+//------------------------End------------------------//
+
+
+/**
+ * Handle Get Shop Banner All Pokemon By Shop Banner ID
+ * @param shopBannerId 
+ * @param params 
+ * @returns 
+ */
+export const useShopBannerAllPokemonByShopBannerId = (shopBannerId: number, params?: {
+    page?: number;
+    limit?: number;
+    sort?: string;
+    search?: string;
+    rarity?: string;
+    types?: string | number;
+}) => {
+    return useQuery<{ data: PaginationResponseType<IShopBannerAllPokemonResponseSchema> }>({
+        queryKey: ["shopBannerAllPokemon", shopBannerId, params],
+        queryFn: async () => {
+            const response = await shopService.getShopBannerAllPokemonByShopBannerId(shopBannerId, params);
             return response.data;
         },
     });
@@ -102,9 +127,10 @@ export const useCreateShopItems = () => {
             const response = await shopService.createShopItemWithRandom(data);
             return response.data;
         },
-        onSuccess: () => {
+        onSuccess: (data: any) => {
+            queryClient.invalidateQueries({ queryKey: ["shopBannerAllPokemon"] });
             queryClient.invalidateQueries({ queryKey: ["shopBanner"] });
-            toast.success(t('configShop.addPokemonSuccess'));
+            toast.success(data?.message || t('configShop.addPokemonSuccess'));
         },
         onError: (error: any) => {
             toast.error(error.response?.data?.message || t('configShop.addPokemonError'));
@@ -113,3 +139,52 @@ export const useCreateShopItems = () => {
 };
 //-------------------End-------------------//
 
+
+/**
+ * Handle Update Shop Item By Shop Item ID
+ * @returns useMutation to update shop item by shop item id
+ */
+export const useUpdateShopItemByShopItemId = () => {
+    const queryClient = useQueryClient();
+    const { t } = useTranslation();
+
+    return useMutation({
+        mutationFn: async ({ id, data }: { id: number; data: IUpdateShopItemsRequest }) => {
+            const response = await shopService.updateShopItemByShopItemId(id, data);
+            return response.data;
+        },
+        onSuccess: (data: any) => {
+            queryClient.invalidateQueries({ queryKey: ["shopBannerAllPokemon"] });
+            queryClient.invalidateQueries({ queryKey: ["shopBanner"] });
+            toast.success(data?.message || t('configShop.updatePokemonSuccess'));
+        },
+        onError: (error: any) => {
+            toast.error(error.response?.data?.message || t('configShop.updatePokemonError'));
+        },
+    });
+};
+//-------------------End-------------------//
+
+/**
+ * Handle Delete Shop Item
+ * @returns useMutation to delete shop item
+ */
+export const useDeleteShopItem = () => {
+    const queryClient = useQueryClient();
+    const { t } = useTranslation();
+
+    return useMutation({
+        mutationFn: async (id: number) => {
+            const response = await shopService.deleteShopItem(id);
+            return response.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["shopBanner"] });
+            // toast.success(data?.message || t('configShop.deletePokemonSuccess'));
+        },
+        onError: (error: any) => {
+            toast.error(error.response?.data?.message || t('configShop.deletePokemonError'));
+        },
+    });
+};
+//-------------------End-------------------//

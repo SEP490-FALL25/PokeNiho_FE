@@ -10,6 +10,7 @@ import { Dialog, DialogTrigger } from "@ui/Dialog";
 import { Plus } from "lucide-react";
 import CreateVocabulary from "../CreateVocabulary";
 import { useVocabularyList } from "@hooks/useVocabulary";
+import { useDebounce } from "@hooks/useDebounce";
 import PaginationControls from "@ui/PaginationControls";
 import { useState } from "react";
 import { Skeleton } from "@ui/Skeleton";
@@ -26,6 +27,7 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
      * Handle Vocabulary List Hook
      */
     const [searchQuery, setSearchQuery] = useState<string>("");
+    const debouncedSearchQuery = useDebounce(searchQuery, 500);
     const [activeTab, setActiveTab] = useState<string>("all");
     const [page, setPage] = useState<number>(1);
     const [itemsPerPage, setItemsPerPage] = useState<number>(15);
@@ -34,7 +36,7 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
     const { data: vocabularies, isLoading } = useVocabularyList({
         page: page,
         limit: itemsPerPage,
-        search: searchQuery,
+        search: debouncedSearchQuery,
         levelN: activeTab === "all" ? undefined : activeTab,
         sortBy,
         sort,

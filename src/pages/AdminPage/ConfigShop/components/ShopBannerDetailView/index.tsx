@@ -2,22 +2,79 @@ import { useTranslation } from "react-i18next";
 import { Badge } from "@ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/Card";
 import { Button } from "@ui/Button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus, X, Edit } from "lucide-react";
 import { Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import AddRandomPokemonDialog from "../../AddRandomPokemonDialog";
+import AddRandomPokemonDialog from "../AddRandomPokemonDialog";
 import { useState } from "react";
 import { IShopBannerSchema } from "@models/shop/entity";
+import { useDeleteShopItem } from "@hooks/useShop";
+import { RarityBadge } from "@atoms/BadgeRarity";
+import AddHandmadePokemonDialog from "../AddHandmadePokemonDialog";
+import EditPriceDialog from "../EditPriceDialog";
 
 export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: IShopBannerSchema }) {
-
-    console.log(bannerDetail);
 
     /**
      * Define Variables
      */
     const { t } = useTranslation();
     const navigate = useNavigate();
+    //------------------------End------------------------//
+
+
+    /**
+     * Handle Back to List
+     */
+    const handleBackToList = () => {
+        navigate(-1);
+    };
+    //------------------------End------------------------//
+
+
+    /**
+     * Handle Hover for Delete Button
+     */
+    const [hoveredItemId, setHoveredItemId] = useState<number | null>(null);
+    //------------------------End------------------------//
+
+
+    /**
+     * Handle Edit Price
+     */
+    const [editPriceState, setEditPriceState] = useState<{
+        isOpen: boolean;
+        itemId: number;
+        currentPrice: number;
+        shopBannerId: number;
+        pokemonId: number;
+        purchaseLimit: number;
+        isActive: boolean;
+        pokemon: {
+            id: number;
+            nameTranslations: { en: string; ja: string; vi: string };
+            imageUrl: string;
+            pokedex_number: number;
+            rarity: string;
+        };
+    } | null>(null);
+
+    const handleEditPrice = (item: any) => {
+        setEditPriceState({
+            isOpen: true,
+            itemId: item.id,
+            currentPrice: item.price,
+            shopBannerId: item.shopBannerId,
+            pokemonId: item.pokemonId,
+            purchaseLimit: item.purchaseLimit,
+            isActive: item.isActive,
+            pokemon: item.pokemon,
+        });
+    };
+
+    const handleCloseEditPrice = () => {
+        setEditPriceState(null);
+    };
     //------------------------End------------------------//
 
 
@@ -52,13 +109,26 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
     };
     //------------------------End------------------------//
 
+
     /**
-     * Handle Back to List
+     * Handle Add Pokemon Not Random
      */
-    const handleBackToList = () => {
-        navigate(-1);
+    const [isAddPokemonNotRandomDialogOpen, setIsAddPokemonNotRandomDialogOpen] = useState<boolean>(false);
+    const handleAddPokemonNotRandom = () => {
+        setIsAddPokemonNotRandomDialogOpen(true);
     };
     //------------------------End------------------------//
+
+
+    /**
+     * Handle Delete Shop Item
+     */
+    const { mutate: deleteShopItem } = useDeleteShopItem();
+    const handleDeleteShopItem = (id: number) => {
+        deleteShopItem(id);
+    };
+    //------------------------End------------------------//
+
 
     return (
 
@@ -77,13 +147,27 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
                                 </div>
                             </div>
                         </div>
-                        <Button
-                            className="bg-primary text-primary-foreground hover:bg-primary/90"
-                            onClick={handleAddRandomPokemon}
-                        >
-                            <Sparkles className="h-4 w-4 mr-2" />
-                            {t('configShop.addRandomPokemon')}
-                        </Button>
+
+                        {/* Button Actions */}
+                        <div className="flex flex-col items-end gap-2">
+                            {/* Add Random Pokemon Button */}
+                            <Button
+                                className="bg-primary text-primary-foreground hover:bg-primary/90"
+                                onClick={handleAddRandomPokemon}
+                            >
+                                <Sparkles className="h-4 w-4 mr-2" />
+                                {t('configShop.addRandomPokemon')}
+                            </Button>
+
+                            {/* Add Pokemon Not Random */}
+                            <Button
+                                className="bg-secondary text-white hover:bg-secondary/90"
+                                onClick={handleAddPokemonNotRandom}
+                            >
+                                <Plus className="h-4 w-4 mr-2" />
+                                {t('configShop.addPokemonNotRandom')}
+                            </Button>
+                        </div>
                     </div>
                 </CardHeader>
 
@@ -117,13 +201,43 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
                             {bannerDetail?.shopItems && bannerDetail?.shopItems.length > 0 ? (
                                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                                     {bannerDetail?.shopItems.map((item: any) => (
-                                        <Card key={item.id} className="bg-muted/30 border-border">
+                                        <Card
+                                            key={item.id}
+                                            className="bg-muted/30 relative group hover:border-primary transition-colors"
+                                            onMouseEnter={() => setHoveredItemId(item.id)}
+                                            onMouseLeave={() => setHoveredItemId(null)}
+                                        >
+                                            {/* Action buttons - only visible on hover */}
+                                            {hoveredItemId === item.id && (
+                                                <div className="absolute top-2 right-2 flex gap-2 z-10">
+                                                    <button
+                                                        className="w-7 h-7 flex items-center justify-center rounded-full bg-blue-500 hover:bg-blue-600 transition-colors cursor-pointer"
+                                                        onClick={() => handleEditPrice(item)}
+                                                    >
+                                                        <Edit className="w-4 h-4 text-white" />
+                                                    </button>
+                                                    <button
+                                                        className="w-7 h-7 flex items-center justify-center rounded-full bg-red-500 hover:bg-red-600 transition-colors cursor-pointer"
+                                                        onClick={() => handleDeleteShopItem(item.id)}
+                                                    >
+                                                        <X className="w-4 h-4 text-white" />
+                                                    </button>
+                                                </div>
+                                            )}
                                             <CardHeader>
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <CardTitle className="text-sm">Item #{item.id}</CardTitle>
+                                                        <img
+                                                            src={item.pokemon.imageUrl}
+                                                            alt={item.pokemon.nameTranslations.en}
+                                                            className="w-20 h-20 rounded-full"
+                                                        />
+                                                    </div>
+
+                                                    <div>
+                                                        <CardTitle className="text-sm">{item.pokemon.nameTranslations.en}</CardTitle>
                                                         <p className="text-xs text-muted-foreground mt-1">
-                                                            Pokemon ID: {item.pokemonId}
+                                                            Pokedex: {item.pokemon.pokedex_number}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -143,9 +257,7 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
                                                         <span className="font-medium text-foreground">{item.purchasedCount}</span>
                                                     </div>
                                                     <div className="mt-2">
-                                                        <Badge variant={item.isActive ? "default" : "secondary"}>
-                                                            {item.isActive ? t('common.active') : t('common.inactive')}
-                                                        </Badge>
+                                                        <RarityBadge level={item.pokemon.rarity as any} />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -162,11 +274,34 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
                 </CardContent>
             </Card>
 
+            {/* Add Random Pokemon Dialog */}
             <AddRandomPokemonDialog
                 isOpen={isAddRandomDialogOpen}
                 onClose={() => setIsAddRandomDialogOpen(false)}
                 bannerId={bannerDetail?.id || 0}
             />
+
+            {/* Add Handmade Pokemon Dialog */}
+            <AddHandmadePokemonDialog
+                isOpen={isAddPokemonNotRandomDialogOpen}
+                onClose={() => setIsAddPokemonNotRandomDialogOpen(false)}
+                bannerId={bannerDetail?.id || 0}
+            />
+
+            {/* Edit Price Dialog */}
+            {editPriceState && (
+                <EditPriceDialog
+                    isOpen={editPriceState.isOpen}
+                    onClose={handleCloseEditPrice}
+                    itemId={editPriceState.itemId}
+                    currentPrice={editPriceState.currentPrice}
+                    shopBannerId={editPriceState.shopBannerId}
+                    pokemonId={editPriceState.pokemonId}
+                    purchaseLimit={editPriceState.purchaseLimit}
+                    isActive={editPriceState.isActive}
+                    pokemon={editPriceState.pokemon}
+                />
+            )}
         </div>
     );
 }

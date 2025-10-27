@@ -1,6 +1,9 @@
 import { at, byUser } from "@models/common/response";
 import z from "zod";
 
+/**
+ * Pokemon Entity Schema
+ */
 export const PokemonEntitySchema = z.object({
     id: z.number(),
     pokedex_number: z.number(),
@@ -16,3 +19,4 @@ export const PokemonEntitySchema = z.object({
 });
 
 export type PokemonEntityType = z.infer<typeof PokemonEntitySchema>;
+//------------------------End------------------------//
