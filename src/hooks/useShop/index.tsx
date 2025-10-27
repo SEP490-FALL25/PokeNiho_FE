@@ -128,6 +128,7 @@ export const useCreateShopItems = () => {
             return response.data;
         },
         onSuccess: (data: any) => {
+            queryClient.invalidateQueries({ queryKey: ["shopBannerAllPokemon"] });
             queryClient.invalidateQueries({ queryKey: ["shopBanner"] });
             toast.success(data?.message || t('configShop.addPokemonSuccess'));
         },

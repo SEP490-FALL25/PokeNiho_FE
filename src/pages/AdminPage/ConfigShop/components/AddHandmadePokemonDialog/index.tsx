@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Button } from '@ui/Button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@ui/Dialog';
 import { Input } from '@ui/Input';
-import { useCreateShopItems, useShopBannerById, useShopItemRandom } from '@hooks/useShop';
-import { IShopItemRandomSchema } from '@models/shop/response';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ui/Select';
+import { Skeleton } from '@ui/Skeleton';
+import { useCreateShopItems, useShopBannerById, useShopBannerAllPokemonByShopBannerId } from '@hooks/useShop';
+import { useElementalTypeList } from '@hooks/useElemental';
+import { IShopBannerAllPokemonResponseSchema } from '@models/shop/response';
 import { cn } from '@utils/CN';
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2, Plus, Search, Filter } from "lucide-react";
 import { useTranslation } from 'react-i18next';
+import { RarityPokemon } from "@constants/pokemon";
 import { RarityBadge } from "@atoms/BadgeRarity";
 
 interface AddHandmadePokemonDialogProps {
@@ -20,21 +24,126 @@ const AddHandmadePokemonDialog = ({ isOpen, onClose, bannerId }: AddHandmadePoke
      * Define Variables
      */
     const { t } = useTranslation();
-    const [amount, setAmount] = useState<number>(8);
+    const [searchQuery, setSearchQuery] = useState<string>("");
+    const [selectedRarity, setSelectedRarity] = useState<string>("all");
+    const [selectedType, setSelectedType] = useState<string>("all");
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [selectedPokemon, setSelectedPokemon] = useState<Map<number, IShopBannerAllPokemonResponseSchema>>(new Map());
+    const observerRef = useRef<IntersectionObserver | null>(null);
+
+    /**
+     * Pokemon Skeleton Component
+     */
+    const PokemonCardSkeleton = () => (
+        <div className="border rounded-lg p-4 bg-muted/30 border-border">
+            <div className="flex items-start gap-3">
+                <Skeleton className="w-20 h-20 rounded-lg" />
+                <div className="flex-1 space-y-2">
+                    <Skeleton className="h-5 w-32" />
+                    <Skeleton className="h-4 w-24" />
+                    <div className="flex gap-2 mt-2">
+                        <Skeleton className="h-6 w-16 rounded-full" />
+                        <Skeleton className="h-4 w-12" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
     //------------------------End------------------------//
 
 
     const { data: bannerDetail } = useShopBannerById(bannerId);
-    /**
-     * Handle Get Random Pokemon
-     */
-    const { data: randomPokemonData, isLoading: isLoadingRandom, refetch } = useShopItemRandom(bannerId, amount);
-    const randomPokemon = randomPokemonData?.data ?? [];
+    const { data: typesData } = useElementalTypeList({ page: 1, limit: 100 });
 
-    const handleGetRandom = async () => {
-        await refetch();
+    /**
+     * Handle Accumulated Pokemon Results
+     */
+    const [accumulatedResults, setAccumulatedResults] = useState<IShopBannerAllPokemonResponseSchema[]>([]);
+    const [totalItem, setTotalItem] = useState<number>(0);
+
+    /**
+     * Handle Get All Pokemon
+     */
+    const { data: pokemonData, isLoading: isPokemonLoading } = useShopBannerAllPokemonByShopBannerId(bannerId, {
+        page: currentPage,
+        limit: 15,
+        search: searchQuery || undefined,
+        rarity: selectedRarity !== 'all' ? selectedRarity : undefined,
+        types: selectedType !== 'all' ? selectedType : undefined,
+    });
+
+    useEffect(() => {
+        if (pokemonData?.data?.results && pokemonData.data.results.length > 0) {
+            if (currentPage === 1) {
+                setAccumulatedResults(pokemonData.data.results);
+            } else {
+                setAccumulatedResults(prev => {
+                    const existingIds = new Set(prev.map(p => p.id));
+                    const newResults = pokemonData.data.results.filter(p => !existingIds.has(p.id));
+                    return [...prev, ...newResults];
+                });
+            }
+            setTotalItem(pokemonData.data.pagination.totalItem);
+        }
+    }, [pokemonData, currentPage, isPokemonLoading]);
+
+    const lastPokemonElementRef = useCallback((node: HTMLDivElement | null) => {
+        if (observerRef.current) observerRef.current.disconnect();
+        observerRef.current = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting &&
+                pokemonData?.data?.pagination?.current &&
+                pokemonData?.data?.pagination?.totalPage &&
+                pokemonData?.data?.pagination?.current < pokemonData?.data?.pagination?.totalPage &&
+                !isPokemonLoading) {
+                setCurrentPage(prev => prev + 1);
+            }
+        });
+        if (node) observerRef.current.observe(node);
+    }, [pokemonData?.data?.pagination, isPokemonLoading]);
+
+    useEffect(() => {
+        setCurrentPage(1);
+        setAccumulatedResults([]);
+    }, [searchQuery, selectedRarity, selectedType]);
+
+    // Reset selectedPokemon when dialog opens
+    useEffect(() => {
+        if (isOpen) {
+            setSelectedPokemon(new Map());
+            setCurrentPage(1);
+            setSearchQuery("");
+            setSelectedRarity("all");
+            setSelectedType("all");
+        }
+    }, [isOpen]);
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchQuery(e.target.value);
+    };
+
+    const handleTypeChange = (value: string) => {
+        setSelectedType(value);
+    };
+
+    const handleRarityChange = (value: string) => {
+        setSelectedRarity(value);
+    };
+
+    const handlePokemonToggle = (pokemon: IShopBannerAllPokemonResponseSchema) => {
+        if (pokemon.isExist) return;
+
+        setSelectedPokemon(prev => {
+            const newMap = new Map(prev);
+            if (newMap.has(pokemon.id)) {
+                newMap.delete(pokemon.id);
+            } else {
+                newMap.set(pokemon.id, pokemon);
+            }
+            return newMap;
+        });
     };
     //------------------------End------------------------//
+
 
 
     /**
@@ -43,16 +152,19 @@ const AddHandmadePokemonDialog = ({ isOpen, onClose, bannerId }: AddHandmadePoke
      */
     const createShopItemsMutation = useCreateShopItems();
     const handleSubmit = async () => {
-        const items = randomPokemon.map((item: IShopItemRandomSchema) => ({
-            shopBannerId: item.shopBannerId,
-            pokemonId: item.pokemonId,
-            price: item.price,
-            purchaseLimit: item.purchaseLimit,
-            isActive: item.isActive,
+        if (selectedPokemon.size === 0) return;
+
+        const items = Array.from(selectedPokemon.values()).map((pokemon: IShopBannerAllPokemonResponseSchema) => ({
+            shopBannerId: bannerId,
+            pokemonId: pokemon.id,
+            price: 1000,
+            purchaseLimit: bannerDetail?.data?.max || 1,
+            isActive: true,
         }));
 
         try {
             await createShopItemsMutation.mutateAsync({ items });
+            setSelectedPokemon(new Map());
             onClose();
         } catch (error: any) {
             console.error('Error creating shop items:', error);
@@ -62,126 +174,173 @@ const AddHandmadePokemonDialog = ({ isOpen, onClose, bannerId }: AddHandmadePoke
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-            <DialogContent className="bg-white border-border max-w-4xl sm:max-w-5xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="bg-white border-border max-w-5xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="text-foreground">
-                        {t('configShop.addRandomPokemonTitle')}
+                        {t('configShop.addPokemonNotRandom')}
                     </DialogTitle>
                 </DialogHeader>
 
                 <div className="space-y-4 py-4">
-                    {/* Amount input */}
-                    <div className="flex items-center gap-4">
-                        <div className="flex-1">
-                            <label className="text-sm font-medium text-foreground mb-2 block">
-                                {t('configShop.randomPokemonAmount')}
-                            </label>
+                    {/* Search and Filter Section */}
+                    <div className="flex flex-col md:flex-row gap-4">
+                        <div className="flex-1 relative">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
-                                type="number"
-                                value={amount}
-                                onChange={(e) => setAmount(Number(e.target.value))}
-                                className="bg-background border-input"
-                                min={1}
-                                max={bannerDetail?.data?.max || 8}
+                                type="text"
+                                placeholder={t('common.search')}
+                                value={searchQuery}
+                                onChange={handleSearchChange}
+                                className="bg-background border-input pl-10"
                             />
                         </div>
-                        <Button
-                            type="button"
-                            onClick={handleGetRandom}
-                            disabled={isLoadingRandom}
-                            className="mt-6 bg-primary text-primary-foreground hover:bg-primary/90"
-                        >
-                            {isLoadingRandom ? (
-                                <>
-                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                    {t('configShop.loading')}
-                                </>
-                            ) : (
-                                <>
-                                    <Sparkles className="h-4 w-4 mr-2" />
-                                    {t('configShop.randomPokemonButton')}
-                                </>
-                            )}
-                        </Button>
+
+                        <Select value={selectedType} onValueChange={handleTypeChange}>
+                            <SelectTrigger className="bg-background border-border text-foreground w-full md:w-48">
+                                <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
+                                <SelectValue placeholder="Filter by Type" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-card border-border">
+                                <SelectItem value="all">All Types</SelectItem>
+                                {typesData?.results?.map((type: any) => (
+                                    <SelectItem key={type.id} value={type.id}>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: type.color_hex }} />
+                                            {type.display_name.vi}
+                                        </div>
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
+                        <Select value={selectedRarity} onValueChange={handleRarityChange}>
+                            <SelectTrigger className="bg-background border-border text-foreground w-full md:w-48">
+                                <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
+                                <SelectValue placeholder="Filter by Rarity" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-card border-border">
+                                <SelectItem value="all">All Rarities</SelectItem>
+                                {Object.entries(RarityPokemon).map(([key, value]) => (
+                                    <SelectItem key={key} value={value}>{value}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
 
-                    {/* Random Pokemon List */}
-                    {randomPokemon.length > 0 && (
+                    {/* Pokemon List */}
+                    {isPokemonLoading && currentPage === 1 && accumulatedResults.length === 0 && (
+                        <div className="grid gap-3 md:grid-cols-2 max-h-[450px] overflow-y-auto p-2 pb-16">
+                            {Array.from({ length: 6 }).map((_, index) => (
+                                <PokemonCardSkeleton key={index} />
+                            ))}
+                        </div>
+                    )}
+
+                    {accumulatedResults.length > 0 && (
                         <div>
-                            <h3 className="text-sm font-medium text-foreground mb-3">
-                                {t('configShop.randomPokemonList')} ({randomPokemon.length})
-                            </h3>
-                            <div className="grid gap-3 md:grid-cols-2 max-h-[400px] overflow-y-auto p-2 pb-16">
-                                {randomPokemon.map((item: IShopItemRandomSchema, index: number) => (
-                                    <div
-                                        key={index}
-                                        className={cn(
-                                            "border rounded-lg p-4 bg-muted/30 border-border",
-                                            "hover:border-primary/50 transition-colors"
-                                        )}
-                                    >
-                                        <div className="flex items-start justify-between mb-3">
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <img
-                                                        src={item.pokemon.imageUrl}
-                                                        alt={(item.pokemon.nameTranslations as any).en || item.pokemon.nameJp}
-                                                        className="w-16 h-16 rounded-lg bg-gray-200 object-contain"
-                                                    />
-                                                    <div>
-                                                        <p className="font-semibold text-foreground">
-                                                            {(item.pokemon.nameTranslations as any).en || item.pokemon.nameJp}
-                                                        </p>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            {item.pokemon.nameJp}
-                                                        </p>
-                                                    </div>
+                            <div className="flex items-center justify-between mb-3">
+                                <h3 className="text-sm font-medium text-foreground">
+                                    Pokemon ({totalItem} total, {selectedPokemon.size} selected)
+                                </h3>
+                            </div>
+                            <div className="grid gap-3 md:grid-cols-2 max-h-[450px] overflow-y-auto p-2 pb-16">
+                                {accumulatedResults.map((pokemon: IShopBannerAllPokemonResponseSchema, index: number) => {
+                                    const isSelected = selectedPokemon.has(pokemon.id);
+                                    const isDisabled = pokemon.isExist;
+
+                                    return (
+                                        <div
+                                            key={pokemon.id}
+                                            ref={index === accumulatedResults.length - 1 ? lastPokemonElementRef : null}
+                                            onClick={() => handlePokemonToggle(pokemon)}
+                                            className={cn(
+                                                "border rounded-lg p-4 transition-colors cursor-pointer relative",
+                                                isSelected && "border-primary bg-primary/5",
+                                                isDisabled && "opacity-50 cursor-not-allowed bg-gray-100",
+                                                !isDisabled && "hover:border-primary/50 bg-muted/30"
+                                            )}
+                                        >
+                                            {isDisabled && (
+                                                <div className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                                                    {t('configShop.alreadyExist')}
                                                 </div>
-                                                <div className="space-y-1">
-                                                    <div className="flex items-center justify-between text-sm">
-                                                        <span className="text-muted-foreground">{t('configShop.price')}:</span>
-                                                        <span className="font-medium text-foreground flex items-center gap-1">
-                                                            {item.price.toLocaleString()} <Sparkles className="w-4 h-4" />
-                                                        </span>
+                                            )}
+
+                                            <div className="flex items-start gap-3">
+                                                <img
+                                                    src={pokemon.imageUrl}
+                                                    alt={pokemon.nameTranslations.en}
+                                                    className="w-20 h-20 rounded-lg bg-gray-200 object-contain"
+                                                />
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <p className="font-semibold text-foreground truncate">
+                                                            {pokemon.nameTranslations.en}
+                                                        </p>
+                                                        {isSelected && (
+                                                            <Plus className="h-4 w-4 text-primary flex-shrink-0" />
+                                                        )}
                                                     </div>
-                                                    <div className="flex items-center justify-between text-sm">
-                                                        <span className="text-muted-foreground">{t('configShop.purchaseLimit')}:</span>
-                                                        <span className="font-medium text-foreground">
-                                                            {item.purchaseLimit}
-                                                        </span>
+                                                    <p className="text-sm text-muted-foreground mb-2">
+                                                        {pokemon.nameJp}
+                                                    </p>
+                                                    <div className="flex items-center gap-2">
+                                                        <RarityBadge level={pokemon.rarity as any} />
+                                                        <p className="text-xs text-muted-foreground">
+                                                            #{pokemon.pokedex_number}
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border">
-                                            <RarityBadge level={item.pokemon.rarity as any} />
-                                        </div>
+                                    );
+                                })}
+                                {/* Loading indicator when loading more pages */}
+                                {isPokemonLoading && currentPage > 1 && (
+                                    <div className="col-span-2 flex items-center justify-center py-4">
+                                        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground mr-2" />
+                                        <span className="text-sm text-muted-foreground">{t('common.loading')}</span>
                                     </div>
-                                ))}
+                                )}
                             </div>
                         </div>
                     )}
 
-                    {randomPokemon.length === 0 && !isLoadingRandom && (
+                    {!isPokemonLoading && accumulatedResults.length === 0 && (
                         <div className="text-center text-muted-foreground py-12">
-                            {t('configShop.getRandomFirst')}
+                            {t('configShop.noPokemonFound')}
                         </div>
                     )}
                 </div>
 
                 <DialogFooter className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-border">
-                    <div className="flex justify-end space-x-2">
-                        <Button type="button" variant="outline" onClick={onClose}>
-                            {t('common.cancel')}
-                        </Button>
-                        <Button
-                            type="button"
-                            onClick={handleSubmit}
-                            disabled={createShopItemsMutation.isPending || randomPokemon.length === 0}
-                            className="bg-primary text-primary-foreground hover:bg-primary/90"
-                        >
-                            {createShopItemsMutation.isPending ? t('configShop.adding') : t('configShop.addToShop')}
-                        </Button>
+                    <div className="flex justify-between items-center w-full">
+                        <div className="text-sm text-muted-foreground">
+                            {selectedPokemon.size} {t('configShop.pokemonSelected')}
+                        </div>
+                        <div className="flex justify-end space-x-2">
+                            <Button type="button" variant="outline" onClick={onClose}>
+                                {t('common.cancel')}
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={handleSubmit}
+                                disabled={createShopItemsMutation.isPending || selectedPokemon.size === 0}
+                                className="bg-primary text-primary-foreground hover:bg-primary/90"
+                            >
+                                {createShopItemsMutation.isPending ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                        {t('configShop.adding')}
+                                    </>
+                                ) : (
+                                    <>
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        {t('configShop.addToShop')}
+                                    </>
+                                )}
+                            </Button>
+                        </div>
                     </div>
                 </DialogFooter>
             </DialogContent>
@@ -190,4 +349,3 @@ const AddHandmadePokemonDialog = ({ isOpen, onClose, bannerId }: AddHandmadePoke
 };
 
 export default AddHandmadePokemonDialog;
-

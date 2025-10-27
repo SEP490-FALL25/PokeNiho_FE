@@ -11,7 +11,7 @@ const pokemonService = {
         if (params.limit) queryParams.append('pageSize', params.limit.toString());
 
         if (params.type && params.type !== 'all') {
-            filters.push(`type=${params.type}`);
+            filters.push(`types=${params.type}`);
         }
         if (params.rarity && params.rarity !== 'all') {
             filters.push(`rarity=${params.rarity}`);

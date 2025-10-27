@@ -142,7 +142,7 @@ export default function PokemonManagement() {
                                             <SelectItem value="loading" disabled>{t('common.loading')}</SelectItem>
                                         ) : (
                                             typesData?.results.map((type: any) => (
-                                                <SelectItem key={type.id} value={type.type_name}>
+                                                <SelectItem key={type.id} value={type.id}>
                                                     <div className="flex items-center gap-2">
                                                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: type.color_hex }} />
                                                         {type.display_name.vi}
