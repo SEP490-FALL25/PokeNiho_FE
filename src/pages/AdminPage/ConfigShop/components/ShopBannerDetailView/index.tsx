@@ -12,6 +12,7 @@ import { useDeleteShopItem } from "@hooks/useShop";
 import { RarityBadge } from "@atoms/BadgeRarity";
 import AddHandmadePokemonDialog from "../AddHandmadePokemonDialog";
 import EditPriceDialog from "../EditPriceDialog";
+import EditShopBannerDialog from "../EditShopBannerDialog";
 
 export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: IShopBannerSchema }) {
 
@@ -74,6 +75,16 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
 
     const handleCloseEditPrice = () => {
         setEditPriceState(null);
+    };
+    //------------------------End------------------------//
+
+
+    /**
+     * Handle Edit Shop Banner
+     */
+    const [isEditBannerDialogOpen, setIsEditBannerDialogOpen] = useState<boolean>(false);
+    const handleEditBanner = () => {
+        setIsEditBannerDialogOpen(true);
     };
     //------------------------End------------------------//
 
@@ -150,6 +161,15 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
 
                         {/* Button Actions */}
                         <div className="flex flex-col items-end gap-2">
+                            {/* Edit Banner Button */}
+                            <Button
+                                className="bg-blue-500 text-white hover:bg-blue-600"
+                                onClick={handleEditBanner}
+                            >
+                                <Edit className="h-4 w-4 mr-2" />
+                                {t('common.edit')}
+                            </Button>
+
                             {/* Add Random Pokemon Button */}
                             <Button
                                 className="bg-primary text-primary-foreground hover:bg-primary/90"
@@ -302,6 +322,13 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
                     pokemon={editPriceState.pokemon}
                 />
             )}
+
+            {/* Edit Shop Banner Dialog */}
+            <EditShopBannerDialog
+                isOpen={isEditBannerDialogOpen}
+                onClose={() => setIsEditBannerDialogOpen(false)}
+                bannerData={bannerDetail}
+            />
         </div>
     );
 }
