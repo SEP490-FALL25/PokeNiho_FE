@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import shopService from "@services/shop";
 import { IShopBannerSchema } from "@models/shop/entity";
 import { IShopBannerAllPokemonResponseSchema, IShopItemRandomSchema } from "@models/shop/response";
-import { ICreateShopBannerRequest, ICreateShopItemsRequest } from "@models/shop/request";
+import { ICreateShopBannerRequest, ICreateShopItemsRequest, IUpdateShopItemsRequest } from "@models/shop/request";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
@@ -139,6 +139,31 @@ export const useCreateShopItems = () => {
 };
 //-------------------End-------------------//
 
+
+/**
+ * Handle Update Shop Item By Shop Item ID
+ * @returns useMutation to update shop item by shop item id
+ */
+export const useUpdateShopItemByShopItemId = () => {
+    const queryClient = useQueryClient();
+    const { t } = useTranslation();
+
+    return useMutation({
+        mutationFn: async ({ id, data }: { id: number; data: IUpdateShopItemsRequest }) => {
+            const response = await shopService.updateShopItemByShopItemId(id, data);
+            return response.data;
+        },
+        onSuccess: (data: any) => {
+            queryClient.invalidateQueries({ queryKey: ["shopBannerAllPokemon"] });
+            queryClient.invalidateQueries({ queryKey: ["shopBanner"] });
+            toast.success(data?.message || t('configShop.updatePokemonSuccess'));
+        },
+        onError: (error: any) => {
+            toast.error(error.response?.data?.message || t('configShop.updatePokemonError'));
+        },
+    });
+};
+//-------------------End-------------------//
 
 /**
  * Handle Delete Shop Item

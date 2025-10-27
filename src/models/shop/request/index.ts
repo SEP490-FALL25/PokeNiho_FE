@@ -57,3 +57,18 @@ export const createCreateShopItemsRequest = (t: (key: string) => string) => z.ob
 
 export type ICreateShopItemsRequest = z.infer<ReturnType<typeof createCreateShopItemsRequest>>;
 //-------------------End-------------------//
+
+
+/**
+ * Create Shop Items Request Schema
+ */
+export const createUpdateShopItemsRequest = (t: (key: string) => string) => z.object({
+    shopBannerId: z.number().min(1, t('configShop.shopBannerIdRequired')),
+    pokemonId: z.number().min(1, t('configShop.pokemonIdRequired')),
+    price: z.number().min(1, t('configShop.priceRequired')),
+    purchaseLimit: z.number().min(1, t('configShop.purchaseLimitRequired')),
+    isActive: z.boolean().default(true),
+});
+
+export type IUpdateShopItemsRequest = z.infer<ReturnType<typeof createUpdateShopItemsRequest>>;
+//-------------------End-------------------//

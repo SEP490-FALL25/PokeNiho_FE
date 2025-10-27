@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Badge } from "@ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/Card";
 import { Button } from "@ui/Button";
-import { ArrowLeft, Plus, X } from "lucide-react";
+import { ArrowLeft, Plus, X, Edit } from "lucide-react";
 import { Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AddRandomPokemonDialog from "../AddRandomPokemonDialog";
@@ -11,10 +11,9 @@ import { IShopBannerSchema } from "@models/shop/entity";
 import { useDeleteShopItem } from "@hooks/useShop";
 import { RarityBadge } from "@atoms/BadgeRarity";
 import AddHandmadePokemonDialog from "../AddHandmadePokemonDialog";
+import EditPriceDialog from "../EditPriceDialog";
 
 export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: IShopBannerSchema }) {
-
-    console.log(bannerDetail);
 
     /**
      * Define Variables
@@ -37,6 +36,45 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
      * Handle Hover for Delete Button
      */
     const [hoveredItemId, setHoveredItemId] = useState<number | null>(null);
+    //------------------------End------------------------//
+
+
+    /**
+     * Handle Edit Price
+     */
+    const [editPriceState, setEditPriceState] = useState<{
+        isOpen: boolean;
+        itemId: number;
+        currentPrice: number;
+        shopBannerId: number;
+        pokemonId: number;
+        purchaseLimit: number;
+        isActive: boolean;
+        pokemon: {
+            id: number;
+            nameTranslations: { en: string; ja: string; vi: string };
+            imageUrl: string;
+            pokedex_number: number;
+            rarity: string;
+        };
+    } | null>(null);
+
+    const handleEditPrice = (item: any) => {
+        setEditPriceState({
+            isOpen: true,
+            itemId: item.id,
+            currentPrice: item.price,
+            shopBannerId: item.shopBannerId,
+            pokemonId: item.pokemonId,
+            purchaseLimit: item.purchaseLimit,
+            isActive: item.isActive,
+            pokemon: item.pokemon,
+        });
+    };
+
+    const handleCloseEditPrice = () => {
+        setEditPriceState(null);
+    };
     //------------------------End------------------------//
 
 
@@ -90,8 +128,6 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
         deleteShopItem(id);
     };
     //------------------------End------------------------//
-
-
 
 
     return (
@@ -171,14 +207,22 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
                                             onMouseEnter={() => setHoveredItemId(item.id)}
                                             onMouseLeave={() => setHoveredItemId(null)}
                                         >
-                                            {/* Delete button - only visible on hover */}
+                                            {/* Action buttons - only visible on hover */}
                                             {hoveredItemId === item.id && (
-                                                <button
-                                                    className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-red-500 hover:bg-red-600 transition-colors z-10 cursor-pointer"
-                                                    onClick={() => handleDeleteShopItem(item.id)}
-                                                >
-                                                    <X className="w-4 h-4 text-white" />
-                                                </button>
+                                                <div className="absolute top-2 right-2 flex gap-2 z-10">
+                                                    <button
+                                                        className="w-7 h-7 flex items-center justify-center rounded-full bg-blue-500 hover:bg-blue-600 transition-colors cursor-pointer"
+                                                        onClick={() => handleEditPrice(item)}
+                                                    >
+                                                        <Edit className="w-4 h-4 text-white" />
+                                                    </button>
+                                                    <button
+                                                        className="w-7 h-7 flex items-center justify-center rounded-full bg-red-500 hover:bg-red-600 transition-colors cursor-pointer"
+                                                        onClick={() => handleDeleteShopItem(item.id)}
+                                                    >
+                                                        <X className="w-4 h-4 text-white" />
+                                                    </button>
+                                                </div>
                                             )}
                                             <CardHeader>
                                                 <div className="flex items-center justify-between">
@@ -236,13 +280,28 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
                 onClose={() => setIsAddRandomDialogOpen(false)}
                 bannerId={bannerDetail?.id || 0}
             />
-            
+
             {/* Add Handmade Pokemon Dialog */}
             <AddHandmadePokemonDialog
                 isOpen={isAddPokemonNotRandomDialogOpen}
                 onClose={() => setIsAddPokemonNotRandomDialogOpen(false)}
                 bannerId={bannerDetail?.id || 0}
             />
+
+            {/* Edit Price Dialog */}
+            {editPriceState && (
+                <EditPriceDialog
+                    isOpen={editPriceState.isOpen}
+                    onClose={handleCloseEditPrice}
+                    itemId={editPriceState.itemId}
+                    currentPrice={editPriceState.currentPrice}
+                    shopBannerId={editPriceState.shopBannerId}
+                    pokemonId={editPriceState.pokemonId}
+                    purchaseLimit={editPriceState.purchaseLimit}
+                    isActive={editPriceState.isActive}
+                    pokemon={editPriceState.pokemon}
+                />
+            )}
         </div>
     );
 }

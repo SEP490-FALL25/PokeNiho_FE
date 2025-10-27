@@ -1,5 +1,5 @@
 import { axiosPrivate } from "@configs/axios";
-import { ICreateShopBannerRequest, IGetRandomPokemonRequest, ICreateShopItemsRequest } from "@models/shop/request";
+import { ICreateShopBannerRequest, IGetRandomPokemonRequest, ICreateShopItemsRequest, IUpdateShopItemsRequest } from "@models/shop/request";
 
 const shopService = {
     getAllShopBanners: async (params: { page?: number; limit?: number; startDate?: string; endDate?: string; status?: string[] }) => {
@@ -77,6 +77,10 @@ const shopService = {
 
     createShopBanner: async (data: ICreateShopBannerRequest) => {
         return axiosPrivate.post('/shop-banner', data);
+    },
+
+    updateShopItemByShopItemId: async (id: number, data: IUpdateShopItemsRequest) => {
+        return axiosPrivate.put(`/shop-item/${id}`, data);
     },
 
     deleteShopItem: async (id: number) => {
