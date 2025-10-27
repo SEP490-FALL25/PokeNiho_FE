@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Badge } from "@ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/Card";
 import { Button } from "@ui/Button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
 import { Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AddRandomPokemonDialog from "../../AddRandomPokemonDialog";
@@ -51,6 +51,13 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
         setIsAddRandomDialogOpen(true);
     };
     //------------------------End------------------------//
+
+    /**
+     * Handle Hover for Delete Button
+     */
+    const [hoveredItemId, setHoveredItemId] = useState<number | null>(null);
+    //------------------------End------------------------//
+
 
     /**
      * Handle Back to List
@@ -117,13 +124,36 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
                             {bannerDetail?.shopItems && bannerDetail?.shopItems.length > 0 ? (
                                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                                     {bannerDetail?.shopItems.map((item: any) => (
-                                        <Card key={item.id} className="bg-muted/30 border-border">
+                                        <Card
+                                            key={item.id}
+                                            className="bg-muted/30 border-border relative group"
+                                            onMouseEnter={() => setHoveredItemId(item.id)}
+                                            onMouseLeave={() => setHoveredItemId(null)}
+                                        >
+                                            {/* Delete button - only visible on hover */}
+                                            {hoveredItemId === item.id && (
+                                                <button
+                                                    className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-red-500 hover:bg-red-600 transition-colors z-10 cursor-pointer"
+                                                    onClick={() => console.log('Delete item with id:', item.id)}
+                                                    type="button"
+                                                >
+                                                    <X className="w-4 h-4 text-white" />
+                                                </button>
+                                            )}
                                             <CardHeader>
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <CardTitle className="text-sm">Item #{item.id}</CardTitle>
+                                                        <img
+                                                            src={item.pokemon.imageUrl}
+                                                            alt={item.pokemon.nameTranslations.en}
+                                                            className="w-20 h-20 rounded-full"
+                                                        />
+                                                    </div>
+
+                                                    <div>
+                                                        <CardTitle className="text-sm">{item.pokemon.nameTranslations.en}</CardTitle>
                                                         <p className="text-xs text-muted-foreground mt-1">
-                                                            Pokemon ID: {item.pokemonId}
+                                                            Pokedex: {item.pokemon.pokedex_number}
                                                         </p>
                                                     </div>
                                                 </div>

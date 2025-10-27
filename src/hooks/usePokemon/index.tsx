@@ -1,6 +1,7 @@
 import { IQueryRequest } from "@models/common/request";
 import { useQuery } from "@tanstack/react-query";
 import pokemonService from "@services/pokemon";
+import { PokemonEntityType } from "@models/pokemon/entity";
 
 /**
  * hanlde Pokemon List
@@ -17,3 +18,17 @@ export const usePokemonList = (params: IQueryRequest) => {
 
     return { data: data?.data?.data, isLoading, error };
 };
+//------------------------End------------------------//
+
+/**
+ * Handle Get Pokemon By ID
+ * @param id 
+ * @returns 
+ */
+export const usePokemonById = (id: number) => {
+    return useQuery<{ data: PokemonEntityType }>({
+        queryKey: ["pokemon", id],
+        queryFn: () => pokemonService.getPokemonById(id.toString()),
+    });
+};
+//------------------------End------------------------//
