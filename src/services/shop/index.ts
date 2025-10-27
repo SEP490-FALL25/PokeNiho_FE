@@ -42,6 +42,10 @@ const shopService = {
         return axiosPrivate.post('/shop-banner', data);
     },
 
+    deleteShopItem: async (id: number) => {
+        return axiosPrivate.delete(`/shop-item/${id}`);
+    },
+
     // Get random Pokemon for shop
     getRandomPokemon: async (data: IGetRandomPokemonRequest) => {
         return axiosPrivate.post('/shop-banner/random-pokemon', data);

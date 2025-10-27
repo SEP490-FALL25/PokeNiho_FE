@@ -102,9 +102,9 @@ export const useCreateShopItems = () => {
             const response = await shopService.createShopItemWithRandom(data);
             return response.data;
         },
-        onSuccess: () => {
+        onSuccess: (data: any) => {
             queryClient.invalidateQueries({ queryKey: ["shopBanner"] });
-            toast.success(t('configShop.addPokemonSuccess'));
+            toast.success(data?.message || t('configShop.addPokemonSuccess'));
         },
         onError: (error: any) => {
             toast.error(error.response?.data?.message || t('configShop.addPokemonError'));
@@ -113,3 +113,27 @@ export const useCreateShopItems = () => {
 };
 //-------------------End-------------------//
 
+
+/**
+ * Handle Delete Shop Item
+ * @returns useMutation to delete shop item
+ */
+export const useDeleteShopItem = () => {
+    const queryClient = useQueryClient();
+    const { t } = useTranslation();
+
+    return useMutation({
+        mutationFn: async (id: number) => {
+            const response = await shopService.deleteShopItem(id);
+            return response.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["shopBanner"] });
+            // toast.success(data?.message || t('configShop.deletePokemonSuccess'));
+        },
+        onError: (error: any) => {
+            toast.error(error.response?.data?.message || t('configShop.deletePokemonError'));
+        },
+    });
+};
+//-------------------End-------------------//

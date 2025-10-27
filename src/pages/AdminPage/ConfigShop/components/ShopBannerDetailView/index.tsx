@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import AddRandomPokemonDialog from "../../AddRandomPokemonDialog";
 import { useState } from "react";
 import { IShopBannerSchema } from "@models/shop/entity";
+import { useDeleteShopItem } from "@hooks/useShop";
 
 export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: IShopBannerSchema }) {
 
@@ -49,6 +50,15 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
     const [isAddRandomDialogOpen, setIsAddRandomDialogOpen] = useState<boolean>(false);
     const handleAddRandomPokemon = () => {
         setIsAddRandomDialogOpen(true);
+    };
+    //------------------------End------------------------//
+
+    /**
+     * Handle Delete Shop Item
+     */
+    const { mutate: deleteShopItem } = useDeleteShopItem();
+    const handleDeleteShopItem = (id: number) => {
+        deleteShopItem(id);
     };
     //------------------------End------------------------//
 
@@ -134,8 +144,7 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
                                             {hoveredItemId === item.id && (
                                                 <button
                                                     className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-red-500 hover:bg-red-600 transition-colors z-10 cursor-pointer"
-                                                    onClick={() => console.log('Delete item with id:', item.id)}
-                                                    type="button"
+                                                    onClick={() => handleDeleteShopItem(item.id)}
                                                 >
                                                     <X className="w-4 h-4 text-white" />
                                                 </button>
