@@ -5,7 +5,7 @@ import { Input } from "@ui/Input"
 import { Badge } from "@ui/Badge"
 import { Dialog, DialogTrigger } from "@ui/Dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ui/Select";
-import { Search, Plus, Edit, Trash2, Eye, Copy } from "lucide-react"
+import { Search, Plus, Trash2, Eye } from "lucide-react"
 import { Tabs } from "@ui/Tabs";
 import HeaderAdmin from "@organisms/Header/Admin"
 import { EnhancedPagination } from "@ui/Pagination"
@@ -286,77 +286,54 @@ const LessonsManagement = () => {
                                             <p className="text-muted-foreground text-center text-2xl font-bold">{t('lesson.noLessons')}</p>
                                         </div>
                                     ) : (
-                                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                            {isLoading ? (
-                                                Array.from({ length: itemsPerPage }).map((_, idx) => (
-                                                    <LessonCardSkeleton key={`skeleton-${idx}`} />
-                                                ))
-                                            ) : (
-                                                lessons.map((lesson) => (
-                                                    <Card key={lesson.id} className="bg-muted/50 border-border hover:border-primary/50 transition-colors">
-                                                        <CardHeader>
-                                                            <div className="flex items-start justify-between">
-                                                                <div className="flex-1">
-                                                                    <CardTitle className="text-lg text-foreground mb-2">{lesson.titleKey}</CardTitle>
-                                                                    <p className="text-sm text-muted-foreground line-clamp-2">{lesson.slug}</p>
-                                                                </div>
-                                                            </div>
-                                                            <div className="flex gap-2 mt-3">
-                                                                <Badge className="bg-chart-1 text-white">JLPT N{lesson.levelJlpt}</Badge>
-                                                                <Badge className={lesson.isPublished ? "bg-chart-4 text-white" : "bg-muted text-muted-foreground"}>
-                                                                    {getPublishedBadge(lesson.isPublished)}
-                                                                </Badge>
-                                                            </div>
-                                                        </CardHeader>
-                                                        <CardContent>
-                                                            <div className="space-y-2 text-sm text-muted-foreground mb-4">
-                                                                <div className="flex justify-between">
-                                                                    <span>{t('lesson.estimatedTime')}:</span>
-                                                                    <span className="text-foreground font-medium">{lesson.estimatedTimeMinutes} {t('common.minutes')}</span>
-                                                                </div>
-                                                                <div className="flex justify-between">
-                                                                    <span>{t('lesson.lessonOrder')}:</span>
-                                                                    <span className="text-foreground font-medium">{lesson.lessonOrder}</span>
-                                                                </div>
-                                                            </div>
-                                                            <div className="flex gap-2">
-                                                                <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                    className="flex-1 border-border text-foreground hover:bg-muted bg-transparent"
-                                                                    onClick={() => setSelectedLesson(lesson)}
-                                                                >
-                                                                    <Eye className="h-4 w-4 mr-1" />
-                                                                    {t('lesson.manage')}
-                                                                </Button>
-                                                                <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                    className="flex-1 border-border text-foreground hover:bg-muted bg-transparent"
-                                                                >
-                                                                    <Edit className="h-4 w-4 mr-1" />
-                                                                    {t('common.edit')}
-                                                                </Button>
-                                                                <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                    className="border-border text-foreground hover:bg-muted bg-transparent"
-                                                                >
-                                                                    <Copy className="h-4 w-4" />
-                                                                </Button>
-                                                                <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                    className="border-destructive text-destructive hover:bg-destructive/10 bg-transparent"
-                                                                >
-                                                                    <Trash2 className="h-4 w-4" />
-                                                                </Button>
-                                                            </div>
-                                                        </CardContent>
-                                                    </Card>
-                                                ))
-                                            )}
-                                        </div>
+                                        lessons.map((lesson) => (
+                                            <Card key={lesson.id} className="bg-muted/50 border-border hover:border-primary/50 transition-colors">
+                                                <CardHeader>
+                                                    <div className="flex items-start justify-between">
+                                                        <div className="flex-1">
+                                                            <CardTitle className="text-lg text-foreground mb-2">{lesson.titleKey}</CardTitle>
+                                                            <p className="text-sm text-muted-foreground line-clamp-2">{lesson.slug}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex gap-2 mt-3">
+                                                        <Badge className="bg-chart-1 text-white">JLPT N{lesson.levelJlpt}</Badge>
+                                                        <Badge className={lesson.isPublished ? "bg-chart-4 text-white" : "bg-muted text-muted-foreground"}>
+                                                            {getPublishedBadge(lesson.isPublished)}
+                                                        </Badge>
+                                                    </div>
+                                                </CardHeader>
+                                                <CardContent>
+                                                    <div className="space-y-2 text-sm text-muted-foreground mb-4">
+                                                        <div className="flex justify-between">
+                                                            <span>{t('lesson.estimatedTime')}:</span>
+                                                            <span className="text-foreground font-medium">{lesson.estimatedTimeMinutes} {t('common.minutes')}</span>
+                                                        </div>
+                                                        <div className="flex justify-between">
+                                                            <span>{t('lesson.lessonOrder')}:</span>
+                                                            <span className="text-foreground font-medium">{lesson.lessonOrder}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="flex-1 border-border text-foreground hover:bg-muted bg-transparent"
+                                                            onClick={() => setSelectedLesson(lesson)}
+                                                        >
+                                                            <Eye className="h-4 w-4 mr-1" />
+                                                            {t('lesson.manage')}
+                                                        </Button>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="border-destructive text-destructive hover:bg-destructive/10 bg-transparent"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        ))
                                     )}
                                     <div className="flex justify-end mt-6">
                                         {pagination && (

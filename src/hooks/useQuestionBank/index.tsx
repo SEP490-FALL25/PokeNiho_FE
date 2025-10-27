@@ -16,6 +16,8 @@ import {
 } from "@constants/questionBank";
 import { selectCurrentLanguage } from "@redux/features/language/selector";
 import { useSelector } from "react-redux";
+import answerService from "@services/answer";
+import { IQueryAnswerRequest } from "@models/answer/request";
 
 /**
  * Hook for managing QuestionBank list with filters and pagination
@@ -108,6 +110,8 @@ export const useQuestionBank = (
     levelN: undefined,
     questionType: undefined,
     status: undefined,
+    sortBy: undefined,
+    sortOrder: undefined,
   }
 ) => {
   // State management
@@ -124,15 +128,33 @@ export const useQuestionBank = (
     questionType: QUESTION_TYPE.VOCABULARY,
     levelN: JLPT_LEVEL.N5,
     pronunciation: "",
-    meaning: "",
     audioUrl: "",
-    options: [],
-    correctAnswer: "",
-    explanation: "",
-    difficulty: 1,
-    points: 10,
-    timeLimit: 60,
-    tags: [],
+    meanings: [
+      {
+        translations: {
+          vi: "",
+          en: "",
+        },
+      },
+    ],
+    answers: [
+      {
+        answerJp: "",
+        isCorrect: true,
+        translations: {
+          meaning: [
+            {
+              language_code: "vi",
+              value: "",
+            },
+            {
+              language_code: "en",
+              value: "",
+            },
+          ],
+        },
+      },
+    ],
   });
 
   // API hooks
@@ -162,6 +184,33 @@ export const useQuestionBank = (
     setFilters((prev) => ({ ...prev, page }));
   }, []);
 
+  // Sort handler
+  const handleSort = useCallback((sortKey: string) => {
+    setFilters((prev) => {
+      const currentSortBy = prev.sortBy;
+      const currentSortOrder = prev.sortOrder;
+      
+      // If clicking the same column, toggle sort order
+      if (currentSortBy === sortKey) {
+        const newSortOrder = currentSortOrder === "asc" ? "desc" : "asc";
+        return {
+          ...prev,
+          sortBy: sortKey,
+          sortOrder: newSortOrder,
+          page: 1, // Reset to first page when sorting
+        };
+      }
+      
+      // If clicking a different column, set to ascending
+      return {
+        ...prev,
+        sortBy: sortKey,
+        sortOrder: "asc",
+        page: 1, // Reset to first page when sorting
+      };
+    });
+  }, []);
+
   // Reset form data
   const resetFormData = useCallback(() => {
     setFormData({
@@ -169,22 +218,53 @@ export const useQuestionBank = (
       questionType: QUESTION_TYPE.VOCABULARY,
       levelN: JLPT_LEVEL.N5,
       pronunciation: "",
-      meaning: "",
       audioUrl: "",
-      options: [],
-      correctAnswer: "",
-      explanation: "",
-      difficulty: 1,
-      points: 10,
-      timeLimit: 60,
-      tags: [],
+      meanings: [
+        {
+        translations: {
+          vi: "",
+          en: "",
+        },
+        },
+      ],
+      answers: [
+        {
+          answerJp: "",
+          isCorrect: true,
+          translations: {
+            meaning: [
+              {
+                language_code: "vi",
+                value: "",
+              },
+              {
+                language_code: "en",
+                value: "",
+              },
+            ],
+          },
+        },
+      ],
     });
   }, []);
 
   // CRUD operations
   const handleCreateQuestion = useCallback(async () => {
     try {
-      await createQuestionMutation.mutateAsync(formData);
+      // Clean up form data before sending
+      const cleanedFormData = {
+        ...formData,
+        audioUrl: formData.audioUrl === "" ? null : formData.audioUrl,
+        // Remove options for VOCABULARY type
+        ...(formData.questionType === "VOCABULARY" && { options: undefined }),
+        // Remove correctAnswer for all types
+        correctAnswer: undefined,
+      };
+      
+      // Log the payload for debugging
+      console.log("Creating question with payload:", JSON.stringify(cleanedFormData, null, 2));
+      
+      await createQuestionMutation.mutateAsync(cleanedFormData);
       setIsCreateDialogOpen(false);
       resetFormData();
     } catch (error) {
@@ -195,9 +275,18 @@ export const useQuestionBank = (
   const handleEditQuestion = useCallback(async () => {
     if (!editingQuestion) return;
     try {
+      // Clean up form data before sending
+      const cleanedFormData = {
+        ...formData,
+        audioUrl: formData.audioUrl === "" ? null : formData.audioUrl,
+        // Remove options for VOCABULARY type
+        ...(formData.questionType === "VOCABULARY" && { options: undefined }),
+        // Remove correctAnswer for all types
+        correctAnswer: undefined,
+      };
       await updateQuestionMutation.mutateAsync({
         id: editingQuestion.id,
-        data: formData,
+        data: cleanedFormData,
       });
       setIsEditDialogOpen(false);
       setEditingQuestion(null);
@@ -216,30 +305,103 @@ export const useQuestionBank = (
     }
   }, [deleteQuestionId, deleteQuestionMutation]);
 
+  // State for loading answers
+  const [isLoadingAnswers, setIsLoadingAnswers] = useState(false);
+
   // Dialog handlers
   const openCreateDialog = useCallback(() => {
     resetFormData();
     setIsCreateDialogOpen(true);
   }, [resetFormData]);
 
-  const openEditDialog = useCallback((question: QuestionEntityType) => {
+  const openEditDialog = useCallback(async (question: QuestionEntityType) => {
     setEditingQuestion(question);
+    setIsEditDialogOpen(true);
+    
+    // Set basic question data immediately
     setFormData({
       questionJp: question.questionJp,
       questionType: question.questionType as QuestionType,
       levelN: question.levelN as JLPTLevel,
-      pronunciation: question.pronunciation,
-      meaning: question.meaning,
+      pronunciation: question.pronunciation || "",
       audioUrl: question.audioUrl || "",
-      options: question.options || [],
-      correctAnswer: question.correctAnswer || "",
-      explanation: question.explanation || "",
-      difficulty: question.difficulty || 1,
-      points: question.points || 10,
-      timeLimit: question.timeLimit || 60,
-      tags: question.tags || [],
+      meanings: Array.isArray(question.meanings) ? question.meanings : [
+        {
+          translations: {
+            vi: question.meaning || "",
+            en: "",
+          },
+        },
+      ],
+      answers: [], // Will be populated after fetching
     });
-    setIsEditDialogOpen(true);
+
+    // Fetch answers for this question
+    setIsLoadingAnswers(true);
+    try {
+      const filters: IQueryAnswerRequest = {
+        questionBankId: question.id,
+        limit: 10,
+      };
+      const response = await answerService.getAnswerList(filters);
+      const fetchedAnswers = response.data.data.results || [];
+      console.log(fetchedAnswers)
+      // Transform the fetched answers to match the form structure
+      const formattedAnswers = fetchedAnswers.map((answer) => ({
+        answerJp: answer.answerJp,
+        isCorrect: answer.isCorrect,
+        translations: answer.translations,
+      }));
+
+      // Update form data with fetched answers
+      setFormData((prev) => ({
+        ...prev,
+        answers: formattedAnswers.length > 0 ? formattedAnswers : [
+          {
+            answerJp: "",
+            isCorrect: true,
+            translations: {
+              meaning: [
+                {
+                  language_code: "vi",
+                  value: "",
+                },
+                {
+                  language_code: "en",
+                  value: "",
+                },
+              ],
+            },
+          },
+        ],
+      }));
+    } catch (error) {
+      console.error("Error fetching answers:", error);
+      // If fetching fails, use empty answers
+      setFormData((prev) => ({
+        ...prev,
+        answers: [
+          {
+            answerJp: "",
+            isCorrect: true,
+            translations: {
+              meaning: [
+                {
+                  language_code: "vi",
+                  value: "",
+                },
+                {
+                  language_code: "en",
+                  value: "",
+                },
+              ],
+            },
+          },
+        ],
+      }));
+    } finally {
+      setIsLoadingAnswers(false);
+    }
   }, []);
 
   const closeDialogs = useCallback(() => {
@@ -285,6 +447,7 @@ export const useQuestionBank = (
     // Handlers
     handleFilterChange,
     handlePageChange,
+    handleSort,
     handleCreateQuestion,
     handleEditQuestion,
     handleDeleteQuestion,
@@ -298,5 +461,17 @@ export const useQuestionBank = (
     getQuestionTypeLabel,
     getJLPTLevelLabel,
     resetFormData,
+    
+    // Mutations for direct access
+    createQuestionMutation,
+    updateQuestionMutation,
+    deleteQuestionMutation,
+    
+    // Dialog state setters
+    setIsCreateDialogOpen,
+    setIsEditDialogOpen,
+    
+    // Loading states
+    isLoadingAnswers,
   };
 };

@@ -5,16 +5,24 @@ export interface ICreateQuestionRequest {
     questionJp: string;
     questionType: QuestionType;
     levelN: JLPTLevel;
-    pronunciation: string;
-    meaning: string;
     audioUrl?: string | null;
-    options?: string[];
-    correctAnswer?: string;
-    explanation?: string;
-    difficulty?: number;
-    points?: number;
-    timeLimit?: number; // in seconds
-    tags?: string[];
+    pronunciation?: string;
+    meanings: Array<{
+        translations: {
+            vi: string;
+            en: string;
+        };
+    }>;
+    answers?: Array<{
+        answerJp: string;
+        isCorrect: boolean;
+        translations: {
+            meaning: Array<{
+                language_code: string;
+                value: string;
+            }>;
+        };
+    }>;
 }
 
 export interface IUpdateQuestionRequest extends Partial<ICreateQuestionRequest> {

@@ -10,6 +10,7 @@ import { Textarea } from '@ui/Textarea';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
+import { validateCreateExercise, useFormValidation, commonValidationRules } from '@utils/validation';
 import {
     Target,
     Clock,
@@ -57,12 +58,30 @@ const CreateExerciseDialog = ({ setIsAddDialogOpen, lessonId, lessonTitle, avail
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+    // Initialize validation rules
+    const validationRules = {
+        title: commonValidationRules.title,
+        description: commonValidationRules.description,
+        type: commonValidationRules.type,
+        difficulty: commonValidationRules.difficulty,
+        questionCount: commonValidationRules.questionCount,
+        estimatedTime: commonValidationRules.estimatedTime,
+        lessonId: commonValidationRules.lessonId,
+    };
+
+    const { validate, validateField } = useFormValidation(validationRules);
 
     const handleInputChange = (field: string, value: any) => {
         setFormData(prev => ({
             ...prev,
             [field]: value
         }));
+        
+        // Mark field as touched
+        setTouched(prev => ({ ...prev, [field]: true }));
+        
         // Clear error when user starts typing
         if (errors[field]) {
             setErrors(prev => ({
@@ -72,22 +91,24 @@ const CreateExerciseDialog = ({ setIsAddDialogOpen, lessonId, lessonTitle, avail
         }
     };
 
+    // Real-time validation on blur
+    const handleBlur = (field: string) => {
+        setTouched(prev => ({ ...prev, [field]: true }));
+        
+        const error = validateField(field, formData[field]);
+        if (error) {
+            setErrors(prev => ({ ...prev, [field]: error }));
+        } else {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[field];
+                return newErrors;
+            });
+        }
+    };
+
     const validateForm = () => {
-        const newErrors: Record<string, string> = {};
-
-        if (!formData.title.trim()) {
-            newErrors.title = 'Title is required';
-        }
-        if (!formData.description.trim()) {
-            newErrors.description = 'Description is required';
-        }
-        if (formData.questionCount < 1) {
-            newErrors.questionCount = 'Question count must be at least 1';
-        }
-        if (formData.estimatedTime < 1) {
-            newErrors.estimatedTime = 'Estimated time must be at least 1 minute';
-        }
-
+        const newErrors = validateCreateExercise(formData);
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -170,6 +191,7 @@ const CreateExerciseDialog = ({ setIsAddDialogOpen, lessonId, lessonTitle, avail
                                         className="bg-background border-border text-foreground h-11 text-base"
                                         value={formData.title}
                                         onChange={(e) => handleInputChange('title', e.target.value)}
+                                        onBlur={() => handleBlur('title')}
                                     />
                                     {errors.title && <p className="text-sm text-red-500 flex items-center gap-1">
                                         <X className="h-3 w-3" />
@@ -184,7 +206,10 @@ const CreateExerciseDialog = ({ setIsAddDialogOpen, lessonId, lessonTitle, avail
                                         Select Lesson *
                                     </label>
                                     <Select value={formData.lessonId.toString()} onValueChange={(value) => handleInputChange('lessonId', parseInt(value))}>
-                                        <SelectTrigger className="bg-background border-border text-foreground h-11">
+                                        <SelectTrigger 
+                                            className="bg-background border-border text-foreground h-11"
+                                            onBlur={() => handleBlur('lessonId')}
+                                        >
                                             <SelectValue placeholder="Select a lesson" />
                                         </SelectTrigger>
                                         <SelectContent className="bg-card border-border">
@@ -210,6 +235,7 @@ const CreateExerciseDialog = ({ setIsAddDialogOpen, lessonId, lessonTitle, avail
                                         className="bg-background border-border text-foreground min-h-[100px]"
                                         value={formData.description}
                                         onChange={(e) => handleInputChange('description', e.target.value)}
+                                        onBlur={() => handleBlur('description')}
                                     />
                                     {errors.description && <p className="text-sm text-red-500 flex items-center gap-1">
                                         <X className="h-3 w-3" />
@@ -224,7 +250,10 @@ const CreateExerciseDialog = ({ setIsAddDialogOpen, lessonId, lessonTitle, avail
                                             Exercise Type *
                                         </label>
                                         <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
-                                            <SelectTrigger className="bg-background border-border text-foreground h-11">
+                                            <SelectTrigger 
+                                                className="bg-background border-border text-foreground h-11"
+                                                onBlur={() => handleBlur('type')}
+                                            >
                                                 <SelectValue placeholder="Select exercise type" />
                                             </SelectTrigger>
                                             <SelectContent className="bg-card border-border">
@@ -262,7 +291,10 @@ const CreateExerciseDialog = ({ setIsAddDialogOpen, lessonId, lessonTitle, avail
                                             Difficulty *
                                         </label>
                                         <Select value={formData.difficulty} onValueChange={(value) => handleInputChange('difficulty', value)}>
-                                            <SelectTrigger className="bg-background border-border text-foreground h-11">
+                                            <SelectTrigger 
+                                                className="bg-background border-border text-foreground h-11"
+                                                onBlur={() => handleBlur('difficulty')}
+                                            >
                                                 <SelectValue placeholder="Select difficulty" />
                                             </SelectTrigger>
                                             <SelectContent className="bg-card border-border">
@@ -302,6 +334,7 @@ const CreateExerciseDialog = ({ setIsAddDialogOpen, lessonId, lessonTitle, avail
                                             className="bg-background border-border text-foreground h-11"
                                             value={formData.questionCount}
                                             onChange={(e) => handleInputChange('questionCount', parseInt(e.target.value) || 0)}
+                                            onBlur={() => handleBlur('questionCount')}
                                         />
                                         {errors.questionCount && <p className="text-sm text-red-500 flex items-center gap-1">
                                             <X className="h-3 w-3" />
@@ -321,6 +354,7 @@ const CreateExerciseDialog = ({ setIsAddDialogOpen, lessonId, lessonTitle, avail
                                             className="bg-background border-border text-foreground h-11"
                                             value={formData.estimatedTime}
                                             onChange={(e) => handleInputChange('estimatedTime', parseInt(e.target.value) || 0)}
+                                            onBlur={() => handleBlur('estimatedTime')}
                                         />
                                         {errors.estimatedTime && <p className="text-sm text-red-500 flex items-center gap-1">
                                             <X className="h-3 w-3" />

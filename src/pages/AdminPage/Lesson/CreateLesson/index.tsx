@@ -11,6 +11,7 @@ import { ICreateLessonRequest } from '@models/lesson/request';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
+import { validateCreateLesson, useFormValidation, commonValidationRules } from '@utils/validation';
 import {
     BookOpen,
     Clock,
@@ -52,11 +53,27 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
+    // Initialize validation rules
+    const validationRules = {
+        titleJp: commonValidationRules.titleJp,
+        levelJlpt: commonValidationRules.levelJlpt,
+        estimatedTimeMinutes: commonValidationRules.estimatedTimeMinutes,
+        lessonOrder: commonValidationRules.lessonOrder,
+        version: commonValidationRules.version,
+        lessonCategoryId: commonValidationRules.lessonCategoryId,
+        rewardId: commonValidationRules.rewardId,
+    };
+
+    const { validateField } = useFormValidation(validationRules);
+
     const handleInputChange = (field: string, value: any) => {
         setFormData(prev => ({
             ...prev,
             [field]: value
         }));
+        
+        // Mark field as touched for validation
+        
         // Clear error when user starts typing
         if (errors[field]) {
             setErrors(prev => ({
@@ -76,39 +93,34 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
                 )
             }
         }));
+        
+        // Mark translation field as touched for validation
+        
+        // Clear error when user starts typing
+        if (errors[`translation_${index}`]) {
+            setErrors(prev => ({
+                ...prev,
+                [`translation_${index}`]: ''
+            }));
+        }
+    };
+
+    // Real-time validation on blur
+    const handleBlur = (field: string) => {
+        const error = validateField(field, (formData as any)[field]);
+        if (error) {
+            setErrors(prev => ({ ...prev, [field]: error }));
+        } else {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[field];
+                return newErrors;
+            });
+        }
     };
 
     const validateForm = () => {
-        const newErrors: Record<string, string> = {};
-
-        if (!formData.titleJp.trim()) {
-            newErrors.titleJp = t('createLesson.titleJpRequired');
-        }
-        if (formData.levelJlpt < 1 || formData.levelJlpt > 5) {
-            newErrors.levelJlpt = t('createLesson.levelJlptRange');
-        }
-        if (formData.estimatedTimeMinutes < 1) {
-            newErrors.estimatedTimeMinutes = t('createLesson.estimatedTimeRequired');
-        }
-        if (formData.lessonOrder < 1) {
-            newErrors.lessonOrder = t('createLesson.lessonOrderRequired');
-        }
-        if (!formData.version.trim()) {
-            newErrors.version = t('createLesson.versionRequired');
-        }
-        if (formData.lessonCategoryId < 1) {
-            newErrors.lessonCategoryId = t('createLesson.categoryRequired');
-        }
-        if (formData.rewardId < 1) {
-            newErrors.rewardId = t('createLesson.rewardIdRequired');
-        }
-
-        formData.translations.meaning.forEach((translation, index) => {
-            if (!translation.value.trim()) {
-                newErrors[`translation_${index}`] = t('createLesson.translationRequired');
-            }
-        });
-
+        const newErrors = validateCreateLesson(formData);
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -174,6 +186,7 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
                                         className="bg-background border-border text-foreground h-11 text-base"
                                         value={formData.titleJp}
                                         onChange={(e) => handleInputChange('titleJp', e.target.value)}
+                                        onBlur={() => handleBlur('titleJp')}
                                     />
                                     {errors.titleJp && <p className="text-sm text-red-500 flex items-center gap-1">
                                         <X className="h-3 w-3" />
@@ -195,6 +208,7 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
                                                         placeholder="vi, en, ja..."
                                                         value={translation.language_code}
                                                         onChange={(e) => handleTranslationChange(index, 'language_code', e.target.value)}
+                                                        onBlur={() => {}}
                                                         className="bg-background border-border text-foreground h-10"
                                                     />
                                                 </div>
@@ -203,6 +217,7 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
                                                         placeholder={index === 0 ? "Cách chào hỏi cơ bản" : "Basic Greetings"}
                                                         value={translation.value}
                                                         onChange={(e) => handleTranslationChange(index, 'value', e.target.value)}
+                                                        onBlur={() => {}}
                                                         className="bg-background border-border text-foreground h-10"
                                                     />
                                                 </div>
@@ -238,7 +253,10 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
                                             {t('createLesson.level')} *
                                         </label>
                                         <Select value={formData.levelJlpt.toString()} onValueChange={(value) => handleInputChange('levelJlpt', parseInt(value))}>
-                                            <SelectTrigger className="bg-background border-border text-foreground h-11">
+                                            <SelectTrigger 
+                                                className="bg-background border-border text-foreground h-11"
+                                                onBlur={() => handleBlur('levelJlpt')}
+                                            >
                                                 <SelectValue placeholder={t('createLesson.selectLevel')} />
                                             </SelectTrigger>
                                             <SelectContent className="bg-card border-border">
@@ -287,7 +305,10 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
                                             Danh mục *
                                         </label>
                                         <Select value={formData.lessonCategoryId.toString()} onValueChange={(value) => handleInputChange('lessonCategoryId', parseInt(value))}>
-                                            <SelectTrigger className="bg-background border-border text-foreground h-11">
+                                            <SelectTrigger 
+                                                className="bg-background border-border text-foreground h-11"
+                                                onBlur={() => handleBlur('lessonCategoryId')}
+                                            >
                                                 <SelectValue placeholder="Chọn danh mục" />
                                             </SelectTrigger>
                                             <SelectContent className="bg-card border-border">
@@ -337,6 +358,7 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
                                             className="bg-background border-border text-foreground h-11"
                                             value={formData.estimatedTimeMinutes}
                                             onChange={(e) => handleInputChange('estimatedTimeMinutes', parseInt(e.target.value) || 0)}
+                                            onBlur={() => handleBlur('estimatedTimeMinutes')}
                                         />
                                         {errors.estimatedTimeMinutes && <p className="text-sm text-red-500 flex items-center gap-1">
                                             <X className="h-3 w-3" />
@@ -356,6 +378,7 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
                                             className="bg-background border-border text-foreground h-11"
                                             value={formData.lessonOrder}
                                             onChange={(e) => handleInputChange('lessonOrder', parseInt(e.target.value) || 0)}
+                                            onBlur={() => handleBlur('lessonOrder')}
                                         />
                                         {errors.lessonOrder && <p className="text-sm text-red-500 flex items-center gap-1">
                                             <X className="h-3 w-3" />
@@ -375,6 +398,7 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
                                             className="bg-background border-border text-foreground h-11"
                                             value={formData.rewardId}
                                             onChange={(e) => handleInputChange('rewardId', parseInt(e.target.value) || 0)}
+                                            onBlur={() => handleBlur('rewardId')}
                                         />
                                         {errors.rewardId && <p className="text-sm text-red-500 flex items-center gap-1">
                                             <X className="h-3 w-3" />
@@ -394,6 +418,7 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
                                         className="bg-background border-border text-foreground h-11"
                                         value={formData.version}
                                         onChange={(e) => handleInputChange('version', e.target.value)}
+                                        onBlur={() => handleBlur('version')}
                                     />
                                     {errors.version && <p className="text-sm text-red-500 flex items-center gap-1">
                                         <X className="h-3 w-3" />
