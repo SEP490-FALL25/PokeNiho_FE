@@ -3,7 +3,7 @@ import { Badge } from "@ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/Card";
 import { Button } from "@ui/Button";
 import { Separator } from "@ui/Separator";
-import { ArrowLeft, Plus, X, Edit, Settings } from "lucide-react";
+import { ArrowLeft, Plus, X, Edit, Settings, Calendar, TrendingUp, Package, Zap } from "lucide-react";
 import { Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AddRandomPokemonDialog from "../AddRandomPokemonDialog";
@@ -197,29 +197,40 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
                     <div className="space-y-6">
                         {/* Basic Info section */}
                         <div>
-                            <h3 className="text-base font-semibold text-foreground mb-4">{t('configShop.basicInfo')}</h3>
-                            <Card className="bg-muted/20 border-border">
-                                <CardContent className="p-4">
-                                    <div className="grid grid-cols-2 gap-6">
-                                        <div className="space-y-1">
-                                            <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('configShop.startDate')}</p>
-                                            <p className="text-lg font-semibold text-foreground">{formatDate(bannerDetail?.startDate || '')}</p>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('configShop.endDate')}</p>
-                                            <p className="text-lg font-semibold text-foreground">{formatDate(bannerDetail?.endDate || '')}</p>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('configShop.minQuantity')}</p>
-                                            <p className="text-lg font-semibold text-foreground">{bannerDetail?.min}</p>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('configShop.maxQuantity')}</p>
-                                            <p className="text-lg font-semibold text-foreground">{bannerDetail?.max}</p>
-                                        </div>
+                            <div className="flex items-center gap-2 mb-4">
+                                <Calendar className="h-5 w-5 text-muted-foreground" />
+                                <h3 className="text-base font-semibold text-foreground">{t('configShop.basicInfo')}</h3>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2 bg-muted/20 p-4 rounded-lg border border-border">
+                                    <div className="flex items-center gap-2">
+                                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('configShop.startDate')}</p>
                                     </div>
-                                </CardContent>
-                            </Card>
+                                    <p className="text-base font-semibold text-foreground">{formatDate(bannerDetail?.startDate || '')}</p>
+                                </div>
+                                <div className="space-y-2 bg-muted/20 p-4 rounded-lg border border-border">
+                                    <div className="flex items-center gap-2">
+                                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('configShop.endDate')}</p>
+                                    </div>
+                                    <p className="text-base font-semibold text-foreground">{formatDate(bannerDetail?.endDate || '')}</p>
+                                </div>
+                                <div className="space-y-2 bg-muted/20 p-4 rounded-lg border border-border">
+                                    <div className="flex items-center gap-2">
+                                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('configShop.minQuantity')}</p>
+                                    </div>
+                                    <p className="text-base font-semibold text-foreground">{bannerDetail?.min}</p>
+                                </div>
+                                <div className="space-y-2 bg-muted/20 p-4 rounded-lg border border-border">
+                                    <div className="flex items-center gap-2">
+                                        <Package className="h-4 w-4 text-muted-foreground" />
+                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('configShop.maxQuantity')}</p>
+                                    </div>
+                                    <p className="text-base font-semibold text-foreground">{bannerDetail?.max}</p>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Separator */}
@@ -227,29 +238,37 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
 
                         {/* Auto Pre-create Settings section */}
                         <div>
-                            <h3 className="text-base font-semibold text-foreground mb-4">{t('configShop.autoPrecreateSettings')}</h3>
-                            <Card className="bg-muted/20 border-border">
-                                <CardContent className="p-4">
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div className="flex flex-col space-y-2">
-                                            <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('configShop.enablePrecreate')}</p>
-                                            <Badge variant={bannerDetail?.enablePrecreate ? "default" : "outline"} className="w-fit">
-                                                {bannerDetail?.enablePrecreate ? t('common.active') : t('common.inactive')}
-                                            </Badge>
-                                        </div>
-                                        <div className="flex flex-col space-y-2">
-                                            <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('configShop.precreateBeforeEndDays')}</p>
-                                            <p className="text-lg font-semibold text-foreground">{bannerDetail?.precreateBeforeEndDays} {t('configShop.days')}</p>
-                                        </div>
-                                        <div className="flex flex-col space-y-2">
-                                            <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('configShop.isRandomItemAgain')}</p>
-                                            <Badge variant={bannerDetail?.isRandomItemAgain ? "default" : "outline"} className="w-fit">
-                                                {bannerDetail?.isRandomItemAgain ? t('common.active') : t('common.inactive')}
-                                            </Badge>
-                                        </div>
+                            <div className="flex items-center gap-2 mb-4">
+                                <Zap className="h-5 w-5 text-muted-foreground" />
+                                <h3 className="text-base font-semibold text-foreground">{t('configShop.autoPrecreateSettings')}</h3>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="space-y-2 bg-muted/20 p-4 rounded-lg border border-border">
+                                    <div className="flex items-center gap-2">
+                                        <Zap className="h-4 w-4 text-muted-foreground" />
+                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('configShop.enablePrecreate')}</p>
                                     </div>
-                                </CardContent>
-                            </Card>
+                                    <Badge variant={bannerDetail?.enablePrecreate ? "default" : "outline"} className="mt-1">
+                                        {bannerDetail?.enablePrecreate ? t('common.active') : t('common.inactive')}
+                                    </Badge>
+                                </div>
+                                <div className="space-y-2 bg-muted/20 p-4 rounded-lg border border-border">
+                                    <div className="flex items-center gap-2">
+                                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('configShop.precreateBeforeEndDays')}</p>
+                                    </div>
+                                    <p className="text-base font-semibold text-foreground">{bannerDetail?.precreateBeforeEndDays} {t('configShop.days')}</p>
+                                </div>
+                                <div className="space-y-2 bg-muted/20 p-4 rounded-lg border border-border">
+                                    <div className="flex items-center gap-2">
+                                        <Sparkles className="h-4 w-4 text-muted-foreground" />
+                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('configShop.isRandomItemAgain')}</p>
+                                    </div>
+                                    <Badge variant={bannerDetail?.isRandomItemAgain ? "default" : "outline"} className="mt-1">
+                                        {bannerDetail?.isRandomItemAgain ? t('common.active') : t('common.inactive')}
+                                    </Badge>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Separator */}
@@ -308,7 +327,10 @@ export default function ShopBannerDetailView({ bannerDetail }: { bannerDetail: I
                                                 <div className="space-y-2 text-sm">
                                                     <div className="flex justify-between">
                                                         <span className="text-muted-foreground">{t('configShop.price')}:</span>
-                                                        <span className="font-medium text-foreground">{item.price.toLocaleString()} đ</span>
+                                                        <div className="flex items-center gap-1">
+                                                            <span className="font-medium text-foreground">{item.price.toLocaleString()}</span>
+                                                            <Sparkles className="w-4 h-4" />
+                                                        </div>
                                                     </div>
                                                     <div className="flex justify-between">
                                                         <span className="text-muted-foreground">{t('configShop.purchaseLimit')}:</span>
