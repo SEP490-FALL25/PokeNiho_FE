@@ -26,13 +26,16 @@ const shopService = {
         return axiosPrivate.get(`/shop-banner?${queryParams.toString()}`);
     },
 
+    getShopBannerById: async (id: number) => {
+        return axiosPrivate.get(`/shop-banner/${id}`);
+    },
+
     getShopItemRandom: async (shopBannerId: number, amount: number) => {
         return axiosPrivate.get('/shop-item/random', { params: { shopBannerId, amount } });
     },
 
-    // Get shop banner by ID
-    getShopBannerById: async (id: number) => {
-        return axiosPrivate.get(`/shop-banner/${id}`);
+    createShopItemWithRandom: async (data: ICreateShopItemsRequest) => {
+        return axiosPrivate.post('/shop-item/list', data);
     },
 
     createShopBanner: async (data: ICreateShopBannerRequest) => {
@@ -42,11 +45,6 @@ const shopService = {
     // Get random Pokemon for shop
     getRandomPokemon: async (data: IGetRandomPokemonRequest) => {
         return axiosPrivate.post('/shop-banner/random-pokemon', data);
-    },
-
-    // Create shop items
-    createShopItems: async (data: ICreateShopItemsRequest) => {
-        return axiosPrivate.post('/shop-banner/items', data);
     },
 };
 

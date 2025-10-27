@@ -41,13 +41,19 @@ export interface IGetRandomPokemonRequest {
     amount: number;
 }
 
-export interface ICreateShopItemsRequest {
-    items: Array<{
-        shopBannerId: number;
-        pokemonId: number;
-        price: number;
-        purchaseLimit: number;
-        isActive: boolean;
-    }>;
-}
 
+/**
+ * Create Shop Items Request Schema
+ */
+export const createCreateShopItemsRequest = (t: (key: string) => string) => z.object({
+    items: z.array(z.object({
+        shopBannerId: z.number().min(1, t('configShop.shopBannerIdRequired')),
+        pokemonId: z.number().min(1, t('configShop.pokemonIdRequired')),
+        price: z.number().min(1, t('configShop.priceRequired')),
+        purchaseLimit: z.number().min(1, t('configShop.purchaseLimitRequired')),
+        isActive: z.boolean().default(true),
+    })),
+});
+
+export type ICreateShopItemsRequest = z.infer<ReturnType<typeof createCreateShopItemsRequest>>;
+//-------------------End-------------------//

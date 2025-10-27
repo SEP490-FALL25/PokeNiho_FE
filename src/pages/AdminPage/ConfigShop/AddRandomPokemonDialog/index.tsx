@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from '@ui/Button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@ui/Dialog';
 import { Input } from '@ui/Input';
-import { Badge } from "@ui/Badge";
 import { useCreateShopItems, useShopBannerById, useShopItemRandom } from '@hooks/useShop';
 import { IShopItemRandomSchema } from '@models/shop/response';
-import { IShopBannerSchema } from '@models/shop/entity';
 import { cn } from '@utils/CN';
 import { Loader2, Sparkles } from "lucide-react";
 import { useTranslation } from 'react-i18next';
+import { RarityBadge } from "@atoms/BadgeRarity";
+import { toast } from "react-toastify";
 
 interface AddRandomPokemonDialogProps {
     isOpen: boolean;
@@ -24,40 +24,28 @@ const AddRandomPokemonDialog = ({ isOpen, onClose, bannerId }: AddRandomPokemonD
     const [amount, setAmount] = useState<number>(8);
     //------------------------End------------------------//
 
-    const [randomPokemon, setRandomPokemon] = useState<IShopItemRandomSchema[]>([]);
-    const [isLoadingRandom, setIsLoadingRandom] = useState<boolean>(false);
 
     const { data: bannerDetail } = useShopBannerById(bannerId);
-    const getRandomPokemonMutation = useShopItemRandom(bannerId, amount);
-    const createShopItemsMutation = useCreateShopItems();
-
-    useEffect(() => {
-        if (isOpen && bannerDetail?.data) {
-            setAmount(bannerDetail.data.max);
-            setRandomPokemon([]);
-        }
-    }, [isOpen, bannerDetail]);
+    /**
+     * Handle Get Random Pokemon
+     */
+    const { data: randomPokemonData, isLoading: isLoadingRandom, refetch } = useShopItemRandom(bannerId, amount);
+    const randomPokemon = randomPokemonData?.data ?? [];
 
     const handleGetRandom = async () => {
-        setIsLoadingRandom(true);
-
-        try {
-            const response = await getRandomPokemonMutation.refetch();
-            console.log(response.data);
-        } catch (error) {
-            console.error('Error getting random pokemon:', error);
-        }
-        setIsLoadingRandom(false);
+        await refetch();
     };
+    //------------------------End------------------------//
 
-    //TODO:
+
+
+    /**
+     * Handle Create Shop Items
+     * @returns useMutation to create shop items
+     */
+    const createShopItemsMutation = useCreateShopItems();
     const handleSubmit = async () => {
-        if (randomPokemon.length === 0) {
-            alert(t('configShop.getRandomFirstError'));
-            return;
-        }
-
-        const items = randomPokemon.map((item) => ({
+        const items = randomPokemon.map((item: IShopItemRandomSchema) => ({
             shopBannerId: item.shopBannerId,
             pokemonId: item.pokemonId,
             price: item.price,
@@ -68,21 +56,12 @@ const AddRandomPokemonDialog = ({ isOpen, onClose, bannerId }: AddRandomPokemonD
         try {
             await createShopItemsMutation.mutateAsync({ items });
             onClose();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error creating shop items:', error);
+            toast.error(error.response?.data?.message || t('configShop.addPokemonError'));
         }
     };
-
-    const getRarityColor = (rarity: string) => {
-        const colorMap: Record<string, string> = {
-            COMMON: "bg-gray-500",
-            UNCOMMON: "bg-green-500",
-            RARE: "bg-blue-500",
-            EPIC: "bg-purple-500",
-            LEGENDARY: "bg-yellow-500",
-        };
-        return colorMap[rarity] || "bg-gray-500";
-    };
+    //------------------------End------------------------//
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -135,8 +114,8 @@ const AddRandomPokemonDialog = ({ isOpen, onClose, bannerId }: AddRandomPokemonD
                             <h3 className="text-sm font-medium text-foreground mb-3">
                                 {t('configShop.randomPokemonList')} ({randomPokemon.length})
                             </h3>
-                            <div className="grid gap-3 md:grid-cols-2 max-h-[400px] overflow-y-auto p-2">
-                                {randomPokemon.map((item, index) => (
+                            <div className="grid gap-3 md:grid-cols-2 max-h-[400px] overflow-y-auto p-2 pb-16">
+                                {randomPokemon.map((item: IShopItemRandomSchema, index: number) => (
                                     <div
                                         key={index}
                                         className={cn(
@@ -149,12 +128,12 @@ const AddRandomPokemonDialog = ({ isOpen, onClose, bannerId }: AddRandomPokemonD
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <img
                                                         src={item.pokemon.imageUrl}
-                                                        alt={item.pokemon.nameTranslations.en}
+                                                        alt={(item.pokemon.nameTranslations as any).en || item.pokemon.nameJp}
                                                         className="w-16 h-16 rounded-lg bg-gray-200 object-contain"
                                                     />
                                                     <div>
                                                         <p className="font-semibold text-foreground">
-                                                            {item.pokemon.nameTranslations.en}
+                                                            {(item.pokemon.nameTranslations as any).en || item.pokemon.nameJp}
                                                         </p>
                                                         <p className="text-sm text-muted-foreground">
                                                             {item.pokemon.nameJp}
@@ -164,8 +143,8 @@ const AddRandomPokemonDialog = ({ isOpen, onClose, bannerId }: AddRandomPokemonD
                                                 <div className="space-y-1">
                                                     <div className="flex items-center justify-between text-sm">
                                                         <span className="text-muted-foreground">{t('configShop.price')}:</span>
-                                                        <span className="font-medium text-foreground">
-                                                            {item.price.toLocaleString()} đ
+                                                        <span className="font-medium text-foreground flex items-center gap-1">
+                                                            {item.price.toLocaleString()} <Sparkles className="w-4 h-4" />
                                                         </span>
                                                     </div>
                                                     <div className="flex items-center justify-between text-sm">
@@ -178,12 +157,7 @@ const AddRandomPokemonDialog = ({ isOpen, onClose, bannerId }: AddRandomPokemonD
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border">
-                                            <Badge className={getRarityColor(item.pokemon.rarity) + " text-white"}>
-                                                {item.pokemon.rarity}
-                                            </Badge>
-                                            <Badge variant={item.isActive ? "default" : "secondary"}>
-                                                {item.isActive ? t('common.active') : t('common.inactive')}
-                                            </Badge>
+                                            <RarityBadge level={item.pokemon.rarity as any} />
                                         </div>
                                     </div>
                                 ))}
@@ -198,18 +172,20 @@ const AddRandomPokemonDialog = ({ isOpen, onClose, bannerId }: AddRandomPokemonD
                     )}
                 </div>
 
-                <DialogFooter className="mt-6 pt-4 border-t border-border">
-                    <Button type="button" variant="outline" onClick={onClose}>
-                        {t('common.cancel')}
-                    </Button>
-                    <Button
-                        type="button"
-                        onClick={handleSubmit}
-                        disabled={createShopItemsMutation.isPending || randomPokemon.length === 0}
-                        className="bg-primary text-primary-foreground hover:bg-primary/90"
-                    >
-                        {createShopItemsMutation.isPending ? t('configShop.adding') : t('configShop.addToShop')}
-                    </Button>
+                <DialogFooter className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-border">
+                    <div className="flex justify-end space-x-2">
+                        <Button type="button" variant="outline" onClick={onClose}>
+                            {t('common.cancel')}
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={handleSubmit}
+                            disabled={createShopItemsMutation.isPending || randomPokemon.length === 0}
+                            className="bg-primary text-primary-foreground hover:bg-primary/90"
+                        >
+                            {createShopItemsMutation.isPending ? t('configShop.adding') : t('configShop.addToShop')}
+                        </Button>
+                    </div>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

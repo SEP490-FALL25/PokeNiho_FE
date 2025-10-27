@@ -76,6 +76,46 @@
     --color-error: var(--error);
 }
 
+.epic-glow {
+    position: relative;
+    box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.6);
+    animation: epicPulse 2s infinite;
+}
+
+@keyframes epicPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.6);
+    }
+
+    70% {
+        box-shadow: 0 0 12px 6px rgba(147, 51, 234, 0.15);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.0);
+    }
+}
+
+.legendary-glow {
+    position: relative;
+    box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7);
+    animation: legendaryPulse 2s infinite;
+}
+
+@keyframes legendaryPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 14px 7px rgba(234, 179, 8, 0.2);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.0);
+    }
+}
+
 .input-error {
     border: 1px solid var(--error);
     border-radius: 11px;

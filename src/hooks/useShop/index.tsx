@@ -34,31 +34,12 @@ export const useShopBannerList = (params: { page?: number; limit?: number; start
  * @returns 
  */
 export const useShopItemRandom = (shopBannerId: number, amount: number) => {
-    return useQuery<PaginationResponseType<IShopItemRandomSchema>>({
+    return useQuery<{ data: IShopItemRandomSchema[] }>({
         queryKey: ["shopItemRandom", shopBannerId, amount],
         queryFn: async () => {
             const response = await shopService.getShopItemRandom(shopBannerId, amount);
             return response.data;
         },
-    });
-};
-//------------------------End------------------------//
-
-
-/**
- * Handle Get Shop Banner By ID
- * @param id 
- * @returns 
- */
-export const useShopBannerById = (id: number | null) => {
-    return useQuery<{ data: IShopBannerSchema }>({
-        queryKey: ["shopBanner", id],
-        queryFn: async () => {
-            if (!id) throw new Error("Shop banner ID is required");
-            const response = await shopService.getShopBannerById(id);
-            return response.data;
-        },
-        enabled: !!id,
     });
 };
 //------------------------End------------------------//
@@ -89,19 +70,40 @@ export const useCreateShopBanner = () => {
 //-------------------End-------------------//
 
 
-// Hook to create shop items
+/**
+ * Handle Get Shop Banner By ID
+ * @param id 
+ * @returns 
+ */
+export const useShopBannerById = (id: number | null) => {
+    return useQuery<{ data: IShopBannerSchema }>({
+        queryKey: ["shopBanner", id],
+        queryFn: async () => {
+            if (!id) throw new Error("Shop banner ID is required");
+            const response = await shopService.getShopBannerById(id);
+            return response.data;
+        },
+        enabled: !!id,
+    });
+};
+//------------------------End------------------------//
+
+
+/**
+ * Handle Create Shop Items
+ * @returns 
+ */
 export const useCreateShopItems = () => {
     const queryClient = useQueryClient();
     const { t } = useTranslation();
 
     return useMutation({
         mutationFn: async (data: ICreateShopItemsRequest) => {
-            const response = await shopService.createShopItems(data);
+            const response = await shopService.createShopItemWithRandom(data);
             return response.data;
         },
-        onSuccess: (_, variables) => {
-            queryClient.invalidateQueries({ queryKey: ["shopBanner", variables.items[0]?.shopBannerId] });
-            queryClient.invalidateQueries({ queryKey: ["shopBanners"] });
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["shopBanner"] });
             toast.success(t('configShop.addPokemonSuccess'));
         },
         onError: (error: any) => {
@@ -109,4 +111,5 @@ export const useCreateShopItems = () => {
         },
     });
 };
+//-------------------End-------------------//
 
