@@ -147,7 +147,7 @@ export default function CustomDatePicker({
         startMonth: new Date(2024, 6),
         classNames: {
             selected: 'selected',
-            chevron: 'fill-amber-500',
+            chevron: '',
         },
         modifiersStyles: {
             selected: {
@@ -165,6 +165,11 @@ export default function CustomDatePicker({
 
     // Determine mode and render DayPicker with correct props
     const mode = dayPickerProps?.mode ?? 'single';
+    // Check if disabled prop was explicitly passed
+    const hasDisabledProp = dayPickerProps && 'disabled' in dayPickerProps;
+    // Only apply default disabled (before today) if disabled prop wasn't explicitly passed
+    const finalDisabled = hasDisabledProp ? dayPickerProps.disabled : (today ? { before: today } : undefined);
+
     let dayPickerNode: React.ReactNode = null;
     if (mode === 'single') {
         const singleProps = dayPickerProps as Partial<import('react-day-picker').PropsSingle>;
@@ -175,7 +180,7 @@ export default function CustomDatePicker({
                 mode="single"
                 selected={selectedDate}
                 onSelect={handleSingleSelect}
-                disabled={dayPickerProps?.disabled ?? (today ? { before: today } : undefined)}
+                disabled={finalDisabled}
                 defaultMonth={dayPickerProps?.defaultMonth ?? (value instanceof Date ? value : today ?? undefined)}
                 {...defaultDayPickerProps}
                 {...restDayPickerProps}
@@ -189,7 +194,7 @@ export default function CustomDatePicker({
                 mode="multiple"
                 selected={selected}
                 onSelect={handleMultipleSelect}
-                disabled={dayPickerProps?.disabled ?? (today ? { before: today } : undefined)}
+                disabled={finalDisabled}
                 defaultMonth={dayPickerProps?.defaultMonth ?? (today ?? undefined)}
                 {...defaultDayPickerProps}
                 {...restDayPickerProps}
@@ -203,7 +208,7 @@ export default function CustomDatePicker({
                 mode="range"
                 selected={selected}
                 onSelect={handleRangeSelect}
-                disabled={dayPickerProps?.disabled ?? (today ? { before: today } : undefined)}
+                disabled={finalDisabled}
                 defaultMonth={dayPickerProps?.defaultMonth ?? (today ?? undefined)}
                 {...defaultDayPickerProps}
                 {...restDayPickerProps}
@@ -231,7 +236,7 @@ export default function CustomDatePicker({
                     type="text"
                     readOnly
                     className={cn(
-                        "w-full px-4 py-2 border border-gray-600 rounded-lg cursor-pointer bg-primary text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200",
+                        "w-full px-4 py-2 border border-gray-600 rounded-lg cursor-pointer text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200",
                         className
                     )}
                     placeholder={placeholder}

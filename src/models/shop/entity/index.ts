@@ -1,0 +1,22 @@
+import { byUser } from "@models/common/response";
+import { at } from "@models/common/response";
+import { z } from "zod";
+import { ShopItemRandomSchema } from "../response";
+/**
+ * Shop Banner Schema
+ */
+export const ShopBannerSchema = z.object({
+    id: z.number(),
+    nameKey: z.string(),
+    startDate: z.string(),
+    endDate: z.string(),
+    status: z.enum(["PREVIEW", "EXPIRED", "INACTIVE", "ACTIVE"]),
+    min: z.number(),
+    max: z.number(),
+    ...byUser,
+    ...at,
+    nameTranslation: z.string(),
+    shopItems: z.array(ShopItemRandomSchema),
+});
+export type IShopBannerSchema = z.infer<typeof ShopBannerSchema>;
+//------------------------End------------------------//
