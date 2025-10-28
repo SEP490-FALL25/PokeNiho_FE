@@ -16,3 +16,11 @@ export const TestSetListResponseSchema = z.object({
 });
 
 export type TestSetListResponseType = z.infer<typeof TestSetListResponseSchema>;
+
+export const TestSetCreateResponseSchema = z.object({
+  statusCode: z.number(),
+  data: TestSetEntitySchema,
+  message: z.string(),
+});
+
+export type TestSetCreateResponseType = z.infer<typeof TestSetCreateResponseSchema>;

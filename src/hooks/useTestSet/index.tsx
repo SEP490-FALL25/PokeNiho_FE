@@ -28,7 +28,7 @@ export const useTestSetList = (
     data: data?.data?.results || [],
     pagination: data?.data?.pagination || {
       current: 1,
-      pageSize: 10,
+      pageSize: 15,
       totalPage: 1,
       totalItem: 0,
     },
@@ -44,7 +44,7 @@ export const useTestSetList = (
 export const useTestSet = () => {
   const [filters, setFilters] = useState<TestSetListRequest>({
     currentPage: 1,
-    pageSize: 10,
+    pageSize: 15,
   });
 
   const { data: testSets, pagination, isLoading, error } = useTestSetList(filters);
@@ -115,7 +115,7 @@ export const useTestSet = () => {
   const clearFilters = useCallback(() => {
     setFilters({
       currentPage: 1,
-      pageSize: 10,
+      pageSize: 15,
     });
   }, []);
 

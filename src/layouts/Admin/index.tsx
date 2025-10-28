@@ -15,6 +15,7 @@ import {
   Gift,
   LucideIcon,
   FileText,
+  Layers,
   Store,
 } from "lucide-react";
 import { useState } from "react";
@@ -64,6 +65,11 @@ const AdminLayout = () => {
       name: t("navigation.questionBank"),
       href: ROUTES.ADMIN.QUESTION_BANK,
       icon: FileText,
+    },
+    {
+      name: "Test Sets",
+      href: ROUTES.ADMIN.TESTSET_MANAGEMENT,
+      icon: Layers,
     },
     {
       name: t("navigation.vocabulary"),

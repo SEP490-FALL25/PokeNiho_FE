@@ -22,6 +22,7 @@ const AIPromptManagement = lazy(() => import("@pages/AdminPage/AIPrompts"))
 const DailyQuestManagement = lazy(() => import("@pages/AdminPage/DailyQuest"))
 const RewardManagement = lazy(() => import("@pages/AdminPage/Reward"))
 const QuestionBankManagement = lazy(() => import("@pages/AdminPage/QuestionBank"))
+const TestSetManagement = lazy(() => import("@pages/AdminPage/TestSetManagement"))
 const RouterComponent = () => {
     const router = createBrowserRouter([
         //#region Auth routes
@@ -56,6 +57,7 @@ const RouterComponent = () => {
                                 { path: ROUTES.ADMIN.CONFIG_SHOP, element: <ConfigShop /> },
                                 { path: ROUTES.ADMIN.CONFIG_SHOP_BANNER_DETAIL, element: <ShopBannerDetail /> },
                                 { path: ROUTES.ADMIN.QUESTION_BANK, element: <QuestionBankManagement /> },
+                                { path: ROUTES.ADMIN.TESTSET_MANAGEMENT, element: <TestSetManagement /> },
                             ],
                         },
                     ],

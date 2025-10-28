@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, Plus, Trash2, Eye } from "lucide-react"
 import { Tabs } from "@ui/Tabs";
 import HeaderAdmin from "@organisms/Header/Admin"
-import { EnhancedPagination } from "@ui/Pagination"
+import PaginationControls from "@ui/PaginationControls"
 import { useLessonList } from "@hooks/useLesson"
 import { Skeleton } from "@ui/Skeleton"
 import TabListLevelJLBT from "@organisms/TabListLevelJLBT"
@@ -43,7 +43,7 @@ const LessonsManagement = () => {
     const [activeJlptTab, setActiveJlptTab] = useState<string>("all")
     const [activePublishTab, setActivePublishTab] = useState<string>("all")
     const [page, setPage] = useState<number>(1)
-    const [itemsPerPage] = useState<number>(10)
+    const [itemsPerPage, setItemsPerPage] = useState<number>(10)
     const [sortBy, setSortBy] = useState<string>("createdAt")
     const [sort, setSort] = useState<string>("desc")
 
@@ -343,12 +343,14 @@ const LessonsManagement = () => {
                             )}
                             <div className="flex justify-end mt-6">
                                 {pagination && (
-                                    <EnhancedPagination
+                                    <PaginationControls
                                         currentPage={pagination.current || 1}
                                         totalPages={pagination.totalPage || 0}
                                         totalItems={pagination.totalItem || 0}
                                         itemsPerPage={pagination.pageSize || itemsPerPage}
                                         onPageChange={(nextPage: number) => setPage(nextPage)}
+                                        onItemsPerPageChange={(size: number) => setItemsPerPage(size)}
+                                        isLoading={isLoading}
                                     />
                                 )}
                             </div>

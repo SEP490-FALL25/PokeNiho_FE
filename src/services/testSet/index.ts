@@ -1,6 +1,6 @@
 import { axiosPrivate } from "@configs/axios";
-import { TestSetListRequest } from "@models/testSet/request";
-import { TestSetListResponseType } from "@models/testSet/response";
+import { TestSetListRequest, TestSetCreateRequest } from "@models/testSet/request";
+import { TestSetListResponseType, TestSetCreateResponseType } from "@models/testSet/response";
 
 const testSetService = {
   getTestSets: async (params?: TestSetListRequest): Promise<TestSetListResponseType> => {
@@ -19,6 +19,19 @@ const testSetService = {
     const url = queryString ? `/testset?${queryString}` : '/testset';
     
     const response = await axiosPrivate.get(url);
+    return response.data;
+  },
+  createTestSetWithMeanings: async (
+    body: TestSetCreateRequest
+  ): Promise<TestSetCreateResponseType> => {
+    const response = await axiosPrivate.post('/testset/with-meanings', body);
+    return response.data;
+  },
+  updateTestSet: async (
+    id: number,
+    body: Partial<TestSetCreateRequest>
+  ): Promise<TestSetCreateResponseType> => {
+    const response = await axiosPrivate.put(`/testset/${id}`, body);
     return response.data;
   },
 };

@@ -12,3 +12,20 @@ export const TestSetListRequestSchema = z.object({
 });
 
 export type TestSetListRequest = z.infer<typeof TestSetListRequestSchema>;
+
+export const TestSetCreateRequestSchema = z.object({
+  content: z.string(),
+  meanings: z.array(
+    z.object({
+      field: z.enum(['name', 'description']),
+      translations: z.record(z.string(), z.string())
+    })
+  ),
+  audioUrl: z.string().optional(),
+  price: z.number().optional(),
+  levelN: z.number(),
+  testType: z.enum(['VOCABULARY', 'GRAMMAR', 'KANJI', 'LISTENING', 'READING', 'SPEAKING', 'GENERAL']),
+  status: z.enum(['DRAFT', 'ACTIVE', 'INACTIVE'])
+});
+
+export type TestSetCreateRequest = z.infer<typeof TestSetCreateRequestSchema>;
