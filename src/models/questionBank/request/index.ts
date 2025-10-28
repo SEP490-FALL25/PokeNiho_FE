@@ -7,12 +7,12 @@ export interface ICreateQuestionRequest {
     levelN: JLPTLevel;
     audioUrl?: string | null;
     pronunciation?: string;
-    meanings: Array<{
+    meanings: {
         translations: {
             vi: string;
             en: string;
         };
-    }>;
+    };
     answers?: Array<{
         answerJp: string;
         isCorrect: boolean;

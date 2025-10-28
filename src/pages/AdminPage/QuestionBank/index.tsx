@@ -338,7 +338,30 @@ const QuestionBankManagement: React.FC = () => {
                         </TableCell>
 
                         <TableCell className="w-32 py-2">
-                          {question.meaning ? (
+                          {question.meanings && question.meanings.length > 0 ? (
+                            <div className="text-gray-500 text-xs space-y-1">
+                              {question.meanings.map((meaning, index) => (
+                                <div key={index} className="truncate">
+                                  {/* Handle new API format (language/value) */}
+                                  {'language' in meaning && 'value' in meaning ? (
+                                    <>
+                                      <span className="font-medium">{meaning.language}:</span> {meaning.value}
+                                    </>
+                                  ) : (
+                                    /* Handle old format (translations.vi/en) */
+                                    <>
+                                      {'translations' in meaning && meaning.translations?.vi && (
+                                        <div>vi: {meaning.translations.vi}</div>
+                                      )}
+                                      {'translations' in meaning && meaning.translations?.en && (
+                                        <div>en: {meaning.translations.en}</div>
+                                      )}
+                                    </>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          ) : question.meaning ? (
                             <div className="text-gray-500 text-xs">
                               {question.meaning}
                             </div>
@@ -612,121 +635,68 @@ const QuestionBankManagement: React.FC = () => {
                     ))}
                   </div>
                 )}
-                {formData.meanings?.map((meaning, index) => (
-                  <div
-                    key={index}
-                    className="border rounded-lg p-4 mb-4 bg-gray-50"
-                  >
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-600 mb-1">
-                          Vietnamese Translation
-                        </label>
-                        <Input
-                          value={meaning.translations.vi}
-                          onChange={(e) => {
-                            setFormData((prev) => ({
-                              ...prev,
-                              meanings: (prev.meanings || []).map((m, i) =>
-                                i === index
-                                  ? {
-                                      ...m,
-                                      translations: {
-                                        ...m.translations,
-                                        vi: e.target.value,
-                                      },
-                                    }
-                                  : m
-                              ),
-                            }));
-                            // Clear field error when user starts typing
-                            if (fieldErrors.meanings) {
-                              setFieldErrors((prev) => {
-                                const newErrors = { ...prev };
-                                delete newErrors.meanings;
-                                return newErrors;
-                              });
-                            }
-                          }}
-                          placeholder="Vietnamese translation"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-600 mb-1">
-                          English Translation
-                        </label>
-                        <Input
-                          value={meaning.translations.en}
-                          onChange={(e) => {
-                            setFormData((prev) => ({
-                              ...prev,
-                              meanings: (prev.meanings || []).map((m, i) =>
-                                i === index
-                                  ? {
-                                      ...m,
-                                      translations: {
-                                        ...m.translations,
-                                        en: e.target.value,
-                                      },
-                                    }
-                                  : m
-                              ),
-                            }));
-                            // Clear field error when user starts typing
-                            if (fieldErrors.meanings) {
-                              setFieldErrors((prev) => {
-                                const newErrors = { ...prev };
-                                delete newErrors.meanings;
-                                return newErrors;
-                              });
-                            }
-                          }}
-                          placeholder="English translation"
-                        />
-                      </div>
-                    </div>
-                    {(formData.meanings || []).length > 1 && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="mt-2"
-                        onClick={() =>
+                <div className="border rounded-lg p-4 mb-4 bg-gray-50">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">
+                        Vietnamese Translation
+                      </label>
+                      <Input
+                        value={formData.meanings?.translations?.vi || ""}
+                        onChange={(e) => {
                           setFormData((prev) => ({
                             ...prev,
-                            meanings: (prev.meanings || []).filter(
-                              (_, i) => i !== index
-                            ),
-                          }))
-                        }
-                      >
-                        Remove Translation
-                      </Button>
-                    )}
+                            meanings: {
+                              ...prev.meanings,
+                              translations: {
+                                ...prev.meanings?.translations,
+                                vi: e.target.value,
+                              },
+                            },
+                          }));
+                          // Clear field error when user starts typing
+                          if (fieldErrors.meanings) {
+                            setFieldErrors((prev) => {
+                              const newErrors = { ...prev };
+                              delete newErrors.meanings;
+                              return newErrors;
+                            });
+                          }
+                        }}
+                        placeholder="Vietnamese translation"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">
+                        English Translation
+                      </label>
+                      <Input
+                        value={formData.meanings?.translations?.en || ""}
+                        onChange={(e) => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            meanings: {
+                              ...prev.meanings,
+                              translations: {
+                                ...prev.meanings?.translations,
+                                en: e.target.value,
+                              },
+                            },
+                          }));
+                          // Clear field error when user starts typing
+                          if (fieldErrors.meanings) {
+                            setFieldErrors((prev) => {
+                              const newErrors = { ...prev };
+                              delete newErrors.meanings;
+                              return newErrors;
+                            });
+                          }
+                        }}
+                        placeholder="English translation"
+                      />
+                    </div>
                   </div>
-                ))}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      meanings: [
-                        ...(prev.meanings || []),
-                        {
-                          translations: {
-                            vi: "",
-                            en: "",
-                            ja: "",
-                          },
-                        },
-                      ],
-                    }))
-                  }
-                >
-                  Add Translation
-                </Button>
+                </div>
               </div>
 
               {/* Answers - Show for all question types except MATCHING */}
@@ -858,7 +828,7 @@ const QuestionBankManagement: React.FC = () => {
                               <Input
                                 value={
                                   answer.translations?.meaning?.find(
-                                    (m) => m.language_code === "vi"
+                                    (m) => m && m.language_code === "vi"
                                   )?.value || ""
                                 }
                                 onChange={(e) =>
@@ -872,7 +842,7 @@ const QuestionBankManagement: React.FC = () => {
                                               meaning: (
                                                 a.translations?.meaning || []
                                               ).map((m) =>
-                                                m.language_code === "vi"
+                                                m && m.language_code === "vi"
                                                   ? {
                                                       ...m,
                                                       value: e.target.value,
@@ -895,7 +865,7 @@ const QuestionBankManagement: React.FC = () => {
                               <Input
                                 value={
                                   answer.translations?.meaning?.find(
-                                    (m) => m.language_code === "en"
+                                    (m) => m && m.language_code === "en"
                                   )?.value || ""
                                 }
                                 onChange={(e) =>
@@ -909,7 +879,7 @@ const QuestionBankManagement: React.FC = () => {
                                               meaning: (
                                                 a.translations?.meaning || []
                                               ).map((m) =>
-                                                m.language_code === "en"
+                                                m && m.language_code === "en"
                                                   ? {
                                                       ...m,
                                                       value: e.target.value,
@@ -1025,7 +995,7 @@ const QuestionBankManagement: React.FC = () => {
                           <Input
                             value={
                               formData.answers?.[0]?.translations?.meaning?.find(
-                                (m) => m.language_code === "vi"
+                                (m) => m && m.language_code === "vi"
                               )?.value || ""
                             }
                             onChange={(e) =>
@@ -1040,7 +1010,7 @@ const QuestionBankManagement: React.FC = () => {
                                         prev.answers?.[0]?.translations
                                           ?.meaning || []
                                       ).map((m) =>
-                                        m.language_code === "vi"
+                                        m && m.language_code === "vi"
                                           ? { ...m, value: e.target.value }
                                           : m
                                       ),
@@ -1060,7 +1030,7 @@ const QuestionBankManagement: React.FC = () => {
                           <Input
                             value={
                               formData.answers?.[0]?.translations?.meaning?.find(
-                                (m) => m.language_code === "en"
+                                (m) => m && m.language_code === "en"
                               )?.value || ""
                             }
                             onChange={(e) =>
@@ -1075,7 +1045,7 @@ const QuestionBankManagement: React.FC = () => {
                                         prev.answers?.[0]?.translations
                                           ?.meaning || []
                                       ).map((m) =>
-                                        m.language_code === "en"
+                                        m && m.language_code === "en"
                                           ? { ...m, value: e.target.value }
                                           : m
                                       ),

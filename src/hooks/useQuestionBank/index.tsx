@@ -175,14 +175,12 @@ export const useQuestionBank = (
     levelN: JLPT_LEVEL.N5,
     pronunciation: "",
     audioUrl: "",
-    meanings: [
-      {
-        translations: {
-          vi: "",
-          en: "",
-        },
+    meanings: {
+      translations: {
+        vi: "",
+        en: "",
       },
-    ],
+    },
     answers: [
       {
         answerJp: "",
@@ -270,15 +268,14 @@ export const useQuestionBank = (
     }
 
     // Validate meanings (required for all types)
-    if (!data.meanings || data.meanings.length === 0) {
-      const error = "Ít nhất một bản dịch là bắt buộc";
+    if (!data.meanings || !data.meanings.translations) {
+      const error = "Bản dịch là bắt buộc";
       errors.push(error);
       fieldErrors.meanings = [error];
     } else {
-      const hasValidMeaning = data.meanings.some(meaning => 
-        meaning.translations.vi?.trim() !== "" || 
-        meaning.translations.en?.trim() !== ""
-      );
+      const hasValidMeaning = 
+        data.meanings.translations.vi?.trim() !== "" || 
+        data.meanings.translations.en?.trim() !== "";
       if (!hasValidMeaning) {
         const error = "Ít nhất một bản dịch (tiếng Việt hoặc tiếng Anh) phải được điền";
         errors.push(error);
@@ -340,14 +337,12 @@ export const useQuestionBank = (
       levelN: JLPT_LEVEL.N5,
       pronunciation: "",
       audioUrl: "",
-      meanings: [
-        {
+      meanings: {
         translations: {
           vi: "",
           en: "",
         },
-        },
-      ],
+      },
       answers: [
         {
           answerJp: "",
@@ -480,14 +475,39 @@ export const useQuestionBank = (
       levelN: question.levelN as JLPTLevel,
       pronunciation: question.pronunciation || "",
       audioUrl: question.audioUrl || "",
-      meanings: Array.isArray(question.meanings) ? question.meanings : [
-        {
+      meanings: Array.isArray(question.meanings) ? 
+        (() => {
+          // Find Vietnamese and English translations from API data
+          let viTranslation = "";
+          let enTranslation = "";
+          
+          question.meanings.forEach(meaning => {
+            if ('language' in meaning && 'value' in meaning) {
+              // New API format (language/value)
+              if (meaning.language === "vi") {
+                viTranslation = meaning.value;
+              } else if (meaning.language === "en") {
+                enTranslation = meaning.value;
+              }
+            } else if ('translations' in meaning) {
+              // Old format (translations.vi/en)
+              viTranslation = meaning.translations.vi || "";
+              enTranslation = meaning.translations.en || "";
+            }
+          });
+          
+          return {
+            translations: {
+              vi: viTranslation,
+              en: enTranslation,
+            }
+          };
+        })() : {
           translations: {
             vi: question.meaning || "",
             en: "",
           },
         },
-      ],
       answers: [], // Will be populated after fetching
     });
 
