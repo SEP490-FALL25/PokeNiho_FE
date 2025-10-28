@@ -1,7 +1,7 @@
 export interface ICreateAnswerRequest {
     answerJp: string;
     isCorrect: boolean;
-    questionBankId: number;
+    questionId: number;
     translations: {
         meaning: Array<{
             language_code: string;

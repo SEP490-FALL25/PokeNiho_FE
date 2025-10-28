@@ -49,17 +49,17 @@ const QuestionBankManagement: React.FC = () => {
     isCreating,
     isUpdating,
     isDeleting,
+    isUpdatingAnswer,
     isLoadingAnswers,
-    validationErrors,
-    setValidationErrors,
     fieldErrors,
     setFieldErrors,
     handleFilterChange,
     handlePageChange,
     handleSort,
     handleCreateQuestion,
-    handleEditQuestion,
     handleDeleteQuestion,
+    handleUpdateQuestion,
+    handleUpdateAnswer,
     openCreateDialog,
     openEditDialog,
     closeDialogs,
@@ -642,17 +642,17 @@ const QuestionBankManagement: React.FC = () => {
                         Vietnamese Translation
                       </label>
                       <Input
-                        value={formData.meanings?.translations?.vi || ""}
+                        value={formData.meanings?.[0]?.translations?.vi || ""}
                         onChange={(e) => {
                           setFormData((prev) => ({
                             ...prev,
-                            meanings: {
-                              ...prev.meanings,
+                            meanings: [{
+                              ...prev.meanings?.[0],
                               translations: {
-                                ...prev.meanings?.translations,
+                                ...prev.meanings?.[0]?.translations,
                                 vi: e.target.value,
                               },
-                            },
+                            }],
                           }));
                           // Clear field error when user starts typing
                           if (fieldErrors.meanings) {
@@ -671,17 +671,17 @@ const QuestionBankManagement: React.FC = () => {
                         English Translation
                       </label>
                       <Input
-                        value={formData.meanings?.translations?.en || ""}
+                        value={formData.meanings?.[0]?.translations?.en || ""}
                         onChange={(e) => {
                           setFormData((prev) => ({
                             ...prev,
-                            meanings: {
-                              ...prev.meanings,
+                            meanings: [{
+                              ...prev.meanings?.[0],
                               translations: {
-                                ...prev.meanings?.translations,
+                                ...prev.meanings?.[0]?.translations,
                                 en: e.target.value,
                               },
-                            },
+                            }],
                           }));
                           // Clear field error when user starts typing
                           if (fieldErrors.meanings) {
@@ -839,16 +839,21 @@ const QuestionBankManagement: React.FC = () => {
                                         ? {
                                             ...a,
                                             translations: {
-                                              meaning: (
-                                                a.translations?.meaning || []
-                                              ).map((m) =>
-                                                m && m.language_code === "vi"
-                                                  ? {
-                                                      ...m,
-                                                      value: e.target.value,
-                                                    }
-                                                  : m
-                                              ),
+                                              meaning: (() => {
+                                                const existingMeanings = a.translations?.meaning || [];
+                                                const enMeaning = existingMeanings.find(m => m && m.language_code === "en");
+                                                
+                                                return [
+                                                  {
+                                                    language_code: "vi",
+                                                    value: e.target.value,
+                                                  },
+                                                  {
+                                                    language_code: "en", 
+                                                    value: enMeaning?.value || "",
+                                                  }
+                                                ];
+                                              })(),
                                             },
                                           }
                                         : a
@@ -876,16 +881,21 @@ const QuestionBankManagement: React.FC = () => {
                                         ? {
                                             ...a,
                                             translations: {
-                                              meaning: (
-                                                a.translations?.meaning || []
-                                              ).map((m) =>
-                                                m && m.language_code === "en"
-                                                  ? {
-                                                      ...m,
-                                                      value: e.target.value,
-                                                    }
-                                                  : m
-                                              ),
+                                              meaning: (() => {
+                                                const existingMeanings = a.translations?.meaning || [];
+                                                const viMeaning = existingMeanings.find(m => m && m.language_code === "vi");
+                                                
+                                                return [
+                                                  {
+                                                    language_code: "vi",
+                                                    value: viMeaning?.value || "",
+                                                  },
+                                                  {
+                                                    language_code: "en", 
+                                                    value: e.target.value,
+                                                  }
+                                                ];
+                                              })(),
                                             },
                                           }
                                         : a
@@ -1006,14 +1016,21 @@ const QuestionBankManagement: React.FC = () => {
                                     answerJp: prev.answers?.[0]?.answerJp || "",
                                     isCorrect: true,
                                     translations: {
-                                      meaning: (
-                                        prev.answers?.[0]?.translations
-                                          ?.meaning || []
-                                      ).map((m) =>
-                                        m && m.language_code === "vi"
-                                          ? { ...m, value: e.target.value }
-                                          : m
-                                      ),
+                                      meaning: (() => {
+                                        const existingMeanings = prev.answers?.[0]?.translations?.meaning || [];
+                                        const enMeaning = existingMeanings.find(m => m && m.language_code === "en");
+                                        
+                                        return [
+                                          {
+                                            language_code: "vi",
+                                            value: e.target.value,
+                                          },
+                                          {
+                                            language_code: "en", 
+                                            value: enMeaning?.value || "",
+                                          }
+                                        ];
+                                      })(),
                                     },
                                   },
                                 ],
@@ -1041,14 +1058,21 @@ const QuestionBankManagement: React.FC = () => {
                                     answerJp: prev.answers?.[0]?.answerJp || "",
                                     isCorrect: true,
                                     translations: {
-                                      meaning: (
-                                        prev.answers?.[0]?.translations
-                                          ?.meaning || []
-                                      ).map((m) =>
-                                        m && m.language_code === "en"
-                                          ? { ...m, value: e.target.value }
-                                          : m
-                                      ),
+                                      meaning: (() => {
+                                        const existingMeanings = prev.answers?.[0]?.translations?.meaning || [];
+                                        const viMeaning = existingMeanings.find(m => m && m.language_code === "vi");
+                                        
+                                        return [
+                                          {
+                                            language_code: "vi",
+                                            value: viMeaning?.value || "",
+                                          },
+                                          {
+                                            language_code: "en", 
+                                            value: e.target.value,
+                                          }
+                                        ];
+                                      })(),
                                     },
                                   },
                                 ],
@@ -1063,22 +1087,46 @@ const QuestionBankManagement: React.FC = () => {
                 </div>
               )}
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={closeDialogs}>
-                {t("common.cancel")}
-              </Button>
-              <Button
-                onClick={
-                  isCreateDialogOpen ? handleCreateQuestion : handleEditQuestion
-                }
-                disabled={isCreating || isUpdating}
-              >
-                {isCreating || isUpdating
-                  ? t("questionBank.createDialog.processing")
-                  : isCreateDialogOpen
-                  ? t("questionBank.createDialog.createButton")
-                  : t("questionBank.createDialog.updateButton")}
-              </Button>
+            <DialogFooter className="flex flex-col gap-3">
+              <div className="flex justify-between w-full">
+                <Button variant="outline" onClick={closeDialogs}>
+                  {t("common.cancel")}
+                </Button>
+                <div className="flex gap-2">
+                  {isCreateDialogOpen ? (
+                    <Button
+                      onClick={handleCreateQuestion}
+                      disabled={isCreating}
+                    >
+                      {isCreating
+                        ? t("questionBank.createDialog.processing")
+                        : t("questionBank.createDialog.createButton")}
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        variant="outline"
+                        onClick={handleUpdateQuestion}
+                        disabled={isUpdating}
+                        className="bg-blue-50 text-blue-700 hover:bg-blue-100"
+                      >
+                        {isUpdating
+                          ? "Đang cập nhật..."
+                          : "Cập nhật Câu hỏi"}
+                      </Button>
+                      <Button
+                        onClick={handleUpdateAnswer}
+                        disabled={isUpdatingAnswer}
+                        className="bg-green-50 text-green-700 hover:bg-green-100"
+                      >
+                        {isUpdatingAnswer
+                          ? "Đang cập nhật..."
+                          : "Cập nhật Đáp án"}
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
             </DialogFooter>
           </DialogContent>
         </Dialog>
