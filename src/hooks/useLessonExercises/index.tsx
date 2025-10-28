@@ -4,9 +4,19 @@ export const useLessonExercises = (lessonId: number | null) => {
     // Use the real API hook directly
     const { data: apiData, isLoading, error } = useExercisesByLessonId(lessonId || 0)
     
+    // Normalize API response to always be an array
+    const raw = apiData?.data as any
+    const exercisesList = Array.isArray(raw?.data)
+        ? raw.data
+        : Array.isArray(raw?.results)
+        ? raw.results
+        : Array.isArray(raw)
+        ? raw
+        : []
+    
     // Return the data directly from API without transformation
     return {
-        exercises: apiData?.data || [],
+        exercises: exercisesList,
         isLoading,
         error: error ? 'Failed to fetch lesson exercises' : null,
         createExercise: async () => {

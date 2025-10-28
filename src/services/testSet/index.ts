@@ -1,0 +1,26 @@
+import { axiosPrivate } from "@configs/axios";
+import { TestSetListRequest } from "@models/testSet/request";
+import { TestSetListResponseType } from "@models/testSet/response";
+
+const testSetService = {
+  getTestSets: async (params?: TestSetListRequest): Promise<TestSetListResponseType> => {
+    const queryParams = new URLSearchParams();
+    
+    if (params?.currentPage) queryParams.append('currentPage', params.currentPage.toString());
+    if (params?.pageSize) queryParams.append('pageSize', params.pageSize.toString());
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.levelN) queryParams.append('levelN', params.levelN.toString());
+    if (params?.testType) queryParams.append('testType', params.testType);
+    if (params?.status) queryParams.append('status', params.status);
+    if (params?.creatorId) queryParams.append('creatorId', params.creatorId.toString());
+    if (params?.language) queryParams.append('language', params.language);
+
+    const queryString = queryParams.toString();
+    const url = queryString ? `/testset?${queryString}` : '/testset';
+    
+    const response = await axiosPrivate.get(url);
+    return response.data;
+  },
+};
+
+export default testSetService;

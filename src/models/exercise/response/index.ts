@@ -1,21 +1,14 @@
+import { ExerciseEntitySchema } from "@models/exercise/entity";
 import z from "zod";
 
-export const ExerciseResponseSchema = z.object({
-  id: z.number(),
-  lessonId: z.number(),
-  exerciseType: z.string(),
-  isBlocked: z.boolean(),
-  testSetId: z.number(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-});
+export const ExerciseResponseSchema = ExerciseEntitySchema;
 
 export type ExerciseResponseType = z.infer<typeof ExerciseResponseSchema>;
 
-export const ExerciseListResponseSchema = z.object({
+export const CreateExerciseResponseSchema = z.object({
   statusCode: z.number(),
-  data: z.array(ExerciseResponseSchema),
+  data: ExerciseResponseSchema,
   message: z.string(),
 });
 
-export type ExerciseListResponseType = z.infer<typeof ExerciseListResponseSchema>;
+export type CreateExerciseResponseType = z.infer<typeof CreateExerciseResponseSchema>;
