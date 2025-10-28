@@ -21,13 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@ui/Select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from "@ui/Table";
+import { Table, TableBody, TableCell, TableHeader, TableRow } from "@ui/Table";
 import SortableTableHeader from "@ui/SortableTableHeader";
 import {
   Dialog,
@@ -57,6 +51,10 @@ const QuestionBankManagement: React.FC = () => {
     isUpdating,
     isDeleting,
     isLoadingAnswers,
+    validationErrors,
+    setValidationErrors,
+    fieldErrors,
+    setFieldErrors,
     handleFilterChange,
     handlePageChange,
     handleSort,
@@ -402,20 +400,38 @@ const QuestionBankManagement: React.FC = () => {
                   : t("questionBank.createDialog.editTitle")}
               </DialogTitle>
             </DialogHeader>
+
             <div className="space-y-4">
-              <Input
-                label={t("questionBank.createDialog.questionJpLabel")}
-                value={formData.questionJp}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    questionJp: e.target.value,
-                  }))
-                }
-                placeholder={t(
-                  "questionBank.createDialog.questionJpPlaceholder"
+              <div>
+                <Input
+                  label={t("questionBank.createDialog.questionJpLabel")}
+                  value={formData.questionJp}
+                  onChange={(e) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      questionJp: e.target.value,
+                    }));
+                    // Clear field error when user starts typing
+                    if (fieldErrors.questionJp) {
+                      setFieldErrors((prev) => {
+                        const newErrors = { ...prev };
+                        delete newErrors.questionJp;
+                        return newErrors;
+                      });
+                    }
+                  }}
+                  placeholder={t(
+                    "questionBank.createDialog.questionJpPlaceholder"
+                  )}
+                />
+                {fieldErrors.questionJp && (
+                  <div className="mt-1 text-sm text-red-600">
+                    {fieldErrors.questionJp.map((error, index) => (
+                      <div key={index}>{error}</div>
+                    ))}
+                  </div>
                 )}
-              />
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -509,22 +525,39 @@ const QuestionBankManagement: React.FC = () => {
               {/* Pronunciation - Show for VOCABULARY and SPEAKING */}
               {(formData.questionType === "VOCABULARY" ||
                 formData.questionType === "SPEAKING") && (
-                <Input
-                  label={`${t("questionBank.createDialog.pronunciationLabel")}${
-                    formData.questionType === "SPEAKING" ? " *" : ""
-                  }`}
-                  value={formData.pronunciation || ""}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      pronunciation: e.target.value,
-                    }))
-                  }
-                  placeholder={t(
-                    "questionBank.createDialog.pronunciationPlaceholder"
+                <div>
+                  <Input
+                    label={`${t(
+                      "questionBank.createDialog.pronunciationLabel"
+                    )}${formData.questionType === "SPEAKING" ? " *" : ""}`}
+                    value={formData.pronunciation || ""}
+                    onChange={(e) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        pronunciation: e.target.value,
+                      }));
+                      // Clear field error when user starts typing
+                      if (fieldErrors.pronunciation) {
+                        setFieldErrors((prev) => {
+                          const newErrors = { ...prev };
+                          delete newErrors.pronunciation;
+                          return newErrors;
+                        });
+                      }
+                    }}
+                    placeholder={t(
+                      "questionBank.createDialog.pronunciationPlaceholder"
+                    )}
+                    required={formData.questionType === "SPEAKING"}
+                  />
+                  {fieldErrors.pronunciation && (
+                    <div className="mt-1 text-sm text-red-600">
+                      {fieldErrors.pronunciation.map((error, index) => (
+                        <div key={index}>{error}</div>
+                      ))}
+                    </div>
                   )}
-                  required={formData.questionType === "SPEAKING"}
-                />
+                </div>
               )}
 
               {/* Audio URL - Show for VOCABULARY and LISTENING */}
@@ -570,6 +603,13 @@ const QuestionBankManagement: React.FC = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   {t("questionBank.createDialog.meaningsLabel")}
                 </label>
+                {fieldErrors.meanings && (
+                  <div className="mt-1 text-sm text-red-600">
+                    {fieldErrors.meanings.map((error, index) => (
+                      <div key={index}>{error}</div>
+                    ))}
+                  </div>
+                )}
                 {formData.meanings?.map((meaning, index) => (
                   <div
                     key={index}
@@ -582,7 +622,7 @@ const QuestionBankManagement: React.FC = () => {
                         </label>
                         <Input
                           value={meaning.translations.vi}
-                          onChange={(e) =>
+                          onChange={(e) => {
                             setFormData((prev) => ({
                               ...prev,
                               meanings: (prev.meanings || []).map((m, i) =>
@@ -596,8 +636,16 @@ const QuestionBankManagement: React.FC = () => {
                                     }
                                   : m
                               ),
-                            }))
-                          }
+                            }));
+                            // Clear field error when user starts typing
+                            if (fieldErrors.meanings) {
+                              setFieldErrors((prev) => {
+                                const newErrors = { ...prev };
+                                delete newErrors.meanings;
+                                return newErrors;
+                              });
+                            }
+                          }}
                           placeholder="Vietnamese translation"
                         />
                       </div>
@@ -607,7 +655,7 @@ const QuestionBankManagement: React.FC = () => {
                         </label>
                         <Input
                           value={meaning.translations.en}
-                          onChange={(e) =>
+                          onChange={(e) => {
                             setFormData((prev) => ({
                               ...prev,
                               meanings: (prev.meanings || []).map((m, i) =>
@@ -621,8 +669,16 @@ const QuestionBankManagement: React.FC = () => {
                                     }
                                   : m
                               ),
-                            }))
-                          }
+                            }));
+                            // Clear field error when user starts typing
+                            if (fieldErrors.meanings) {
+                              setFieldErrors((prev) => {
+                                const newErrors = { ...prev };
+                                delete newErrors.meanings;
+                                return newErrors;
+                              });
+                            }
+                          }}
                           placeholder="English translation"
                         />
                       </div>
@@ -677,183 +733,200 @@ const QuestionBankManagement: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     {t("questionBank.createDialog.answersLabel")}
                   </label>
+                  {fieldErrors.answers && (
+                    <div className="mt-1 text-sm text-red-600">
+                      {fieldErrors.answers.map((error, index) => (
+                        <div key={index}>{error}</div>
+                      ))}
+                    </div>
+                  )}
                   {isLoadingAnswers ? (
                     <div className="text-center py-4 text-gray-500">
                       {t("common.loading")}...
                     </div>
                   ) : (
                     formData.answers?.map((answer, index) => (
-                    <div
-                      key={index}
-                      className={`border rounded-lg p-4 mb-4 cursor-pointer transition-all duration-200 hover:shadow-md ${
-                        answer.isCorrect
-                          ? "border-green-500 bg-green-50"
-                          : "border-red-300 bg-red-50 hover:border-red-400"
-                      }`}
-                      onClick={() =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          answers: prev.answers?.map((a, i) => ({
-                            ...a,
-                            isCorrect: i === index,
-                          })),
-                        }))
-                      }
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center space-x-2">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm font-medium text-gray-700">
-                              {answer.isCorrect
-                                ? "Correct Answer"
-                                : "Incorrect Answer"}
-                            </span>
-                            {answer.isCorrect ? (
-                              <div className="flex items-center justify-center w-5 h-5 bg-green-500 text-white rounded-full">
-                                <svg
-                                  className="w-3 h-3"
-                                  fill="currentColor"
-                                  viewBox="0 0 20 20"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                              </div>
-                            ) : (
-                              <div className="flex items-center justify-center w-5 h-5 bg-red-500 text-white rounded-full">
-                                <svg
-                                  className="w-3 h-3"
-                                  fill="currentColor"
-                                  viewBox="0 0 20 20"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        {formData.answers && formData.answers.length > 1 && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setFormData((prev) => ({
-                                ...prev,
-                                answers: prev.answers?.filter(
-                                  (_, i) => i !== index
-                                ),
-                              }));
-                            }}
-                          >
-                            Remove Answer
-                          </Button>
-                        )}
-                      </div>
-                      <div 
-                        className="space-y-3"
-                        onClick={(e) => e.stopPropagation()}
+                      <div
+                        key={index}
+                        className={`border rounded-lg p-4 mb-4 cursor-pointer transition-all duration-200 hover:shadow-md ${
+                          answer.isCorrect
+                            ? "border-green-500 bg-green-50"
+                            : "border-red-300 bg-red-50 hover:border-red-400"
+                        }`}
+                        onClick={() =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            answers: prev.answers?.map((a, i) => ({
+                              ...a,
+                              isCorrect: i === index,
+                            })),
+                          }))
+                        }
                       >
-                        <Input
-                          label="Japanese Answer"
-                          value={answer.answerJp}
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              answers: prev.answers?.map((a, i) =>
-                                i === index
-                                  ? { ...a, answerJp: e.target.value }
-                                  : a
-                              ),
-                            }))
-                          }
-                          placeholder="Enter Japanese answer"
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1">
-                              Vietnamese Translation
-                            </label>
-                            <Input
-                              value={
-                                answer.translations?.meaning?.find(
-                                  (m) => m.language_code === "vi"
-                                )?.value || ""
-                              }
-                              onChange={(e) =>
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm font-medium text-gray-700">
+                                {answer.isCorrect
+                                  ? "Correct Answer"
+                                  : "Incorrect Answer"}
+                              </span>
+                              {answer.isCorrect ? (
+                                <div className="flex items-center justify-center w-5 h-5 bg-green-500 text-white rounded-full">
+                                  <svg
+                                    className="w-3 h-3"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                </div>
+                              ) : (
+                                <div className="flex items-center justify-center w-5 h-5 bg-red-500 text-white rounded-full">
+                                  <svg
+                                    className="w-3 h-3"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          {formData.answers && formData.answers.length > 1 && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setFormData((prev) => ({
                                   ...prev,
-                                  answers: prev.answers?.map((a, i) =>
-                                    i === index
-                                      ? {
-                                          ...a,
-                                          translations: {
-                                            meaning: (a.translations?.meaning || []).map(
-                                              (m) =>
+                                  answers: prev.answers?.filter(
+                                    (_, i) => i !== index
+                                  ),
+                                }));
+                              }}
+                            >
+                              Remove Answer
+                            </Button>
+                          )}
+                        </div>
+                        <div
+                          className="space-y-3"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Input
+                            label="Japanese Answer"
+                            value={answer.answerJp}
+                            onChange={(e) => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                answers: prev.answers?.map((a, i) =>
+                                  i === index
+                                    ? { ...a, answerJp: e.target.value }
+                                    : a
+                                ),
+                              }));
+                              // Clear field error when user starts typing
+                              if (fieldErrors.answers) {
+                                setFieldErrors((prev) => {
+                                  const newErrors = { ...prev };
+                                  delete newErrors.answers;
+                                  return newErrors;
+                                });
+                              }
+                            }}
+                            placeholder="Enter Japanese answer"
+                          />
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-600 mb-1">
+                                Vietnamese Translation
+                              </label>
+                              <Input
+                                value={
+                                  answer.translations?.meaning?.find(
+                                    (m) => m.language_code === "vi"
+                                  )?.value || ""
+                                }
+                                onChange={(e) =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    answers: prev.answers?.map((a, i) =>
+                                      i === index
+                                        ? {
+                                            ...a,
+                                            translations: {
+                                              meaning: (
+                                                a.translations?.meaning || []
+                                              ).map((m) =>
                                                 m.language_code === "vi"
                                                   ? {
                                                       ...m,
                                                       value: e.target.value,
                                                     }
                                                   : m
-                                            ),
-                                          },
-                                        }
-                                      : a
-                                  ),
-                                }))
-                              }
-                              placeholder="Vietnamese translation"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1">
-                              English Translation
-                            </label>
-                            <Input
-                              value={
-                                answer.translations?.meaning?.find(
-                                  (m) => m.language_code === "en"
-                                )?.value || ""
-                              }
-                              onChange={(e) =>
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  answers: prev.answers?.map((a, i) =>
-                                    i === index
-                                      ? {
-                                          ...a,
-                                          translations: {
-                                            meaning: (a.translations?.meaning || []).map(
-                                              (m) =>
+                                              ),
+                                            },
+                                          }
+                                        : a
+                                    ),
+                                  }))
+                                }
+                                placeholder="Vietnamese translation"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-600 mb-1">
+                                English Translation
+                              </label>
+                              <Input
+                                value={
+                                  answer.translations?.meaning?.find(
+                                    (m) => m.language_code === "en"
+                                  )?.value || ""
+                                }
+                                onChange={(e) =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    answers: prev.answers?.map((a, i) =>
+                                      i === index
+                                        ? {
+                                            ...a,
+                                            translations: {
+                                              meaning: (
+                                                a.translations?.meaning || []
+                                              ).map((m) =>
                                                 m.language_code === "en"
                                                   ? {
                                                       ...m,
                                                       value: e.target.value,
                                                     }
                                                   : m
-                                            ),
-                                          },
-                                        }
-                                      : a
-                                  ),
-                                }))
-                              }
-                              placeholder="English translation"
-                            />
+                                              ),
+                                            },
+                                          }
+                                        : a
+                                    ),
+                                  }))
+                                }
+                                placeholder="English translation"
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))
+                    ))
                   )}
                   {formData.answers && formData.answers.length < 4 && (
                     <Button
@@ -898,12 +971,19 @@ const QuestionBankManagement: React.FC = () => {
                     {t("questionBank.createDialog.answerLabel")} (Required for
                     MATCHING)
                   </label>
+                  {fieldErrors.answers && (
+                    <div className="mt-1 text-sm text-red-600">
+                      {fieldErrors.answers.map((error, index) => (
+                        <div key={index}>{error}</div>
+                      ))}
+                    </div>
+                  )}
                   <div className="border rounded-lg p-4 bg-gray-50">
                     <div className="space-y-3">
                       <Input
                         label="Japanese Answer"
                         value={formData.answers?.[0]?.answerJp || ""}
-                        onChange={(e) =>
+                        onChange={(e) => {
                           setFormData((prev) => ({
                             ...prev,
                             answers: [
@@ -922,8 +1002,16 @@ const QuestionBankManagement: React.FC = () => {
                                 },
                               },
                             ],
-                          }))
-                        }
+                          }));
+                          // Clear field error when user starts typing
+                          if (fieldErrors.answers) {
+                            setFieldErrors((prev) => {
+                              const newErrors = { ...prev };
+                              delete newErrors.answers;
+                              return newErrors;
+                            });
+                          }
+                        }}
                         placeholder="Enter Japanese answer"
                         required
                       />
