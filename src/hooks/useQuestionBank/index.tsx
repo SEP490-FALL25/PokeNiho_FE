@@ -75,12 +75,14 @@ export const useCreateQuestion = () => {
       if (apiError?.response?.status === 422) {
         const messages = apiError?.response?.data?.message;
         if (Array.isArray(messages)) {
-          toast.error(`Lỗi validation: ${messages.join(', ')}`);
+          toast.error(`Lỗi validation: ${messages.join(", ")}`);
         } else {
           toast.error(messages || "Lỗi validation");
         }
       } else {
-        toast.error(apiError?.response?.data?.message || "Có lỗi xảy ra khi tạo câu hỏi");
+        toast.error(
+          apiError?.response?.data?.message || "Có lỗi xảy ra khi tạo câu hỏi"
+        );
       }
     },
   });
@@ -108,12 +110,15 @@ export const useUpdateQuestion = () => {
       if (apiError?.response?.status === 422) {
         const messages = apiError?.response?.data?.message;
         if (Array.isArray(messages)) {
-          toast.error(`Lỗi validation: ${messages.join(', ')}`);
+          toast.error(`Lỗi validation: ${messages.join(", ")}`);
         } else {
           toast.error(messages || "Lỗi validation");
         }
       } else {
-        toast.error(apiError?.response?.data?.message || "Có lỗi xảy ra khi cập nhật câu hỏi");
+        toast.error(
+          apiError?.response?.data?.message ||
+            "Có lỗi xảy ra khi cập nhật câu hỏi"
+        );
       }
     },
   });
@@ -137,7 +142,9 @@ export const useDeleteQuestion = () => {
     onError: (error: unknown) => {
       console.error("Error deleting question:", error);
       const apiError = error as ApiError;
-      toast.error(apiError?.response?.data?.message || "Có lỗi xảy ra khi xóa câu hỏi");
+      toast.error(
+        apiError?.response?.data?.message || "Có lỗi xảy ra khi xóa câu hỏi"
+      );
     },
   });
 
@@ -215,7 +222,7 @@ export const useQuestionBank = (
   const createQuestionMutation = useCreateQuestion();
   const updateQuestionMutation = useUpdateQuestion();
   const deleteQuestionMutation = useDeleteQuestion();
-  
+
   // Answer-specific hooks
   const updateAnswerMutation = useUpdateAnswer();
   const createAnswerMutation = useCreateAnswer();
@@ -241,7 +248,7 @@ export const useQuestionBank = (
     setFilters((prev) => {
       const currentSortBy = prev.sortBy;
       const currentSortOrder = prev.sortOrder;
-      
+
       // If clicking the same column, toggle sort order
       if (currentSortBy === sortKey) {
         const newSortOrder = currentSortOrder === "asc" ? "desc" : "asc";
@@ -252,7 +259,7 @@ export const useQuestionBank = (
           page: 1, // Reset to first page when sorting
         };
       }
-      
+
       // If clicking a different column, set to ascending
       return {
         ...prev,
@@ -281,12 +288,14 @@ export const useQuestionBank = (
       errors.push(error);
       fieldErrors.meanings = [error];
     } else {
-      const hasValidMeaning = data.meanings.some(meaning => 
-        meaning.translations.vi?.trim() !== "" || 
-        meaning.translations.en?.trim() !== ""
+      const hasValidMeaning = data.meanings.some(
+        (meaning) =>
+          meaning.translations.vi?.trim() !== "" ||
+          meaning.translations.en?.trim() !== ""
       );
       if (!hasValidMeaning) {
-        const error = "Ít nhất một bản dịch (tiếng Việt hoặc tiếng Anh) phải được điền";
+        const error =
+          "Ít nhất một bản dịch (tiếng Việt hoặc tiếng Anh) phải được điền";
         errors.push(error);
         fieldErrors.meanings = [error];
       }
@@ -300,7 +309,9 @@ export const useQuestionBank = (
         fieldErrors.answers = [error];
       } else {
         // Check if at least one answer is marked as correct
-        const hasCorrectAnswer = data.answers.some(answer => answer.isCorrect);
+        const hasCorrectAnswer = data.answers.some(
+          (answer) => answer.isCorrect
+        );
         if (!hasCorrectAnswer) {
           const error = "Ít nhất một câu trả lời phải được đánh dấu là đúng";
           errors.push(error);
@@ -308,7 +319,9 @@ export const useQuestionBank = (
         }
 
         // Check if all answers have Japanese text
-        const hasEmptyAnswers = data.answers.some(answer => !answer.answerJp || answer.answerJp.trim() === "");
+        const hasEmptyAnswers = data.answers.some(
+          (answer) => !answer.answerJp || answer.answerJp.trim() === ""
+        );
         if (hasEmptyAnswers) {
           const error = "Tất cả câu trả lời phải có nội dung tiếng Nhật";
           errors.push(error);
@@ -317,7 +330,12 @@ export const useQuestionBank = (
       }
     } else {
       // For MATCHING type, validate single answer
-      if (!data.answers || data.answers.length === 0 || !data.answers[0]?.answerJp || data.answers[0].answerJp.trim() === "") {
+      if (
+        !data.answers ||
+        data.answers.length === 0 ||
+        !data.answers[0]?.answerJp ||
+        data.answers[0].answerJp.trim() === ""
+      ) {
         const error = "Câu trả lời tiếng Nhật là bắt buộc cho loại MATCHING";
         errors.push(error);
         fieldErrors.answers = [error];
@@ -325,7 +343,10 @@ export const useQuestionBank = (
     }
 
     // Validate pronunciation for SPEAKING type
-    if (data.questionType === "SPEAKING" && (!data.pronunciation || data.pronunciation.trim() === "")) {
+    if (
+      data.questionType === "SPEAKING" &&
+      (!data.pronunciation || data.pronunciation.trim() === "")
+    ) {
       const error = "Phát âm là bắt buộc cho loại SPEAKING";
       errors.push(error);
       fieldErrors.pronunciation = [error];
@@ -334,7 +355,7 @@ export const useQuestionBank = (
     return {
       isValid: errors.length === 0,
       errors,
-      fieldErrors
+      fieldErrors,
     };
   }, []);
 
@@ -383,10 +404,10 @@ export const useQuestionBank = (
     if (!validation.isValid) {
       setValidationErrors(validation.errors);
       setFieldErrors(validation.fieldErrors);
-      toast.error(`Lỗi validation: ${validation.errors.join(', ')}`);
+      toast.error(`Lỗi validation: ${validation.errors.join(", ")}`);
       return;
     }
-    
+
     // Clear validation errors if validation passes
     setValidationErrors([]);
     setFieldErrors({});
@@ -401,34 +422,37 @@ export const useQuestionBank = (
       // Remove correctAnswer for all types
       correctAnswer: undefined,
     };
-    
+
     // Log the payload for debugging
-    console.log("Creating question with payload:", JSON.stringify(cleanedFormData, null, 2));
-    
+    console.log(
+      "Creating question with payload:",
+      JSON.stringify(cleanedFormData, null, 2)
+    );
+
     createQuestionMutation.mutate(cleanedFormData as ICreateQuestionRequest, {
       onSuccess: () => {
         setIsCreateDialogOpen(false);
         resetFormData();
-      }
+      },
     });
   }, [formData, createQuestionMutation, resetFormData, validateFormData]);
 
   const handleEditQuestion = useCallback(async () => {
     if (!editingQuestion) return;
-    
+
     // Validate form data before submitting
     const validation = validateFormData(formData);
     if (!validation.isValid) {
       setValidationErrors(validation.errors);
       setFieldErrors(validation.fieldErrors);
-      toast.error(`Lỗi validation: ${validation.errors.join(', ')}`);
+      toast.error(`Lỗi validation: ${validation.errors.join(", ")}`);
       return;
     }
-    
+
     // Clear validation errors if validation passes
     setValidationErrors([]);
     setFieldErrors({});
-    
+
     // Clean up form data before sending
     const cleanedFormData = {
       ...formData,
@@ -438,31 +462,34 @@ export const useQuestionBank = (
       // Remove correctAnswer for all types
       correctAnswer: undefined,
     };
-    
-    updateQuestionMutation.mutate({
-      id: editingQuestion.id,
-      data: cleanedFormData,
-    }, {
-      onSuccess: () => {
-        setIsEditDialogOpen(false);
-        setEditingQuestion(null);
+
+    updateQuestionMutation.mutate(
+      {
+        id: editingQuestion.id,
+        data: cleanedFormData,
+      },
+      {
+        onSuccess: () => {
+          setIsEditDialogOpen(false);
+          setEditingQuestion(null);
+        },
       }
-    });
+    );
   }, [editingQuestion, formData, updateQuestionMutation, validateFormData]);
 
   const handleDeleteQuestion = useCallback(async () => {
     if (!deleteQuestionId) return;
-    
+
     deleteQuestionMutation.mutate(deleteQuestionId, {
       onSuccess: () => {
         setDeleteQuestionId(null);
-      }
+      },
     });
   }, [deleteQuestionId, deleteQuestionMutation]);
 
   // State for loading answers
   const [isLoadingAnswers, setIsLoadingAnswers] = useState(false);
-  
+
   // State for validation errors
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
@@ -480,7 +507,7 @@ export const useQuestionBank = (
     setValidationErrors([]);
     setFieldErrors({});
     setIsEditDialogOpen(true);
-    
+
     // Set basic question data immediately
     setFormData({
       questionJp: question.questionJp,
@@ -488,39 +515,44 @@ export const useQuestionBank = (
       levelN: question.levelN as JLPTLevel,
       pronunciation: question.pronunciation || "",
       audioUrl: question.audioUrl || "",
-      meanings: Array.isArray(question.meanings) ? 
-        (() => {
-          // Find Vietnamese and English translations from API data
-          let viTranslation = "";
-          let enTranslation = "";
-          
-          question.meanings.forEach(meaning => {
-            if ('language' in meaning && 'value' in meaning) {
-              // New API format (language/value)
-              if (meaning.language === "vi") {
-                viTranslation = meaning.value;
-              } else if (meaning.language === "en") {
-                enTranslation = meaning.value;
+      meanings: Array.isArray(question.meanings)
+        ? (() => {
+            // Find Vietnamese and English translations from API data
+            let viTranslation = "";
+            let enTranslation = "";
+
+            question.meanings.forEach((meaning) => {
+              if ("language" in meaning && "value" in meaning) {
+                // New API format (language/value)
+                if (meaning.language === "vi") {
+                  viTranslation = meaning.value;
+                } else if (meaning.language === "en") {
+                  enTranslation = meaning.value;
+                }
+              } else if ("translations" in meaning) {
+                // Old format (translations.vi/en)
+                viTranslation = meaning.translations.vi || "";
+                enTranslation = meaning.translations.en || "";
               }
-            } else if ('translations' in meaning) {
-              // Old format (translations.vi/en)
-              viTranslation = meaning.translations.vi || "";
-              enTranslation = meaning.translations.en || "";
-            }
-          });
-          
-          return [{
-            translations: {
-              vi: viTranslation,
-              en: enTranslation,
-            }
-          }];
-        })() : [{
-          translations: {
-            vi: question.meaning || "",
-            en: "",
-          },
-        }],
+            });
+
+            return [
+              {
+                translations: {
+                  vi: viTranslation,
+                  en: enTranslation,
+                },
+              },
+            ];
+          })()
+        : [
+            {
+              translations: {
+                vi: question.meaning || "",
+                en: "",
+              },
+            },
+          ],
       answers: [], // Will be populated after fetching
     });
 
@@ -533,37 +565,72 @@ export const useQuestionBank = (
       };
       const response = await answerService.getAnswerList(filters);
       const fetchedAnswers = response.data.data.results || [];
-      console.log(fetchedAnswers)
       // Transform the fetched answers to match the form structure
-      const formattedAnswers = fetchedAnswers.map((answer) => ({
-        id: answer.id, // Store the answer ID for updates
-        answerJp: answer.answerJp,
-        isCorrect: answer.isCorrect,
-        translations: answer.translations,
-      }));
+      const formattedAnswers = fetchedAnswers.map(
+        (answer: {
+          id: number;
+          answerJp: string;
+          isCorrect: boolean;
+          meanings?: Array<{ language: string; value: string }>;
+          translations?: {
+            meaning: Array<{ language_code: string; value: string }>;
+          };
+        }) => {
+          // Handle both API response formats
+          let translations: Array<{ language_code: string; value: string }> =
+            [];
+          if (answer.meanings && Array.isArray(answer.meanings)) {
+            // New format: answer.meanings with {language, value}
+            translations = answer.meanings.map(
+              (m: { language: string; value: string }) => ({
+                language_code: m.language,
+                value: m.value,
+              })
+            );
+          } else if (
+            answer.translations?.meaning &&
+            Array.isArray(answer.translations.meaning)
+          ) {
+            // Old format: answer.translations.meaning with {language_code, value}
+            translations = answer.translations.meaning;
+          }
+
+          return {
+            id: answer.id, // Store the answer ID for updates
+            answerJp: answer.answerJp,
+            isCorrect: answer.isCorrect,
+            translations: {
+              meaning: translations,
+            },
+          };
+        }
+      );
 
       // Update form data with fetched answers
       setFormData((prev) => ({
         ...prev,
-        answers: formattedAnswers.length > 0 ? formattedAnswers : [
-          {
-            id: undefined,
-            answerJp: "",
-            isCorrect: true,
-            translations: {
-              meaning: [
+        answers:
+          formattedAnswers.length > 0
+            ? formattedAnswers
+            : [
                 {
-                  language_code: "vi",
-                  value: "",
-                },
-                {
-                  language_code: "en",
-                  value: "",
+                  id: undefined,
+                  answerJp: "",
+                  isCorrect: true,
+                  translations: {
+                    meaning: [
+                      {
+                        language_code: "vi",
+                        value: "",
+                      },
+                      {
+                        language_code: "en",
+                        value: "",
+                      },
+                    ],
+                  },
                 },
               ],
-            },
-          },
-        ],
       }));
     } catch (error) {
       console.error("Error fetching answers:", error);
@@ -608,20 +675,28 @@ export const useQuestionBank = (
   const language = useSelector(selectCurrentLanguage);
 
   // Utility functions
-  const getQuestionTypeLabel = useCallback((type: string) => {
-    const labels = QUESTION_TYPE_LABELS[language as keyof typeof QUESTION_TYPE_LABELS];
-    return labels?.[type as keyof typeof labels] || type;
-  }, [language]);
+  const getQuestionTypeLabel = useCallback(
+    (type: string) => {
+      const labels =
+        QUESTION_TYPE_LABELS[language as keyof typeof QUESTION_TYPE_LABELS];
+      return labels?.[type as keyof typeof labels] || type;
+    },
+    [language]
+  );
 
-  const getJLPTLevelLabel = useCallback((level: number) => {
-    const labels = JLPT_LEVEL_LABELS[language as keyof typeof JLPT_LEVEL_LABELS];
-    return labels?.[level as keyof typeof labels] || `N${level}`;
-  }, [language]);
+  const getJLPTLevelLabel = useCallback(
+    (level: number) => {
+      const labels =
+        JLPT_LEVEL_LABELS[language as keyof typeof JLPT_LEVEL_LABELS];
+      return labels?.[level as keyof typeof labels] || `N${level}`;
+    },
+    [language]
+  );
 
   // Handler for updating only question part
   const handleUpdateQuestion = useCallback(async () => {
     if (!editingQuestion) return;
-    
+
     const questionData = {
       questionJp: formData.questionJp,
       questionType: formData.questionType,
@@ -640,7 +715,7 @@ export const useQuestionBank = (
   // Handler for updating only answer part
   const handleUpdateAnswer = useCallback(async () => {
     if (!editingQuestion || !formData.answers) return;
-    
+
     try {
       // Update each answer individually using the answer API
       const updatePromises = formData.answers.map(async (answer) => {
@@ -673,7 +748,12 @@ export const useQuestionBank = (
       console.error("Error updating answers:", error);
       toast.error("Có lỗi xảy ra khi cập nhật đáp án");
     }
-  }, [editingQuestion, formData.answers, updateAnswerMutation, createAnswerMutation]);
+  }, [
+    editingQuestion,
+    formData.answers,
+    updateAnswerMutation,
+    createAnswerMutation,
+  ]);
 
   return {
     // Data
@@ -694,7 +774,8 @@ export const useQuestionBank = (
     isCreating: createQuestionMutation.isPending,
     isUpdating: updateQuestionMutation.isPending,
     isDeleting: deleteQuestionMutation.isPending,
-    isUpdatingAnswer: updateAnswerMutation.isPending || createAnswerMutation.isPending,
+    isUpdatingAnswer:
+      updateAnswerMutation.isPending || createAnswerMutation.isPending,
 
     // Handlers
     handleFilterChange,
@@ -715,19 +796,19 @@ export const useQuestionBank = (
     getQuestionTypeLabel,
     getJLPTLevelLabel,
     resetFormData,
-    
+
     // Mutations for direct access
     createQuestionMutation,
     updateQuestionMutation,
     deleteQuestionMutation,
-    
+
     // Dialog state setters
     setIsCreateDialogOpen,
     setIsEditDialogOpen,
-    
+
     // Loading states
     isLoadingAnswers,
-    
+
     // Validation
     validationErrors,
     setValidationErrors,

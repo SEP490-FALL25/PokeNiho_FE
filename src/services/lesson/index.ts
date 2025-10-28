@@ -120,6 +120,9 @@ const lessonService = {
   getExercisesByLessonId: async (lessonId: number) => {
     return axiosPrivate.get(`/exercises/lesson/${lessonId}`);
   },
+  deleteLessonContent: async (lessonContentId: number) => {
+    return axiosPrivate.delete(`/lesson-contents/${lessonContentId}`);
+  },
 };
 
 export default lessonService;
