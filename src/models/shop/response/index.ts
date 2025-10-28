@@ -15,3 +15,18 @@ export const ShopItemRandomSchema = z.object({
 export type IShopItemRandomSchema = z.infer<typeof ShopItemRandomSchema>;
 //------------------------End------------------------//
 
+
+/**
+ * Shop Banner All Pokemon Response Schema
+ */
+export const ShopBannerAllPokemonResponseSchema = z.object({
+    id: z.number(),
+    pokedex_number: z.number(),
+    nameJp: z.string(),
+    nameTranslations: z.object({ en: z.string(), ja: z.string(), vi: z.string() }),
+    rarity: z.string(),
+    imageUrl: z.string().url(),
+    isExist: z.boolean(),
+});
+export type IShopBannerAllPokemonResponseSchema = z.infer<typeof ShopBannerAllPokemonResponseSchema>;
+//------------------------End------------------------//

@@ -8,7 +8,6 @@ import { cn } from '@utils/CN';
 import { Loader2, Sparkles } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import { RarityBadge } from "@atoms/BadgeRarity";
-import { toast } from "react-toastify";
 
 interface AddRandomPokemonDialogProps {
     isOpen: boolean;
@@ -58,7 +57,6 @@ const AddRandomPokemonDialog = ({ isOpen, onClose, bannerId }: AddRandomPokemonD
             onClose();
         } catch (error: any) {
             console.error('Error creating shop items:', error);
-            toast.error(error.response?.data?.message || t('configShop.addPokemonError'));
         }
     };
     //------------------------End------------------------//

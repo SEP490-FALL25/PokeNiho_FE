@@ -9,12 +9,12 @@ import PaginationControls from "@ui/PaginationControls";
 import { Plus, ShoppingBag, Calendar, X } from "lucide-react";
 import { useShopBannerList } from "@hooks/useShop";
 import { IShopBannerSchema } from "@models/shop/entity";
-import CreateShopBannerDialog from "./CreateShopBannerDialog";
 import { useTranslation } from "react-i18next";
 import CustomDatePicker from "@ui/DatePicker";
 import { SHOP } from "@constants/shop";
 import { ROUTES } from "@constants/route";
 import { useNavigate } from "react-router-dom";
+import CreateShopBannerDialog from "./components/CreateShopBannerDialog";
 
 export default function ConfigShop() {
     /**
@@ -97,7 +97,7 @@ export default function ConfigShop() {
     return (
         <>
             <HeaderAdmin title={t('configShop.title')} description={t('configShop.description')} />
-            
+
             <div className="p-8 mt-24">
                 <Card className="bg-card border-border">
                     <CardHeader>
@@ -177,7 +177,7 @@ export default function ConfigShop() {
                             <BannersSkeleton />
                         ) : bannersData?.data?.results?.length ? (
                             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                    {bannersData.data.results.map((banner: IShopBannerSchema) => (
+                                {bannersData.data.results.map((banner: IShopBannerSchema) => (
                                     <Card
                                         key={banner.id}
                                         className="bg-muted/50 border-border hover:border-primary/50 transition-colors cursor-pointer"
