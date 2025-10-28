@@ -15,6 +15,7 @@ import { SHOP } from "@constants/shop";
 import { ROUTES } from "@constants/route";
 import { useNavigate } from "react-router-dom";
 import CreateShopBannerDialog from "./components/CreateShopBannerDialog";
+import UpdateRarityPriceDialog from "./components/UpdateRarityPriceDialog";
 
 export default function ConfigShop() {
     /**
@@ -26,7 +27,7 @@ export default function ConfigShop() {
 
 
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState<boolean>(false);
-
+    const [isUpdateRarityPriceDialogOpen, setIsUpdateRarityPriceDialogOpen] = useState<boolean>(false);
 
     /***
      * Handle Shop Banner List
@@ -109,6 +110,13 @@ export default function ConfigShop() {
                             >
                                 <Plus className="h-4 w-4 mr-2" />
                                 {t('configShop.createBanner')}
+                            </Button>
+                            <Button
+                                className="bg-primary text-primary-foreground hover:bg-primary/90"
+                                onClick={() => setIsUpdateRarityPriceDialogOpen(true)}
+                            >
+                                <Plus className="h-4 w-4 mr-2" />
+                                {t('configShop.updateRarityPrice')}
                             </Button>
                         </div>
                     </CardHeader>
@@ -237,6 +245,10 @@ export default function ConfigShop() {
             <CreateShopBannerDialog
                 isOpen={isCreateDialogOpen}
                 onClose={() => setIsCreateDialogOpen(false)}
+            />
+            <UpdateRarityPriceDialog
+                isOpen={isUpdateRarityPriceDialogOpen}
+                onClose={() => setIsUpdateRarityPriceDialogOpen(false)}
             />
         </>
     );
