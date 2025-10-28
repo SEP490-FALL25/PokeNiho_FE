@@ -43,7 +43,7 @@ const LessonsManagement = () => {
     const [activeJlptTab, setActiveJlptTab] = useState<string>("all")
     const [activePublishTab, setActivePublishTab] = useState<string>("all")
     const [page, setPage] = useState<number>(1)
-    const [itemsPerPage, setItemsPerPage] = useState<number>(10)
+    const [itemsPerPage, setItemsPerPage] = useState<number>(15)
     const [sortBy, setSortBy] = useState<string>("createdAt")
     const [sort, setSort] = useState<string>("desc")
 
