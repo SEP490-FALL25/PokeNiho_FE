@@ -90,6 +90,24 @@ const lessonService = {
       `/lesson-contents${queryString ? `?${queryString}` : ""}`
     );
   },
+  // Fetch grouped lesson contents by lessonId with optional language
+  getLessonContentsByLessonId: async (
+    lessonId: number,
+    lang?: string | null
+  ) => {
+    const query = new URLSearchParams();
+    // If lang is explicitly undefined, default to null (send empty value)
+    if (lang === undefined || lang === null) {
+      query.append("lang", "");
+    } else {
+      query.append("lang", String(lang));
+    }
+
+    const qs = query.toString();
+    return axiosPrivate.get(
+      `/lesson-contents/${lessonId}${qs ? `?${qs}` : ""}`
+    );
+  },
   createLessonContent: async (data: ICreateLessonContentRequest) => {
     return axiosPrivate.post("/lesson-contents", data);
   },
@@ -101,6 +119,9 @@ const lessonService = {
   },
   getExercisesByLessonId: async (lessonId: number) => {
     return axiosPrivate.get(`/exercises/lesson/${lessonId}`);
+  },
+  deleteLessonContent: async (lessonContentId: number) => {
+    return axiosPrivate.delete(`/lesson-contents/${lessonContentId}`);
   },
 };
 

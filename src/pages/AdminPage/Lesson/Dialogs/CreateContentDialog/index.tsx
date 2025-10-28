@@ -16,11 +16,24 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { toast } from "react-toastify";
 import { useVocabularyList } from "@hooks/useVocabulary";
 import { useGrammarList } from "@hooks/useGrammar";
-import { useKanjiListManagement } from "@hooks/useKanji";
+import { useKanjiList } from "@hooks/useKanji";
 import { useLessonContent } from "@hooks/useLessonContent";
 import { QUESTION_TYPE } from "@constants/questionBank";
-import { validateCreateContent, useFormValidation, commonValidationRules } from "@utils/validation";
-import { X, BookOpen, Search, Volume2, Check, Loader2, FileText, Square } from "lucide-react";
+import {
+  validateCreateContent,
+  useFormValidation,
+  commonValidationRules,
+} from "@utils/validation";
+import {
+  X,
+  BookOpen,
+  Search,
+  Volume2,
+  Check,
+  Loader2,
+  FileText,
+  Square,
+} from "lucide-react";
 
 // Base interface for all content types
 interface BaseContent {
@@ -47,14 +60,28 @@ interface Grammar {
   updatedAt: string;
 }
 
+interface KanjiMeaning {
+  meaningKey: string;
+  translations: Record<string, unknown>;
+}
+
+interface KanjiReading {
+  id: number;
+  kanjiId: number;
+  readingType: "onyomi" | "kunyomi";
+  reading: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface Kanji {
   id: number;
-  kanji: string;
-  meaning: string;
-  strokeCount?: number;
-  jlptLevel?: number;
-  onyomi?: string;
-  kunyomi?: string;
+  character: string; // kanji character
+  meaningKey: string; // i18n translation key for meaning
+  strokeCount?: number | null;
+  jlptLevel?: number | null;
+  meanings?: KanjiMeaning[];
+  readings?: KanjiReading[];
   createdAt: string;
   updatedAt: string;
 }
@@ -119,7 +146,7 @@ const CreateContentDialog = ({
     lessonId: lessonId,
   });
 
-  const { data: kanjis, isLoading: kanjiLoading } = useKanjiListManagement({
+  const { data: kanjis, isLoading: kanjiLoading } = useKanjiList({
     page: page,
     limit: itemsPerPage,
     search: searchQuery,
@@ -130,6 +157,7 @@ const CreateContentDialog = ({
     dialogKey: dialogKey,
     lessonId: lessonId,
   });
+  console.log(kanjis);
   // Determine which data to use based on content type
   const getCurrentData = () => {
     switch (contentType) {
@@ -162,7 +190,7 @@ const CreateContentDialog = ({
   // Trigger fetch when dialog opens
   useEffect(() => {
     if (contentType && isOpen) {
-      console.log('Setting shouldFetch to true for contentType:', contentType);
+      console.log("Setting shouldFetch to true for contentType:", contentType);
       // Reset all state first
       setAllItems([]);
       setSelectedItems([]);
@@ -177,14 +205,14 @@ const CreateContentDialog = ({
       }
       // Then enable fetching
       setShouldFetch(true);
-      setDialogKey(prev => prev + 1); // Increment key to force fresh data
+      setDialogKey((prev) => prev + 1); // Increment key to force fresh data
     }
   }, [contentType, isOpen]);
 
   // Reset state when dialog closes
   useEffect(() => {
     if (!isOpen) {
-      console.log('Resetting state - dialog closed');
+      console.log("Resetting state - dialog closed");
       setShouldFetch(false);
     }
   }, [isOpen]);
@@ -198,33 +226,24 @@ const CreateContentDialog = ({
 
   // Update all items when new data comes in
   useEffect(() => {
-    let results = null;
-    let pagination = null;
-    
-    // Handle different data structures based on content type
-    if (contentType === QUESTION_TYPE.KANJI) {
-      results = currentData?.data?.results;
-      pagination = currentData?.data?.pagination;
-    } else {
-      results = currentData?.results;
-      pagination = currentData?.pagination;
-    }
-    
+    const results = currentData?.results;
+    const pagination = currentData?.pagination;
+
     if (results) {
       if (page === 1) {
         // Reset for new search/filter
         setAllItems(results);
       } else {
         // Append for pagination
-        setAllItems(prev => [...prev, ...results]);
+        setAllItems((prev) => [...prev, ...results]);
       }
-      
+
       // Check if there are more pages
       const totalPages = pagination?.totalPage || 1;
       setHasMore(page < totalPages);
       setIsLoadingMore(false);
     }
-  }, [currentData, page, contentType]);
+  }, [currentData, page]);
 
   // Reset page when search or filter changes
   useEffect(() => {
@@ -237,7 +256,7 @@ const CreateContentDialog = ({
   const loadMore = useCallback(() => {
     if (!isLoadingMore && hasMore && !isLoading) {
       setIsLoadingMore(true);
-      setPage(prev => prev + 1);
+      setPage((prev) => prev + 1);
     }
   }, [isLoadingMore, hasMore, isLoading]);
 
@@ -258,8 +277,8 @@ const CreateContentDialog = ({
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (container) {
-      container.addEventListener('scroll', handleScroll);
-      return () => container.removeEventListener('scroll', handleScroll);
+      container.addEventListener("scroll", handleScroll);
+      return () => container.removeEventListener("scroll", handleScroll);
     }
   }, [handleScroll]);
 
@@ -269,20 +288,20 @@ const CreateContentDialog = ({
       const newItems = prev.includes(itemId)
         ? prev.filter((id) => id !== itemId)
         : [...prev, itemId];
-      
+
       // Validate items
-      
-      const error = validateField('items', newItems);
+
+      const error = validateField("items", newItems);
       if (error) {
-        setErrors(prev => ({ ...prev, items: error }));
+        setErrors((prev) => ({ ...prev, items: error }));
       } else {
-        setErrors(prev => {
+        setErrors((prev) => {
           const newErrors = { ...prev };
           delete newErrors.items;
           return newErrors;
         });
       }
-      
+
       return newItems;
     });
   };
@@ -291,14 +310,14 @@ const CreateContentDialog = ({
     if (allItems.length > 0) {
       const allIds = allItems.map((item: ContentItem) => item.id);
       setSelectedItems(allIds);
-      
+
       // Validate items
-      
-      const error = validateField('items', allIds);
+
+      const error = validateField("items", allIds);
       if (error) {
-        setErrors(prev => ({ ...prev, items: error }));
+        setErrors((prev) => ({ ...prev, items: error }));
       } else {
-        setErrors(prev => {
+        setErrors((prev) => {
           const newErrors = { ...prev };
           delete newErrors.items;
           return newErrors;
@@ -309,14 +328,14 @@ const CreateContentDialog = ({
 
   const handleDeselectAll = () => {
     setSelectedItems([]);
-    
+
     // Validate items
-    
-    const error = validateField('items', []);
+
+    const error = validateField("items", []);
     if (error) {
-      setErrors(prev => ({ ...prev, items: error }));
+      setErrors((prev) => ({ ...prev, items: error }));
     } else {
-      setErrors(prev => {
+      setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors.items;
         return newErrors;
@@ -411,19 +430,15 @@ const CreateContentDialog = ({
                 <div className="font-semibold text-lg text-foreground">
                   {vocab.wordJp}
                 </div>
-                <div className="text-muted-foreground">
-                  {vocab.reading}
-                </div>
+                <div className="text-muted-foreground">{vocab.reading}</div>
                 {vocab.wordType && (
-                  <Badge
-                    className={getTypeBadgeColor(vocab.wordType.name)}
-                  >
+                  <Badge className={getTypeBadgeColor(vocab.wordType.name)}>
                     {vocab.wordType.name.charAt(0).toUpperCase() +
                       vocab.wordType.name.slice(1)}
                   </Badge>
                 )}
                 <Badge className="text-white font-semibold">
-                  N{vocab.levelN || '?'}
+                  N{vocab.levelN || "?"}
                 </Badge>
               </div>
             </div>
@@ -492,25 +507,34 @@ const CreateContentDialog = ({
             <div className="flex-1">
               <div className="flex items-center gap-3">
                 <div className="font-semibold text-2xl text-foreground">
-                  {kanji.kanji}
+                  {kanji.character}
                 </div>
-                <div className="text-muted-foreground">
-                  {kanji.meaning}
-                </div>
+                <div className="text-muted-foreground">{kanji.meaningKey}</div>
                 {kanji.strokeCount && (
-                  <Badge variant="outline">
-                    {kanji.strokeCount} strokes
-                  </Badge>
+                  <Badge variant="outline">{kanji.strokeCount} strokes</Badge>
                 )}
                 <Badge className="text-white font-semibold">
-                  N{kanji.jlptLevel || '?'}
+                  N{kanji.jlptLevel || "?"}
                 </Badge>
               </div>
-              {(kanji.onyomi || kanji.kunyomi) && (
+              {kanji.readings && kanji.readings.length > 0 && (
                 <div className="text-sm text-muted-foreground mt-1">
-                  {kanji.onyomi && `音読み: ${kanji.onyomi}`}
-                  {kanji.onyomi && kanji.kunyomi && " • "}
-                  {kanji.kunyomi && `訓読み: ${kanji.kunyomi}`}
+                  {(() => {
+                    const onyomi = kanji.readings
+                      ?.filter((reading) => reading.readingType === "onyomi")
+                      .map((reading) => reading.reading)
+                      .join(", ");
+                    const kunyomi = kanji.readings
+                      ?.filter((reading) => reading.readingType === "kunyomi")
+                      .map((reading) => reading.reading)
+                      .join(", ");
+
+                    const parts = [];
+                    if (onyomi) parts.push(`音読み: ${onyomi}`);
+                    if (kunyomi) parts.push(`訓読み: ${kunyomi}`);
+
+                    return parts.join(" • ");
+                  })()}
                 </div>
               )}
             </div>
@@ -534,9 +558,14 @@ const CreateContentDialog = ({
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      const contentTypeLabel = contentType === QUESTION_TYPE.VOCABULARY ? "vocabulary" :
-                              contentType === QUESTION_TYPE.GRAMMAR ? "grammar" :
-                              contentType === QUESTION_TYPE.KANJI ? "kanji" : "content";
+      const contentTypeLabel =
+        contentType === QUESTION_TYPE.VOCABULARY
+          ? "vocabulary"
+          : contentType === QUESTION_TYPE.GRAMMAR
+          ? "grammar"
+          : contentType === QUESTION_TYPE.KANJI
+          ? "kanji"
+          : "content";
       toast.error(`Please select at least one ${contentTypeLabel}`);
       return;
     }
@@ -555,9 +584,14 @@ const CreateContentDialog = ({
         selectedItems
       );
 
-      const contentTypeLabel = contentType === QUESTION_TYPE.VOCABULARY ? "vocabulary" :
-                              contentType === QUESTION_TYPE.GRAMMAR ? "grammar" :
-                              contentType === QUESTION_TYPE.KANJI ? "kanji" : "content";
+      const contentTypeLabel =
+        contentType === QUESTION_TYPE.VOCABULARY
+          ? "vocabulary"
+          : contentType === QUESTION_TYPE.GRAMMAR
+          ? "grammar"
+          : contentType === QUESTION_TYPE.KANJI
+          ? "kanji"
+          : "content";
       console.log(`Adding ${contentTypeLabel} to lesson:`, selectedItems);
 
       // Call the callback to refresh parent component
@@ -570,9 +604,14 @@ const CreateContentDialog = ({
       );
       setIsAddDialogOpen(false);
     } catch (error) {
-      const contentTypeLabel = contentType === QUESTION_TYPE.VOCABULARY ? "vocabulary" :
-                              contentType === QUESTION_TYPE.GRAMMAR ? "grammar" :
-                              contentType === QUESTION_TYPE.KANJI ? "kanji" : "content";
+      const contentTypeLabel =
+        contentType === QUESTION_TYPE.VOCABULARY
+          ? "vocabulary"
+          : contentType === QUESTION_TYPE.GRAMMAR
+          ? "grammar"
+          : contentType === QUESTION_TYPE.KANJI
+          ? "kanji"
+          : "content";
       console.error(`Error adding ${contentTypeLabel}:`, error);
       toast.error(`Failed to add ${contentTypeLabel} to lesson`);
     } finally {
@@ -663,7 +702,7 @@ const CreateContentDialog = ({
                 </div>
 
                 {/* Content List */}
-                <div 
+                <div
                   ref={scrollContainerRef}
                   className="space-y-2 max-h-96 overflow-y-auto"
                 >
@@ -683,7 +722,7 @@ const CreateContentDialog = ({
                   ) : (
                     allItems.map((item: ContentItem) => renderContentItem(item))
                   )}
-                  
+
                   {/* Auto Load More Indicator */}
                   {isLoadingMore && (
                     <div className="flex items-center justify-center py-4">
@@ -693,7 +732,7 @@ const CreateContentDialog = ({
                       </span>
                     </div>
                   )}
-                  
+
                   {/* End of List Indicator */}
                   {!hasMore && allItems.length > 0 && (
                     <div className="text-center py-4 text-sm text-muted-foreground">
@@ -718,7 +757,8 @@ const CreateContentDialog = ({
 
         <div className="flex justify-between items-center pt-4">
           <div className="text-xs text-muted-foreground">
-            Select {contentType?.toLowerCase()} to add to the lesson • Scroll down to load more automatically
+            Select {contentType?.toLowerCase()} to add to the lesson • Scroll
+            down to load more automatically
           </div>
           <div className="flex gap-3">
             <Button
@@ -739,7 +779,9 @@ const CreateContentDialog = ({
               ) : (
                 <Check className="h-4 w-4 mr-2" />
               )}
-              {isSubmitting ? "Adding..." : `Add ${selectedItems.length} ${contentType || 'Content'}`}
+              {isSubmitting
+                ? "Adding..."
+                : `Add ${selectedItems.length} ${contentType || "Content"}`}
             </Button>
           </div>
         </div>

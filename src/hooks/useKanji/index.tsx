@@ -8,13 +8,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
  * @param params 
  * @returns 
  */
-export const useKanjiList = (params: IQueryRequest) => {
+export const useKanjiList = (params: IQueryRequest & { enabled?: boolean; dialogKey?: number }) => {
+    const { enabled = true, dialogKey, ...queryParams } = params;
     const { data, isLoading, error } = useQuery({
-        queryKey: ["kanji-list", params],
-        queryFn: () => kanjiService.getKanjiList(params),
+        queryKey: ["kanji-list", queryParams, dialogKey],
+        queryFn: () => kanjiService.getKanjiList(queryParams),
+        enabled,
     });
-
-    return { data: data?.data, isLoading, error };
+    // Return full data object to match other hooks (includes results and pagination)
+    return { data: data?.data?.data, isLoading, error };
 };
 
 /**

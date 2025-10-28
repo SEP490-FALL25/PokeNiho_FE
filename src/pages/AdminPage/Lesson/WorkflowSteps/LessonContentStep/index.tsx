@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
+import type { LessonContent } from "@models/lessonContent/entity";
 import { Card, CardContent } from "@ui/Card";
 import { Button } from "@ui/Button";
 import { Dialog } from "@ui/Dialog";
-import { LessonContent } from "@models/lessonContent/entity";
 import {
   Plus,
   ArrowRight,
@@ -34,9 +34,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import {
-  useSortable,
-} from "@dnd-kit/sortable";
+import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 interface LessonItem {
@@ -54,11 +52,11 @@ interface ContentSection {
   title: string;
   icon: React.ComponentType<{ className?: string }>;
   color: string;
-  contents: LessonContent[];
+  contents: SectionItem[];
   isLoading: boolean;
   error: string | null;
   isDragMode: boolean;
-  sortOrder: 'contentOrder' | 'alphabetical' | 'level';
+  sortOrder: "contentOrder" | "alphabetical" | "level";
 }
 
 interface LessonContentStepProps {
@@ -67,16 +65,135 @@ interface LessonContentStepProps {
 }
 
 // Sortable Item Component
+// Minimal BE item shapes to avoid transforming data
+type MeaningEntry = { meaningKey?: string; meaning?: unknown };
+
+// Type guards and helpers for safe extraction
+const isRecord = (v: unknown): v is Record<string, unknown> =>
+  !!v && typeof v === "object" && !Array.isArray(v);
+
+const getStringFromRecord = (
+  obj: Record<string, unknown>,
+  key: string
+): string | null => {
+  const candidate = obj[key];
+  if (typeof candidate === "string") return candidate;
+  if (isRecord(candidate)) {
+    const inner = candidate["value"];
+    if (typeof inner === "string") return inner;
+  }
+  return null;
+};
+
+// Safely extract a human-readable meaning string from various backend shapes
+const extractMeaningText = (entry: MeaningEntry, lang: string): string => {
+  const value = entry?.meaning as unknown;
+
+  if (typeof value === "string") return value;
+
+  if (isRecord(value)) {
+    // { value: "nước ép" }
+    const directValue = value["value"];
+    if (typeof directValue === "string") return directValue;
+
+    // { translations: { vi: "..." } } or { translations: { vi: { value: "..." } } }
+    if (isRecord(value.translations)) {
+      const byLangFromObj =
+        getStringFromRecord(
+          value.translations as Record<string, unknown>,
+          lang
+        ) ??
+        getStringFromRecord(
+          value.translations as Record<string, unknown>,
+          "vi"
+        );
+      if (byLangFromObj) return byLangFromObj;
+    }
+
+    // { translations: [ { language_code, value } ] }
+    const translationsArr = value["translations"];
+    if (Array.isArray(translationsArr)) {
+      type TranslationItem = { language_code?: string; value?: unknown };
+      const found = (translationsArr as TranslationItem[]).find(
+        (it) =>
+          it &&
+          typeof it === "object" &&
+          it.language_code === lang &&
+          typeof it.value === "string"
+      );
+      if (found) return String(found.value);
+      const viItem = (translationsArr as TranslationItem[]).find(
+        (it) =>
+          it &&
+          typeof it === "object" &&
+          it.language_code === "vi" &&
+          typeof it.value === "string"
+      );
+      if (viItem) return String(viItem.value);
+    }
+
+    // { vi: "..." } or { vi: { value: "..." } }
+    const byLang =
+      getStringFromRecord(value, lang) ?? getStringFromRecord(value, "vi");
+    if (byLang) return byLang;
+
+    // Fallback: first string or { value: string }
+    for (const v of Object.values(value)) {
+      if (typeof v === "string") return v;
+      if (isRecord(v)) {
+        const maybe = v["value"];
+        if (typeof maybe === "string") return maybe;
+      }
+    }
+  }
+
+  return entry?.meaningKey || "";
+};
+type BaseSectionItem = {
+  id: number;
+  contentType?: string;
+  contentId?: number;
+  contentOrder?: number;
+  lessonId?: number;
+  lessonContentId?: number;
+  meaningKey?: string;
+  meanings?: MeaningEntry[];
+};
+
+type VocabularyItem = BaseSectionItem & { wordJp?: string };
+type GrammarItem = BaseSectionItem & {
+  structure?: string;
+  title?: string;
+  description?: string;
+};
+type KanjiItem = BaseSectionItem & { character?: string; meaning?: string };
+
+type SectionItem = VocabularyItem | GrammarItem | KanjiItem;
+
 interface SortableItemProps {
-  content: LessonContent;
+  content: SectionItem;
   index: number;
   isDragMode: boolean;
-  onView: (content: LessonContent) => void;
-  onEdit: (content: LessonContent) => void;
+  onView: (content: SectionItem) => void;
+  onEdit: (content: SectionItem) => void;
   onDelete: (contentId: number) => void;
+  sectionType:
+    | typeof QUESTION_TYPE.VOCABULARY
+    | typeof QUESTION_TYPE.GRAMMAR
+    | typeof QUESTION_TYPE.KANJI;
+  currentLanguage: string;
 }
 
-const SortableItem = ({ content, index, isDragMode, onView, onEdit, onDelete }: SortableItemProps) => {
+const SortableItem = ({
+  content,
+  index,
+  isDragMode,
+  onView,
+  onEdit,
+  onDelete,
+  sectionType,
+  currentLanguage,
+}: SortableItemProps) => {
   const {
     attributes,
     listeners,
@@ -97,7 +214,7 @@ const SortableItem = ({ content, index, isDragMode, onView, onEdit, onDelete }: 
       ref={setNodeRef}
       style={style}
       className={`bg-gradient-to-br from-blue-50 via-white to-indigo-100 border border-gray-200 p-4 rounded-lg flex items-center ${
-        isDragging ? 'shadow-lg' : ''
+        isDragging ? "shadow-lg" : ""
       }`}
     >
       <div className="flex items-center gap-4 flex-1">
@@ -110,15 +227,33 @@ const SortableItem = ({ content, index, isDragMode, onView, onEdit, onDelete }: 
             <GripVertical className="h-4 w-4" />
           </div>
         )}
-        <div className="text-sm font-medium text-gray-600">
-          {index + 1}.
-        </div>
+        <div className="text-sm font-medium text-gray-600">{index + 1}.</div>
         <div className="flex-1">
           <div className="text-gray-900 font-medium">
-            {content.contentType} #{content.contentId}
+            {sectionType === QUESTION_TYPE.VOCABULARY
+              ? (content as VocabularyItem)?.wordJp ??
+                `${content?.contentType} #${content?.contentId}`
+              : sectionType === QUESTION_TYPE.GRAMMAR
+              ? (content as GrammarItem)?.title ??
+                (content as GrammarItem)?.structure ??
+                `${content?.contentType} #${content?.contentId}`
+              : sectionType === QUESTION_TYPE.KANJI
+              ? (content as KanjiItem)?.character ??
+                `${content?.contentType} #${content?.contentId}`
+              : `${content?.contentType} #${content?.contentId}`}
           </div>
           <div className="text-sm text-gray-600">
-            Order: {content.contentOrder} | Lesson: {content.lessonId}
+            {sectionType === QUESTION_TYPE.GRAMMAR
+              ? (content as GrammarItem)?.description ?? ""
+              : sectionType === QUESTION_TYPE.KANJI &&
+                (content as KanjiItem)?.meaning
+              ? ((content as KanjiItem).meaning as string)
+              : Array.isArray(content?.meanings)
+              ? (content.meanings as MeaningEntry[])
+                  .map((m) => extractMeaningText(m, currentLanguage))
+                  .filter((s) => s)
+                  .join(", ")
+              : content?.meaningKey ?? ""}
           </div>
         </div>
       </div>
@@ -155,16 +290,16 @@ const SortableItem = ({ content, index, isDragMode, onView, onEdit, onDelete }: 
 };
 
 const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currentLanguage = (i18n?.language || "vi").split("-")[0];
   const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState<boolean>(false);
-  const [selectedContent, setSelectedContent] = useState<LessonContent | null>(
+  const [selectedContent, setSelectedContent] = useState<SectionItem | null>(
     null
   );
   const [selectedSectionType, setSelectedSectionType] = useState<string>(
     QUESTION_TYPE.VOCABULARY
   );
-
   // Drag and drop sensors
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -174,10 +309,15 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
   );
 
   // State for pending changes
-  const [pendingChanges, setPendingChanges] = useState<Record<string, {
-    contentType: string;
-    lessonContentId: number[];
-  }>>({});
+  const [pendingChanges, setPendingChanges] = useState<
+    Record<
+      string,
+      {
+        contentType: string;
+        lessonContentId: number[];
+      }
+    >
+  >({});
 
   // State for the three content sections
   const [contentSections, setContentSections] = useState<ContentSection[]>([
@@ -190,7 +330,7 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
       isLoading: false,
       error: null,
       isDragMode: false,
-      sortOrder: 'contentOrder',
+      sortOrder: "contentOrder",
     },
     {
       type: QUESTION_TYPE.GRAMMAR,
@@ -201,7 +341,7 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
       isLoading: false,
       error: null,
       isDragMode: false,
-      sortOrder: 'contentOrder',
+      sortOrder: "contentOrder",
     },
     {
       type: QUESTION_TYPE.KANJI,
@@ -212,76 +352,137 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
       isLoading: false,
       error: null,
       isDragMode: false,
-      sortOrder: 'contentOrder',
+      sortOrder: "contentOrder",
     },
   ]);
 
-  // Fetch content for each section
-  const fetchSectionContent = useCallback(
-    async (
-      sectionType:
-        | typeof QUESTION_TYPE.VOCABULARY
-        | typeof QUESTION_TYPE.GRAMMAR
-        | typeof QUESTION_TYPE.KANJI
-    ) => {
-      setContentSections((prev) =>
-        prev.map((section) =>
-          section.type === sectionType
-            ? { ...section, isLoading: true, error: null }
-            : section
-        )
+  // Fetch all sections in one grouped call
+  const fetchAllSections = useCallback(async () => {
+    // set loading true for all
+    setContentSections((prev) =>
+      prev.map((section) => ({ ...section, isLoading: true, error: null }))
+    );
+
+    try {
+      const response = await lessonService.getLessonContentsByLessonId(
+        lesson.id,
+        null
       );
+      const payload = response?.data?.data ?? response?.data ?? {};
 
+      const vocabularyList: SectionItem[] = payload?.voca ?? [];
+      const grammarList: SectionItem[] = payload?.grama ?? [];
+      const kanjiList: SectionItem[] = payload?.kanji ?? [];
+
+      setContentSections((prev) =>
+        prev.map((section) => {
+          if (section.type === QUESTION_TYPE.VOCABULARY) {
+            return {
+              ...section,
+              contents: vocabularyList,
+              isLoading: false,
+              error: null,
+            };
+          }
+          if (section.type === QUESTION_TYPE.GRAMMAR) {
+            return {
+              ...section,
+              contents: grammarList,
+              isLoading: false,
+              error: null,
+            };
+          }
+          if (section.type === QUESTION_TYPE.KANJI) {
+            return {
+              ...section,
+              contents: kanjiList,
+              isLoading: false,
+              error: null,
+            };
+          }
+          return section;
+        })
+      );
+    } catch (error) {
+      console.error("Failed to fetch grouped lesson contents:", error);
+      setContentSections((prev) =>
+        prev.map((section) => ({
+          ...section,
+          isLoading: false,
+          error: "Failed to fetch content",
+        }))
+      );
+    }
+  }, [lesson.id]);
+
+  // Load all sections on component mount using grouped API
+  useEffect(() => {
+    const lang = (i18n?.language || "vi").split("-")[0];
+    // Re-fetch with current language so BE can localize if supported
+    (async () => {
       try {
-        const response = await lessonService.getLessonContentList({
-          lessonId: lesson.id,
-          contentType: sectionType,
-          page: 1,
-          limit: 100,
-          sortBy: "contentOrder",
-          sort: "asc",
-        });
-
-        const contents: LessonContent[] = response.data?.data || [];
         setContentSections((prev) =>
-          prev.map((section) =>
-            section.type === sectionType
-              ? { ...section, contents, isLoading: false, error: null }
-              : section
-          )
+          prev.map((section) => ({ ...section, isLoading: true, error: null }))
+        );
+        const response = await lessonService.getLessonContentsByLessonId(
+          lesson.id,
+          lang
+        );
+        const payload = response?.data?.data ?? response?.data ?? {};
+        const vocabularyList: SectionItem[] = payload?.voca ?? [];
+        const grammarList: SectionItem[] = payload?.grama ?? [];
+        const kanjiList: SectionItem[] = payload?.kanji ?? [];
+        setContentSections((prev) =>
+          prev.map((section) => {
+            if (section.type === QUESTION_TYPE.VOCABULARY)
+              return {
+                ...section,
+                contents: vocabularyList,
+                isLoading: false,
+                error: null,
+              };
+            if (section.type === QUESTION_TYPE.GRAMMAR)
+              return {
+                ...section,
+                contents: grammarList,
+                isLoading: false,
+                error: null,
+              };
+            if (section.type === QUESTION_TYPE.KANJI)
+              return {
+                ...section,
+                contents: kanjiList,
+                isLoading: false,
+                error: null,
+              };
+            return section;
+          })
         );
       } catch (error) {
-        console.error(`Error fetching ${sectionType} content:`, error);
+        console.error(
+          "Failed to fetch grouped lesson contents with lang:",
+          error
+        );
         setContentSections((prev) =>
-          prev.map((section) =>
-            section.type === sectionType
-              ? {
-                  ...section,
-                  isLoading: false,
-                  error: `Failed to fetch ${sectionType} content`,
-                }
-              : section
-          )
+          prev.map((section) => ({
+            ...section,
+            isLoading: false,
+            error: "Failed to fetch content",
+          }))
         );
       }
-    },
-    [lesson.id]
-  );
+    })();
+  }, [lesson.id, i18n?.language, fetchAllSections]);
 
-  // Load all sections on component mount - only load existing content
-  useEffect(() => {
-    // Only fetch existing lesson content, not the full vocabulary/grammar/kanji lists
-    fetchSectionContent(QUESTION_TYPE.VOCABULARY);
-    fetchSectionContent(QUESTION_TYPE.GRAMMAR);
-    fetchSectionContent(QUESTION_TYPE.KANJI);
-  }, [lesson.id, fetchSectionContent]);
+  // Keep effect for any external changes; reuse grouped fetch
+  // (combined with initial load above)
 
-  const handleViewContent = (content: LessonContent) => {
+  const handleViewContent = (content: SectionItem) => {
     setSelectedContent(content);
     setIsViewDialogOpen(true);
   };
 
-  const handleEditContent = (content: LessonContent) => {
+  const handleEditContent = (content: SectionItem) => {
     // TODO: Implement edit functionality
     console.log("Edit content:", content);
   };
@@ -294,8 +495,20 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
       | typeof QUESTION_TYPE.KANJI
   ) => {
     try {
-      // TODO: Implement API call for delete
-      console.log("Delete content:", contentId);
+      // Find the content to get lessonContentId
+      const section = contentSections.find(s => s.type === sectionType);
+      const content = section?.contents.find(c => c.id === contentId);
+      
+      if (!content) {
+        toast.error("Không tìm thấy content để xóa");
+        return;
+      }
+
+      const lessonContentId = content.lessonContentId || content.id;
+      console.log("Deleting content:", { contentId, lessonContentId, sectionType });
+
+      // Call API to delete content
+      await lessonService.deleteLessonContent(lessonContentId);
 
       // Update local state
       setContentSections((prev) =>
@@ -308,14 +521,15 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
             : section
         )
       );
-      
+
       // Show success toast
-      toast.success('Đã xóa content thành công!');
+      toast.success("Đã xóa content thành công!");
     } catch (error) {
       console.error("Failed to delete content:", error);
-      
+
       // Show error toast
-      const errorMessage = error instanceof Error ? error.message : 'Không thể xóa content';
+      const errorMessage =
+        error instanceof Error ? error.message : "Không thể xóa content";
       toast.error(errorMessage);
     }
   };
@@ -330,44 +544,48 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
     setIsAddDialogOpen(true);
   };
 
-  const handleContentAdded = async (
-    sectionType:
-      | typeof QUESTION_TYPE.VOCABULARY
-      | typeof QUESTION_TYPE.GRAMMAR
-      | typeof QUESTION_TYPE.KANJI
-  ) => {
-    // Refresh the specific section content after successful addition
-    await fetchSectionContent(sectionType);
+  const handleContentAdded = async () => {
+    // Refresh all sections after successful addition to keep counts in sync
+    await fetchAllSections();
   };
 
   // Save all pending changes to BE
   const saveAllChanges = async () => {
     const changes = Object.values(pendingChanges);
     if (changes.length === 0) {
-      console.log('No pending changes to save');
+      console.log("No pending changes to save");
       return;
     }
 
     try {
-      console.log(`📤 Saving ${changes.length} pending changes to BE:`, changes);
-      
+      console.log(
+        `📤 Saving ${changes.length} pending changes to BE:`,
+        changes
+      );
+
       // Send each change to BE
       for (const payload of changes) {
         const response = await lessonService.updateContentOrder(payload);
-        console.log(`✅ Order updated for ${payload.contentType}:`, response.data);
+        console.log(
+          `✅ Order updated for ${payload.contentType}:`,
+          response.data
+        );
       }
 
       // Clear pending changes
       setPendingChanges({});
-      console.log('✅ All changes saved successfully');
-      
+      console.log("✅ All changes saved successfully");
+
       // Show success toast
-      toast.success('Đã lưu thay đổi vị trí thành công!');
+      toast.success("Đã lưu thay đổi vị trí thành công!");
     } catch (error) {
       console.error(`❌ Failed to save changes:`, error);
-      
+
       // Show error toast
-      const errorMessage = error instanceof Error ? error.message : 'Không thể lưu thay đổi vị trí';
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Không thể lưu thay đổi vị trí";
       toast.error(errorMessage);
     }
   };
@@ -380,32 +598,33 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
       setContentSections((prev) =>
         prev.map((section) => {
           if (section.type === sectionType) {
-            const oldIndex = section.contents.findIndex((item) => item.id === active.id);
-            const newIndex = section.contents.findIndex((item) => item.id === over?.id);
+            const oldIndex = section.contents.findIndex(
+              (item) => item.id === active.id
+            );
+            const newIndex = section.contents.findIndex(
+              (item) => item.id === over?.id
+            );
 
             const newContents = arrayMove(section.contents, oldIndex, newIndex);
-            
+
             // Update contentOrder for each item
             const updatedContents = newContents.map((content, index) => ({
               ...content,
               contentOrder: index + 1,
             }));
 
-            // Create payload for BE update
+            // Create payload for BE update using lessonContentId
             const updatePayload = {
               contentType: sectionType,
-              lessonContentId: updatedContents.map(content => content.id)
+              lessonContentId: updatedContents.map(
+                (content) => content.lessonContentId || content.id
+              ),
             };
 
-            console.log(`🔄 Reordering ${sectionType}:`);
-            console.log(`   Moving item from index ${oldIndex} to ${newIndex}`);
-            console.log(`   Update payload:`, updatePayload);
-            console.log(`   New order:`, updatedContents.map(c => ({ id: c.id, contentOrder: c.contentOrder })));
-
             // Save to pending changes (will be sent when Save button is clicked)
-            setPendingChanges(prev => ({
+            setPendingChanges((prev) => ({
               ...prev,
-              [sectionType]: updatePayload
+              [sectionType]: updatePayload,
             }));
 
             return {
@@ -431,24 +650,33 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
   };
 
   // Change sort order for a section
-  const changeSortOrder = (sectionType: string, newOrder: 'contentOrder' | 'alphabetical' | 'level') => {
+  const changeSortOrder = (
+    sectionType: string,
+    newOrder: "contentOrder" | "alphabetical" | "level"
+  ) => {
     setContentSections((prev) =>
       prev.map((section) => {
         if (section.type === sectionType) {
           const sortedContents = [...section.contents];
-          
+
           switch (newOrder) {
-            case 'alphabetical':
-              sortedContents.sort((a, b) => 
-                `${a.contentType}#${a.contentId}`.localeCompare(`${b.contentType}#${b.contentId}`)
+            case "alphabetical":
+              sortedContents.sort((a, b) =>
+                `${a.contentType}#${a.contentId}`.localeCompare(
+                  `${b.contentType}#${b.contentId}`
+                )
               );
               break;
-            case 'level':
-              sortedContents.sort((a, b) => (a.contentId || 0) - (b.contentId || 0));
+            case "level":
+              sortedContents.sort(
+                (a, b) => (a.contentId || 0) - (b.contentId || 0)
+              );
               break;
-            case 'contentOrder':
+            case "contentOrder":
             default:
-              sortedContents.sort((a, b) => a.contentOrder - b.contentOrder);
+              sortedContents.sort(
+                (a, b) => (a.contentOrder || 0) - (b.contentOrder || 0)
+              );
               break;
           }
 
@@ -519,7 +747,9 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
                       <h4 className="text-lg font-semibold text-foreground">
                         {section.title}
                         {pendingChanges[section.type] && (
-                          <span className="ml-2 text-orange-500 text-sm">● Có thay đổi</span>
+                          <span className="ml-2 text-orange-500 text-sm">
+                            ● Có thay đổi
+                          </span>
                         )}
                       </h4>
                       <p className="text-sm text-muted-foreground">
@@ -534,8 +764,14 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => changeSortOrder(section.type, 'contentOrder')}
-                          className={section.sortOrder === 'contentOrder' ? 'bg-primary text-white' : ''}
+                          onClick={() =>
+                            changeSortOrder(section.type, "contentOrder")
+                          }
+                          className={
+                            section.sortOrder === "contentOrder"
+                              ? "bg-primary text-white"
+                              : ""
+                          }
                         >
                           <ArrowUpDown className="h-4 w-4 mr-1" />
                           Order
@@ -543,16 +779,26 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => changeSortOrder(section.type, 'alphabetical')}
-                          className={section.sortOrder === 'alphabetical' ? 'bg-primary text-white' : ''}
+                          onClick={() =>
+                            changeSortOrder(section.type, "alphabetical")
+                          }
+                          className={
+                            section.sortOrder === "alphabetical"
+                              ? "bg-primary text-white"
+                              : ""
+                          }
                         >
                           A-Z
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => changeSortOrder(section.type, 'level')}
-                          className={section.sortOrder === 'level' ? 'bg-primary text-white' : ''}
+                          onClick={() => changeSortOrder(section.type, "level")}
+                          className={
+                            section.sortOrder === "level"
+                              ? "bg-primary text-white"
+                              : ""
+                          }
                         >
                           Level
                         </Button>
@@ -560,10 +806,12 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
                           variant="outline"
                           size="sm"
                           onClick={() => toggleDragMode(section.type)}
-                          className={section.isDragMode ? 'bg-orange-500 text-white' : ''}
+                          className={
+                            section.isDragMode ? "bg-orange-500 text-white" : ""
+                          }
                         >
                           <GripVertical className="h-4 w-4 mr-1" />
-                          {section.isDragMode ? 'Done' : 'Reorder'}
+                          {section.isDragMode ? "Done" : "Reorder"}
                         </Button>
                       </div>
                     )}
@@ -593,7 +841,7 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
                   <div className="text-center py-8">
                     <div className="text-red-500 mb-4">{section.error}</div>
                     <Button
-                      onClick={() => fetchSectionContent(section.type)}
+                      onClick={() => fetchAllSections()}
                       variant="outline"
                       size="sm"
                     >
@@ -623,17 +871,19 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
                       <DndContext
                         sensors={sensors}
                         collisionDetection={closestCenter}
-                        onDragEnd={(event) => handleDragEnd(event, section.type)}
+                        onDragEnd={(event) =>
+                          handleDragEnd(event, section.type)
+                        }
                       >
                         <SortableContext
-                          items={section.contents.map(item => item.id)}
+                          items={section.contents.map((item) => item.id)}
                           strategy={verticalListSortingStrategy}
                         >
                           {/* Scrollable container with fixed height */}
-                          <div 
+                          <div
                             className="space-y-3 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
                             style={{
-                              scrollBehavior: 'smooth'
+                              scrollBehavior: "smooth",
                             }}
                           >
                             {section.contents.map((content, index) => (
@@ -642,9 +892,13 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
                                 content={content}
                                 index={index}
                                 isDragMode={section.isDragMode}
+                                sectionType={section.type}
+                                currentLanguage={currentLanguage}
                                 onView={handleViewContent}
                                 onEdit={handleEditContent}
-                                onDelete={(contentId) => handleDeleteContent(contentId, section.type)}
+                                onDelete={(contentId) =>
+                                  handleDeleteContent(contentId, section.type)
+                                }
                               />
                             ))}
                           </div>
@@ -667,20 +921,13 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
           lessonTitle={lesson.titleKey}
           contentType={selectedSectionType}
           isOpen={isAddDialogOpen}
-          onContentAdded={() =>
-            handleContentAdded(
-              selectedSectionType as
-                | typeof QUESTION_TYPE.VOCABULARY
-                | typeof QUESTION_TYPE.GRAMMAR
-                | typeof QUESTION_TYPE.KANJI
-            )
-          }
+          onContentAdded={handleContentAdded}
         />
       </Dialog>
 
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
         <ViewContentDialog
-          content={selectedContent}
+          content={selectedContent as unknown as LessonContent}
           onClose={() => setIsViewDialogOpen(false)}
           onEdit={handleEditContent}
           onDelete={(contentId) => {

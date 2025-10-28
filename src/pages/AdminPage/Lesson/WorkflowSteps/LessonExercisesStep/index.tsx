@@ -3,7 +3,6 @@ import { Card, CardContent } from "@ui/Card";
 import { Button } from "@ui/Button";
 import { Input } from "@ui/Input";
 import { Badge } from "@ui/Badge";
-import { Dialog } from "@ui/Dialog";
 import {
   Select,
   SelectContent,
@@ -23,7 +22,6 @@ import {
   ArrowRight,
   Loader2,
 } from "lucide-react";
-import CreateExerciseDialog from "../../Dialogs/CreateExerciseDialog";
 import SelectTestSetDialog from "../../Dialogs/SelectTestSetDialog";
 import { useLessonExercises } from "@hooks/useLessonExercises";
 import { useCreateExercise } from "@hooks/useExercise";
@@ -47,7 +45,6 @@ interface LessonExercisesStepProps {
 const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProps) => {
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
   const [isSelectTestSetOpen, setIsSelectTestSetOpen] = useState<boolean>(false);
   const [activeTypeTab, setActiveTypeTab] = useState<string>("all");
 
@@ -77,13 +74,7 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
 
   // Handle add exercise button click
   const handleAddExercise = () => {
-    if (exercises.length === 0) {
-      // If no exercises, show testset selection dialog
-      setIsSelectTestSetOpen(true);
-    } else {
-      // If has exercises, show create exercise dialog
-      setIsAddDialogOpen(true);
-    }
+    setIsSelectTestSetOpen(true);
   };
 
   const getExerciseTypeBadge = (exerciseType: string) => {
@@ -204,14 +195,6 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
                 <Plus className="h-4 w-4 mr-2" />
                 {isCreatingExercise ? "Đang tạo..." : t('workflow.exercises.addExercise')}
               </Button>
-              
-              <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                <CreateExerciseDialog
-                  setIsAddDialogOpen={setIsAddDialogOpen}
-                  lessonId={lesson.id}
-                  lessonTitle={lesson.titleKey}
-                />
-              </Dialog>
             </div>
           </div>
 
@@ -249,7 +232,7 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
                 {t('workflow.exercises.noExerciseDescription')}
               </p>
               <Button
-                onClick={() => setIsAddDialogOpen(true)}
+                onClick={() => setIsSelectTestSetOpen(true)}
                 className="bg-primary text-white"
               >
                 <Plus className="h-4 w-4 mr-2" />
