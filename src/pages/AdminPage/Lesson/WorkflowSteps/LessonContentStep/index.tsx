@@ -164,7 +164,6 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
   const [selectedSectionType, setSelectedSectionType] = useState<string>(
     QUESTION_TYPE.VOCABULARY
   );
-
   // Drag and drop sensors
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -241,7 +240,7 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
           sortBy: "contentOrder",
           sort: "asc",
         });
-
+console.log(response.data)
         const contents: LessonContent[] = response.data?.data || [];
         setContentSections((prev) =>
           prev.map((section) =>
@@ -275,6 +274,20 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
     fetchSectionContent(QUESTION_TYPE.GRAMMAR);
     fetchSectionContent(QUESTION_TYPE.KANJI);
   }, [lesson.id, fetchSectionContent]);
+
+  // Also fetch grouped lesson contents for this lessonId with lang defaulting to null
+  useEffect(() => {
+    const fetchGrouped = async () => {
+      try {
+       const response = await lessonService.getLessonContentsByLessonId(lesson.id, null);
+       console.log(response.data)
+      
+      } catch (e) {
+        console.error('Failed to fetch grouped lesson contents:', e);
+      }
+    };
+    fetchGrouped();
+  }, [lesson.id]);
 
   const handleViewContent = (content: LessonContent) => {
     setSelectedContent(content);

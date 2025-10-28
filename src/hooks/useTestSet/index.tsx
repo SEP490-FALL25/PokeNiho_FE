@@ -14,14 +14,15 @@ import { useSelector } from "react-redux";
  */
 export const useTestSetList = (
   filters: TestSetListRequest,
-  options?: { enabled?: boolean }
+  options?: { enabled?: boolean; forceKey?: number; refetchOnMount?: 'always' | boolean }
 ) => {
   const language = useSelector(selectCurrentLanguage);
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["testset-list", filters, language],
+    queryKey: ["testset-list", filters, language, options?.forceKey],
     queryFn: () => testSetService.getTestSets(filters),
     enabled: options?.enabled ?? true,
+    refetchOnMount: options?.refetchOnMount ?? 'always',
   });
 
   return {
