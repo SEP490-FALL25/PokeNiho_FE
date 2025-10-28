@@ -14,6 +14,7 @@ export interface ICreateQuestionRequest {
         };
     }>;
     answers?: Array<{
+        id?: number;
         answerJp: string;
         isCorrect: boolean;
         translations: {

@@ -19,6 +19,7 @@ import { selectCurrentLanguage } from "@redux/features/language/selector";
 import { useSelector } from "react-redux";
 import answerService from "@services/answer";
 import { IQueryAnswerRequest } from "@models/answer/request";
+import { useUpdateAnswer, useCreateAnswer } from "@hooks/useAnswer";
 
 interface ApiError {
   response?: {
@@ -185,6 +186,7 @@ export const useQuestionBank = (
     ],
     answers: [
       {
+        id: undefined, // Will be set when editing existing answers
         answerJp: "",
         isCorrect: true,
         translations: {
@@ -213,6 +215,10 @@ export const useQuestionBank = (
   const createQuestionMutation = useCreateQuestion();
   const updateQuestionMutation = useUpdateQuestion();
   const deleteQuestionMutation = useDeleteQuestion();
+  
+  // Answer-specific hooks
+  const updateAnswerMutation = useUpdateAnswer();
+  const createAnswerMutation = useCreateAnswer();
 
   // Filter handlers
   const handleFilterChange = useCallback(
@@ -271,7 +277,7 @@ export const useQuestionBank = (
 
     // Validate meanings (required for all types)
     if (!data.meanings || data.meanings.length === 0) {
-      const error = "Ít nhất một bản dịch là bắt buộc";
+      const error = "Bản dịch là bắt buộc";
       errors.push(error);
       fieldErrors.meanings = [error];
     } else {
@@ -342,14 +348,15 @@ export const useQuestionBank = (
       audioUrl: "",
       meanings: [
         {
-        translations: {
-          vi: "",
-          en: "",
-        },
+          translations: {
+            vi: "",
+            en: "",
+          },
         },
       ],
       answers: [
         {
+          id: undefined,
           answerJp: "",
           isCorrect: true,
           translations: {
@@ -387,6 +394,7 @@ export const useQuestionBank = (
     // Clean up form data before sending
     const cleanedFormData = {
       ...formData,
+      meanings: formData.meanings, // Already array format
       audioUrl: formData.audioUrl === "" ? null : formData.audioUrl,
       // Remove options for VOCABULARY type
       ...(formData.questionType === "VOCABULARY" && { options: undefined }),
@@ -397,7 +405,7 @@ export const useQuestionBank = (
     // Log the payload for debugging
     console.log("Creating question with payload:", JSON.stringify(cleanedFormData, null, 2));
     
-    createQuestionMutation.mutate(cleanedFormData, {
+    createQuestionMutation.mutate(cleanedFormData as ICreateQuestionRequest, {
       onSuccess: () => {
         setIsCreateDialogOpen(false);
         resetFormData();
@@ -480,14 +488,39 @@ export const useQuestionBank = (
       levelN: question.levelN as JLPTLevel,
       pronunciation: question.pronunciation || "",
       audioUrl: question.audioUrl || "",
-      meanings: Array.isArray(question.meanings) ? question.meanings : [
-        {
+      meanings: Array.isArray(question.meanings) ? 
+        (() => {
+          // Find Vietnamese and English translations from API data
+          let viTranslation = "";
+          let enTranslation = "";
+          
+          question.meanings.forEach(meaning => {
+            if ('language' in meaning && 'value' in meaning) {
+              // New API format (language/value)
+              if (meaning.language === "vi") {
+                viTranslation = meaning.value;
+              } else if (meaning.language === "en") {
+                enTranslation = meaning.value;
+              }
+            } else if ('translations' in meaning) {
+              // Old format (translations.vi/en)
+              viTranslation = meaning.translations.vi || "";
+              enTranslation = meaning.translations.en || "";
+            }
+          });
+          
+          return [{
+            translations: {
+              vi: viTranslation,
+              en: enTranslation,
+            }
+          }];
+        })() : [{
           translations: {
             vi: question.meaning || "",
             en: "",
           },
-        },
-      ],
+        }],
       answers: [], // Will be populated after fetching
     });
 
@@ -503,6 +536,7 @@ export const useQuestionBank = (
       console.log(fetchedAnswers)
       // Transform the fetched answers to match the form structure
       const formattedAnswers = fetchedAnswers.map((answer) => ({
+        id: answer.id, // Store the answer ID for updates
         answerJp: answer.answerJp,
         isCorrect: answer.isCorrect,
         translations: answer.translations,
@@ -513,6 +547,7 @@ export const useQuestionBank = (
         ...prev,
         answers: formattedAnswers.length > 0 ? formattedAnswers : [
           {
+            id: undefined,
             answerJp: "",
             isCorrect: true,
             translations: {
@@ -538,6 +573,7 @@ export const useQuestionBank = (
         ...prev,
         answers: [
           {
+            id: undefined,
             answerJp: "",
             isCorrect: true,
             translations: {
@@ -582,6 +618,63 @@ export const useQuestionBank = (
     return labels?.[level as keyof typeof labels] || `N${level}`;
   }, [language]);
 
+  // Handler for updating only question part
+  const handleUpdateQuestion = useCallback(async () => {
+    if (!editingQuestion) return;
+    
+    const questionData = {
+      questionJp: formData.questionJp,
+      questionType: formData.questionType,
+      levelN: formData.levelN,
+      pronunciation: formData.pronunciation,
+      audioUrl: formData.audioUrl,
+      meanings: formData.meanings, // Already array format
+    };
+
+    await updateQuestionMutation.mutateAsync({
+      id: editingQuestion.id,
+      data: questionData as ICreateQuestionRequest,
+    });
+  }, [editingQuestion, formData, updateQuestionMutation]);
+
+  // Handler for updating only answer part
+  const handleUpdateAnswer = useCallback(async () => {
+    if (!editingQuestion || !formData.answers) return;
+    
+    try {
+      // Update each answer individually using the answer API
+      const updatePromises = formData.answers.map(async (answer) => {
+        console.log("Updating answer:", answer);
+        if (answer.id) {
+          // Update existing answer
+          return updateAnswerMutation.mutateAsync({
+            id: answer.id,
+            data: {
+              answerJp: answer.answerJp,
+              isCorrect: answer.isCorrect,
+              questionId: editingQuestion.id,
+              translations: answer.translations,
+            },
+          });
+        } else {
+          // Create new answer
+          return createAnswerMutation.mutateAsync({
+            answerJp: answer.answerJp,
+            isCorrect: answer.isCorrect,
+            questionId: editingQuestion.id,
+            translations: answer.translations,
+          });
+        }
+      });
+
+      await Promise.all(updatePromises);
+      toast.success("Cập nhật đáp án thành công!");
+    } catch (error) {
+      console.error("Error updating answers:", error);
+      toast.error("Có lỗi xảy ra khi cập nhật đáp án");
+    }
+  }, [editingQuestion, formData.answers, updateAnswerMutation, createAnswerMutation]);
+
   return {
     // Data
     questions,
@@ -601,6 +694,7 @@ export const useQuestionBank = (
     isCreating: createQuestionMutation.isPending,
     isUpdating: updateQuestionMutation.isPending,
     isDeleting: deleteQuestionMutation.isPending,
+    isUpdatingAnswer: updateAnswerMutation.isPending || createAnswerMutation.isPending,
 
     // Handlers
     handleFilterChange,
@@ -609,6 +703,8 @@ export const useQuestionBank = (
     handleCreateQuestion,
     handleEditQuestion,
     handleDeleteQuestion,
+    handleUpdateQuestion,
+    handleUpdateAnswer,
     openCreateDialog,
     openEditDialog,
     closeDialogs,

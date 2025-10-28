@@ -50,17 +50,17 @@ const QuestionBankManagement: React.FC = () => {
     isCreating,
     isUpdating,
     isDeleting,
+    isUpdatingAnswer,
     isLoadingAnswers,
-    validationErrors,
-    setValidationErrors,
     fieldErrors,
     setFieldErrors,
     handleFilterChange,
     handlePageChange,
     handleSort,
     handleCreateQuestion,
-    handleEditQuestion,
     handleDeleteQuestion,
+    handleUpdateQuestion,
+    handleUpdateAnswer,
     openCreateDialog,
     openEditDialog,
     closeDialogs,
@@ -336,7 +336,30 @@ const QuestionBankManagement: React.FC = () => {
                         </TableCell>
 
                         <TableCell className="w-32 py-2">
-                          {question.meaning ? (
+                          {question.meanings && question.meanings.length > 0 ? (
+                            <div className="text-gray-500 text-xs space-y-1">
+                              {question.meanings.map((meaning, index) => (
+                                <div key={index} className="truncate">
+                                  {/* Handle new API format (language/value) */}
+                                  {'language' in meaning && 'value' in meaning ? (
+                                    <>
+                                      <span className="font-medium">{meaning.language}:</span> {meaning.value}
+                                    </>
+                                  ) : (
+                                    /* Handle old format (translations.vi/en) */
+                                    <>
+                                      {'translations' in meaning && meaning.translations?.vi && (
+                                        <div>vi: {meaning.translations.vi}</div>
+                                      )}
+                                      {'translations' in meaning && meaning.translations?.en && (
+                                        <div>en: {meaning.translations.en}</div>
+                                      )}
+                                    </>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          ) : question.meaning ? (
                             <div className="text-gray-500 text-xs">
                               {question.meaning}
                             </div>
@@ -610,121 +633,68 @@ const QuestionBankManagement: React.FC = () => {
                     ))}
                   </div>
                 )}
-                {formData.meanings?.map((meaning, index) => (
-                  <div
-                    key={index}
-                    className="border rounded-lg p-4 mb-4 bg-gray-50"
-                  >
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-600 mb-1">
-                          Vietnamese Translation
-                        </label>
-                        <Input
-                          value={meaning.translations.vi}
-                          onChange={(e) => {
-                            setFormData((prev) => ({
-                              ...prev,
-                              meanings: (prev.meanings || []).map((m, i) =>
-                                i === index
-                                  ? {
-                                      ...m,
-                                      translations: {
-                                        ...m.translations,
-                                        vi: e.target.value,
-                                      },
-                                    }
-                                  : m
-                              ),
-                            }));
-                            // Clear field error when user starts typing
-                            if (fieldErrors.meanings) {
-                              setFieldErrors((prev) => {
-                                const newErrors = { ...prev };
-                                delete newErrors.meanings;
-                                return newErrors;
-                              });
-                            }
-                          }}
-                          placeholder="Vietnamese translation"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-600 mb-1">
-                          English Translation
-                        </label>
-                        <Input
-                          value={meaning.translations.en}
-                          onChange={(e) => {
-                            setFormData((prev) => ({
-                              ...prev,
-                              meanings: (prev.meanings || []).map((m, i) =>
-                                i === index
-                                  ? {
-                                      ...m,
-                                      translations: {
-                                        ...m.translations,
-                                        en: e.target.value,
-                                      },
-                                    }
-                                  : m
-                              ),
-                            }));
-                            // Clear field error when user starts typing
-                            if (fieldErrors.meanings) {
-                              setFieldErrors((prev) => {
-                                const newErrors = { ...prev };
-                                delete newErrors.meanings;
-                                return newErrors;
-                              });
-                            }
-                          }}
-                          placeholder="English translation"
-                        />
-                      </div>
-                    </div>
-                    {(formData.meanings || []).length > 1 && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="mt-2"
-                        onClick={() =>
+                <div className="border rounded-lg p-4 mb-4 bg-gray-50">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">
+                        Vietnamese Translation
+                      </label>
+                      <Input
+                        value={formData.meanings?.[0]?.translations?.vi || ""}
+                        onChange={(e) => {
                           setFormData((prev) => ({
                             ...prev,
-                            meanings: (prev.meanings || []).filter(
-                              (_, i) => i !== index
-                            ),
-                          }))
-                        }
-                      >
-                        Remove Translation
-                      </Button>
-                    )}
+                            meanings: [{
+                              ...prev.meanings?.[0],
+                              translations: {
+                                ...prev.meanings?.[0]?.translations,
+                                vi: e.target.value,
+                              },
+                            }],
+                          }));
+                          // Clear field error when user starts typing
+                          if (fieldErrors.meanings) {
+                            setFieldErrors((prev) => {
+                              const newErrors = { ...prev };
+                              delete newErrors.meanings;
+                              return newErrors;
+                            });
+                          }
+                        }}
+                        placeholder="Vietnamese translation"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">
+                        English Translation
+                      </label>
+                      <Input
+                        value={formData.meanings?.[0]?.translations?.en || ""}
+                        onChange={(e) => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            meanings: [{
+                              ...prev.meanings?.[0],
+                              translations: {
+                                ...prev.meanings?.[0]?.translations,
+                                en: e.target.value,
+                              },
+                            }],
+                          }));
+                          // Clear field error when user starts typing
+                          if (fieldErrors.meanings) {
+                            setFieldErrors((prev) => {
+                              const newErrors = { ...prev };
+                              delete newErrors.meanings;
+                              return newErrors;
+                            });
+                          }
+                        }}
+                        placeholder="English translation"
+                      />
+                    </div>
                   </div>
-                ))}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      meanings: [
-                        ...(prev.meanings || []),
-                        {
-                          translations: {
-                            vi: "",
-                            en: "",
-                            ja: "",
-                          },
-                        },
-                      ],
-                    }))
-                  }
-                >
-                  Add Translation
-                </Button>
+                </div>
               </div>
 
               {/* Answers - Show for all question types except MATCHING */}
@@ -856,7 +826,7 @@ const QuestionBankManagement: React.FC = () => {
                               <Input
                                 value={
                                   answer.translations?.meaning?.find(
-                                    (m) => m.language_code === "vi"
+                                    (m) => m && m.language_code === "vi"
                                   )?.value || ""
                                 }
                                 onChange={(e) =>
@@ -867,16 +837,21 @@ const QuestionBankManagement: React.FC = () => {
                                         ? {
                                             ...a,
                                             translations: {
-                                              meaning: (
-                                                a.translations?.meaning || []
-                                              ).map((m) =>
-                                                m.language_code === "vi"
-                                                  ? {
-                                                      ...m,
-                                                      value: e.target.value,
-                                                    }
-                                                  : m
-                                              ),
+                                              meaning: (() => {
+                                                const existingMeanings = a.translations?.meaning || [];
+                                                const enMeaning = existingMeanings.find(m => m && m.language_code === "en");
+                                                
+                                                return [
+                                                  {
+                                                    language_code: "vi",
+                                                    value: e.target.value,
+                                                  },
+                                                  {
+                                                    language_code: "en", 
+                                                    value: enMeaning?.value || "",
+                                                  }
+                                                ];
+                                              })(),
                                             },
                                           }
                                         : a
@@ -893,7 +868,7 @@ const QuestionBankManagement: React.FC = () => {
                               <Input
                                 value={
                                   answer.translations?.meaning?.find(
-                                    (m) => m.language_code === "en"
+                                    (m) => m && m.language_code === "en"
                                   )?.value || ""
                                 }
                                 onChange={(e) =>
@@ -904,16 +879,21 @@ const QuestionBankManagement: React.FC = () => {
                                         ? {
                                             ...a,
                                             translations: {
-                                              meaning: (
-                                                a.translations?.meaning || []
-                                              ).map((m) =>
-                                                m.language_code === "en"
-                                                  ? {
-                                                      ...m,
-                                                      value: e.target.value,
-                                                    }
-                                                  : m
-                                              ),
+                                              meaning: (() => {
+                                                const existingMeanings = a.translations?.meaning || [];
+                                                const viMeaning = existingMeanings.find(m => m && m.language_code === "vi");
+                                                
+                                                return [
+                                                  {
+                                                    language_code: "vi",
+                                                    value: viMeaning?.value || "",
+                                                  },
+                                                  {
+                                                    language_code: "en", 
+                                                    value: e.target.value,
+                                                  }
+                                                ];
+                                              })(),
                                             },
                                           }
                                         : a
@@ -1023,7 +1003,7 @@ const QuestionBankManagement: React.FC = () => {
                           <Input
                             value={
                               formData.answers?.[0]?.translations?.meaning?.find(
-                                (m) => m.language_code === "vi"
+                                (m) => m && m.language_code === "vi"
                               )?.value || ""
                             }
                             onChange={(e) =>
@@ -1034,14 +1014,21 @@ const QuestionBankManagement: React.FC = () => {
                                     answerJp: prev.answers?.[0]?.answerJp || "",
                                     isCorrect: true,
                                     translations: {
-                                      meaning: (
-                                        prev.answers?.[0]?.translations
-                                          ?.meaning || []
-                                      ).map((m) =>
-                                        m.language_code === "vi"
-                                          ? { ...m, value: e.target.value }
-                                          : m
-                                      ),
+                                      meaning: (() => {
+                                        const existingMeanings = prev.answers?.[0]?.translations?.meaning || [];
+                                        const enMeaning = existingMeanings.find(m => m && m.language_code === "en");
+                                        
+                                        return [
+                                          {
+                                            language_code: "vi",
+                                            value: e.target.value,
+                                          },
+                                          {
+                                            language_code: "en", 
+                                            value: enMeaning?.value || "",
+                                          }
+                                        ];
+                                      })(),
                                     },
                                   },
                                 ],
@@ -1058,7 +1045,7 @@ const QuestionBankManagement: React.FC = () => {
                           <Input
                             value={
                               formData.answers?.[0]?.translations?.meaning?.find(
-                                (m) => m.language_code === "en"
+                                (m) => m && m.language_code === "en"
                               )?.value || ""
                             }
                             onChange={(e) =>
@@ -1069,14 +1056,21 @@ const QuestionBankManagement: React.FC = () => {
                                     answerJp: prev.answers?.[0]?.answerJp || "",
                                     isCorrect: true,
                                     translations: {
-                                      meaning: (
-                                        prev.answers?.[0]?.translations
-                                          ?.meaning || []
-                                      ).map((m) =>
-                                        m.language_code === "en"
-                                          ? { ...m, value: e.target.value }
-                                          : m
-                                      ),
+                                      meaning: (() => {
+                                        const existingMeanings = prev.answers?.[0]?.translations?.meaning || [];
+                                        const viMeaning = existingMeanings.find(m => m && m.language_code === "vi");
+                                        
+                                        return [
+                                          {
+                                            language_code: "vi",
+                                            value: viMeaning?.value || "",
+                                          },
+                                          {
+                                            language_code: "en", 
+                                            value: e.target.value,
+                                          }
+                                        ];
+                                      })(),
                                     },
                                   },
                                 ],
@@ -1091,22 +1085,46 @@ const QuestionBankManagement: React.FC = () => {
                 </div>
               )}
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={closeDialogs}>
-                {t("common.cancel")}
-              </Button>
-              <Button
-                onClick={
-                  isCreateDialogOpen ? handleCreateQuestion : handleEditQuestion
-                }
-                disabled={isCreating || isUpdating}
-              >
-                {isCreating || isUpdating
-                  ? t("questionBank.createDialog.processing")
-                  : isCreateDialogOpen
-                    ? t("questionBank.createDialog.createButton")
-                    : t("questionBank.createDialog.updateButton")}
-              </Button>
+            <DialogFooter className="flex flex-col gap-3">
+              <div className="flex justify-between w-full">
+                <Button variant="outline" onClick={closeDialogs}>
+                  {t("common.cancel")}
+                </Button>
+                <div className="flex gap-2">
+                  {isCreateDialogOpen ? (
+                    <Button
+                      onClick={handleCreateQuestion}
+                      disabled={isCreating}
+                    >
+                      {isCreating
+                        ? t("questionBank.createDialog.processing")
+                        : t("questionBank.createDialog.createButton")}
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        variant="outline"
+                        onClick={handleUpdateQuestion}
+                        disabled={isUpdating}
+                        className="bg-blue-50 text-blue-700 hover:bg-blue-100"
+                      >
+                        {isUpdating
+                          ? "Đang cập nhật..."
+                          : "Cập nhật Câu hỏi"}
+                      </Button>
+                      <Button
+                        onClick={handleUpdateAnswer}
+                        disabled={isUpdatingAnswer}
+                        className="bg-green-50 text-green-700 hover:bg-green-100"
+                      >
+                        {isUpdatingAnswer
+                          ? "Đang cập nhật..."
+                          : "Cập nhật Đáp án"}
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
             </DialogFooter>
           </DialogContent>
         </Dialog>

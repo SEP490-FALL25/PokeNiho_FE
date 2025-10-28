@@ -1,21 +1,61 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 import exerciseService from "@services/exercise";
-import { useQuery } from "@tanstack/react-query";
+import { CreateExerciseRequest } from "@models/exercise/request";
+
+interface ApiError {
+  response?: {
+    status?: number;
+    data?: {
+      message?: string | string[];
+    };
+  };
+}
 
 /**
- * Handle Exercise List by Lesson ID
- * @param lessonId number
- * @returns { data: data?.data, isLoading, error }
+ * Hook for creating a new exercise
+ * @returns { createExercise, isLoading, error }
  */
-export const useExercisesByLessonId = (lessonId: number) => {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["exercises", "lesson", lessonId],
-    queryFn: () => exerciseService.getExercisesByLessonId(lessonId),
-    enabled: !!lessonId, // Only run query if lessonId is provided
+export const useCreateExercise = () => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (data: CreateExerciseRequest) => exerciseService.createExercise(data),
+    onSuccess: (response) => {
+      toast.success(response.message || "Tạo bài tập thành công");
+      // Invalidate and refetch exercises list
+      queryClient.invalidateQueries({ queryKey: ["exercises"] });
+    },
+    onError: (error: ApiError) => {
+      const errorMessage = error.response?.data?.message;
+      if (Array.isArray(errorMessage)) {
+        toast.error(errorMessage.join(", "));
+      } else if (errorMessage) {
+        toast.error(errorMessage);
+      } else {
+        toast.error("Có lỗi xảy ra khi tạo bài tập");
+      }
+    },
   });
 
-  return { 
-    data: data?.data, 
-    isLoading, 
-    error 
+  return {
+    createExercise: mutation.mutate,
+    isLoading: mutation.isPending,
+    error: mutation.error,
+  };
+};
+
+/**
+ * Hook for fetching exercises by lesson id
+ */
+export const useExercisesByLessonId = (lessonId: number) => {
+  const query = useQuery({
+    queryKey: ["exercises", { lessonId }],
+    queryFn: () => exerciseService.getExercisesByLessonId(lessonId),
+    enabled: Boolean(lessonId),
+  });
+
+  return {
+    ...query,
   };
 };
