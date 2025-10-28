@@ -1,4 +1,4 @@
-import { byUser } from "@models/common/response";
+import { byUser, TranslationInputSchema } from "@models/common/response";
 import { at } from "@models/common/response";
 import { z } from "zod";
 import { ShopItemRandomSchema } from "../response";
@@ -19,6 +19,7 @@ export const ShopBannerSchema = z.object({
     ...byUser,
     ...at,
     nameTranslation: z.string(),
+    nameTranslations: TranslationInputSchema,
     shopItems: z.array(ShopItemRandomSchema),
 });
 export type IShopBannerSchema = z.infer<typeof ShopBannerSchema>;

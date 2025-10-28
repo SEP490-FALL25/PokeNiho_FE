@@ -74,7 +74,6 @@ const EditShopBannerDialog = ({ isOpen, onClose, bannerData }: EditShopBannerDia
             setSelectedStartDate(startDate);
             setSelectedEndDate(endDate);
 
-            // Use nameKey to translate for each language
             reset({
                 startDate: formatDateForForm(startDate),
                 endDate: formatDateForForm(endDate),
@@ -84,14 +83,13 @@ const EditShopBannerDialog = ({ isOpen, onClose, bannerData }: EditShopBannerDia
                 enablePrecreate: bannerData.enablePrecreate,
                 precreateBeforeEndDays: bannerData.precreateBeforeEndDays,
                 isRandomItemAgain: bannerData.isRandomItemAgain,
-                nameTranslations: [
-                    { key: "en" as const, value: t(bannerData.nameKey, { lng: 'en' }) },
-                    { key: "ja" as const, value: t(bannerData.nameKey, { lng: 'ja' }) },
-                    { key: "vi" as const, value: t(bannerData.nameKey, { lng: 'vi' }) },
-                ],
+                nameTranslations: bannerData.nameTranslations.map((t) => ({
+                    key: t.key as "en" | "ja" | "vi",
+                    value: t.value,
+                })),
             });
         }
-    }, [isOpen, bannerData, reset, t]);
+    }, [isOpen, bannerData, reset]);
 
     const handleFormSubmit = async (data: ICreateShopBannerRequest) => {
         try {
@@ -115,7 +113,10 @@ const EditShopBannerDialog = ({ isOpen, onClose, bannerData }: EditShopBannerDia
                     {/* Multilingual Input */}
                     <MultilingualInput
                         label={t('configShop.bannerName')}
-                        fields={nameFields}
+                        fields={nameFields.map((field) => ({
+                            id: field.id,
+                            key: field.key,
+                        }))}
                         register={register}
                         errors={errors.nameTranslations}
                         placeholderKey="configShop.bannerNamePlaceholder"
