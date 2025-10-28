@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 import questionBankService from "@services/questionBank";
 import {
   IQueryQuestionRequest,
@@ -18,6 +19,16 @@ import { selectCurrentLanguage } from "@redux/features/language/selector";
 import { useSelector } from "react-redux";
 import answerService from "@services/answer";
 import { IQueryAnswerRequest } from "@models/answer/request";
+import { useUpdateAnswer, useCreateAnswer } from "@hooks/useAnswer";
+
+interface ApiError {
+  response?: {
+    status?: number;
+    data?: {
+      message?: string | string[];
+    };
+  };
+}
 
 /**
  * Hook for managing QuestionBank list with filters and pagination
@@ -56,6 +67,21 @@ export const useCreateQuestion = () => {
       questionBankService.createQuestion(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["question-bank-list"] });
+      toast.success("Tạo câu hỏi thành công!");
+    },
+    onError: (error: unknown) => {
+      console.error("Error creating question:", error);
+      const apiError = error as ApiError;
+      if (apiError?.response?.status === 422) {
+        const messages = apiError?.response?.data?.message;
+        if (Array.isArray(messages)) {
+          toast.error(`Lỗi validation: ${messages.join(', ')}`);
+        } else {
+          toast.error(messages || "Lỗi validation");
+        }
+      } else {
+        toast.error(apiError?.response?.data?.message || "Có lỗi xảy ra khi tạo câu hỏi");
+      }
     },
   });
 
@@ -74,6 +100,21 @@ export const useUpdateQuestion = () => {
       questionBankService.updateQuestion(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["question-bank-list"] });
+      toast.success("Cập nhật câu hỏi thành công!");
+    },
+    onError: (error: unknown) => {
+      console.error("Error updating question:", error);
+      const apiError = error as ApiError;
+      if (apiError?.response?.status === 422) {
+        const messages = apiError?.response?.data?.message;
+        if (Array.isArray(messages)) {
+          toast.error(`Lỗi validation: ${messages.join(', ')}`);
+        } else {
+          toast.error(messages || "Lỗi validation");
+        }
+      } else {
+        toast.error(apiError?.response?.data?.message || "Có lỗi xảy ra khi cập nhật câu hỏi");
+      }
     },
   });
 
@@ -91,6 +132,12 @@ export const useDeleteQuestion = () => {
     mutationFn: (id: number) => questionBankService.deleteQuestion(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["question-bank-list"] });
+      toast.success("Xóa câu hỏi thành công!");
+    },
+    onError: (error: unknown) => {
+      console.error("Error deleting question:", error);
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || "Có lỗi xảy ra khi xóa câu hỏi");
     },
   });
 
@@ -139,6 +186,7 @@ export const useQuestionBank = (
     ],
     answers: [
       {
+        id: undefined, // Will be set when editing existing answers
         answerJp: "",
         isCorrect: true,
         translations: {
@@ -167,6 +215,10 @@ export const useQuestionBank = (
   const createQuestionMutation = useCreateQuestion();
   const updateQuestionMutation = useUpdateQuestion();
   const deleteQuestionMutation = useDeleteQuestion();
+  
+  // Answer-specific hooks
+  const updateAnswerMutation = useUpdateAnswer();
+  const createAnswerMutation = useCreateAnswer();
 
   // Filter handlers
   const handleFilterChange = useCallback(
@@ -211,6 +263,81 @@ export const useQuestionBank = (
     });
   }, []);
 
+  // Validation function
+  const validateFormData = useCallback((data: ICreateQuestionRequest) => {
+    const errors: string[] = [];
+    const fieldErrors: Record<string, string[]> = {};
+
+    // Validate questionJp (required for all types)
+    if (!data.questionJp || data.questionJp.trim() === "") {
+      const error = "Câu hỏi tiếng Nhật là bắt buộc";
+      errors.push(error);
+      fieldErrors.questionJp = [error];
+    }
+
+    // Validate meanings (required for all types)
+    if (!data.meanings || data.meanings.length === 0) {
+      const error = "Bản dịch là bắt buộc";
+      errors.push(error);
+      fieldErrors.meanings = [error];
+    } else {
+      const hasValidMeaning = data.meanings.some(meaning => 
+        meaning.translations.vi?.trim() !== "" || 
+        meaning.translations.en?.trim() !== ""
+      );
+      if (!hasValidMeaning) {
+        const error = "Ít nhất một bản dịch (tiếng Việt hoặc tiếng Anh) phải được điền";
+        errors.push(error);
+        fieldErrors.meanings = [error];
+      }
+    }
+
+    // Validate answers (required for all types except MATCHING)
+    if (data.questionType !== "MATCHING") {
+      if (!data.answers || data.answers.length === 0) {
+        const error = "Ít nhất một câu trả lời là bắt buộc";
+        errors.push(error);
+        fieldErrors.answers = [error];
+      } else {
+        // Check if at least one answer is marked as correct
+        const hasCorrectAnswer = data.answers.some(answer => answer.isCorrect);
+        if (!hasCorrectAnswer) {
+          const error = "Ít nhất một câu trả lời phải được đánh dấu là đúng";
+          errors.push(error);
+          fieldErrors.answers = [...(fieldErrors.answers || []), error];
+        }
+
+        // Check if all answers have Japanese text
+        const hasEmptyAnswers = data.answers.some(answer => !answer.answerJp || answer.answerJp.trim() === "");
+        if (hasEmptyAnswers) {
+          const error = "Tất cả câu trả lời phải có nội dung tiếng Nhật";
+          errors.push(error);
+          fieldErrors.answers = [...(fieldErrors.answers || []), error];
+        }
+      }
+    } else {
+      // For MATCHING type, validate single answer
+      if (!data.answers || data.answers.length === 0 || !data.answers[0]?.answerJp || data.answers[0].answerJp.trim() === "") {
+        const error = "Câu trả lời tiếng Nhật là bắt buộc cho loại MATCHING";
+        errors.push(error);
+        fieldErrors.answers = [error];
+      }
+    }
+
+    // Validate pronunciation for SPEAKING type
+    if (data.questionType === "SPEAKING" && (!data.pronunciation || data.pronunciation.trim() === "")) {
+      const error = "Phát âm là bắt buộc cho loại SPEAKING";
+      errors.push(error);
+      fieldErrors.pronunciation = [error];
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+      fieldErrors
+    };
+  }, []);
+
   // Reset form data
   const resetFormData = useCallback(() => {
     setFormData({
@@ -221,14 +348,15 @@ export const useQuestionBank = (
       audioUrl: "",
       meanings: [
         {
-        translations: {
-          vi: "",
-          en: "",
-        },
+          translations: {
+            vi: "",
+            en: "",
+          },
         },
       ],
       answers: [
         {
+          id: undefined,
           answerJp: "",
           isCorrect: true,
           translations: {
@@ -250,72 +378,107 @@ export const useQuestionBank = (
 
   // CRUD operations
   const handleCreateQuestion = useCallback(async () => {
-    try {
-      // Clean up form data before sending
-      const cleanedFormData = {
-        ...formData,
-        audioUrl: formData.audioUrl === "" ? null : formData.audioUrl,
-        // Remove options for VOCABULARY type
-        ...(formData.questionType === "VOCABULARY" && { options: undefined }),
-        // Remove correctAnswer for all types
-        correctAnswer: undefined,
-      };
-      
-      // Log the payload for debugging
-      console.log("Creating question with payload:", JSON.stringify(cleanedFormData, null, 2));
-      
-      await createQuestionMutation.mutateAsync(cleanedFormData);
-      setIsCreateDialogOpen(false);
-      resetFormData();
-    } catch (error) {
-      console.error("Error creating question:", error);
+    // Validate form data before submitting
+    const validation = validateFormData(formData);
+    if (!validation.isValid) {
+      setValidationErrors(validation.errors);
+      setFieldErrors(validation.fieldErrors);
+      toast.error(`Lỗi validation: ${validation.errors.join(', ')}`);
+      return;
     }
-  }, [formData, createQuestionMutation, resetFormData]);
+    
+    // Clear validation errors if validation passes
+    setValidationErrors([]);
+    setFieldErrors({});
+
+    // Clean up form data before sending
+    const cleanedFormData = {
+      ...formData,
+      meanings: formData.meanings, // Already array format
+      audioUrl: formData.audioUrl === "" ? null : formData.audioUrl,
+      // Remove options for VOCABULARY type
+      ...(formData.questionType === "VOCABULARY" && { options: undefined }),
+      // Remove correctAnswer for all types
+      correctAnswer: undefined,
+    };
+    
+    // Log the payload for debugging
+    console.log("Creating question with payload:", JSON.stringify(cleanedFormData, null, 2));
+    
+    createQuestionMutation.mutate(cleanedFormData as ICreateQuestionRequest, {
+      onSuccess: () => {
+        setIsCreateDialogOpen(false);
+        resetFormData();
+      }
+    });
+  }, [formData, createQuestionMutation, resetFormData, validateFormData]);
 
   const handleEditQuestion = useCallback(async () => {
     if (!editingQuestion) return;
-    try {
-      // Clean up form data before sending
-      const cleanedFormData = {
-        ...formData,
-        audioUrl: formData.audioUrl === "" ? null : formData.audioUrl,
-        // Remove options for VOCABULARY type
-        ...(formData.questionType === "VOCABULARY" && { options: undefined }),
-        // Remove correctAnswer for all types
-        correctAnswer: undefined,
-      };
-      await updateQuestionMutation.mutateAsync({
-        id: editingQuestion.id,
-        data: cleanedFormData,
-      });
-      setIsEditDialogOpen(false);
-      setEditingQuestion(null);
-    } catch (error) {
-      console.error("Error updating question:", error);
+    
+    // Validate form data before submitting
+    const validation = validateFormData(formData);
+    if (!validation.isValid) {
+      setValidationErrors(validation.errors);
+      setFieldErrors(validation.fieldErrors);
+      toast.error(`Lỗi validation: ${validation.errors.join(', ')}`);
+      return;
     }
-  }, [editingQuestion, formData, updateQuestionMutation]);
+    
+    // Clear validation errors if validation passes
+    setValidationErrors([]);
+    setFieldErrors({});
+    
+    // Clean up form data before sending
+    const cleanedFormData = {
+      ...formData,
+      audioUrl: formData.audioUrl === "" ? null : formData.audioUrl,
+      // Remove options for VOCABULARY type
+      ...(formData.questionType === "VOCABULARY" && { options: undefined }),
+      // Remove correctAnswer for all types
+      correctAnswer: undefined,
+    };
+    
+    updateQuestionMutation.mutate({
+      id: editingQuestion.id,
+      data: cleanedFormData,
+    }, {
+      onSuccess: () => {
+        setIsEditDialogOpen(false);
+        setEditingQuestion(null);
+      }
+    });
+  }, [editingQuestion, formData, updateQuestionMutation, validateFormData]);
 
   const handleDeleteQuestion = useCallback(async () => {
     if (!deleteQuestionId) return;
-    try {
-      await deleteQuestionMutation.mutateAsync(deleteQuestionId);
-      setDeleteQuestionId(null);
-    } catch (error) {
-      console.error("Error deleting question:", error);
-    }
+    
+    deleteQuestionMutation.mutate(deleteQuestionId, {
+      onSuccess: () => {
+        setDeleteQuestionId(null);
+      }
+    });
   }, [deleteQuestionId, deleteQuestionMutation]);
 
   // State for loading answers
   const [isLoadingAnswers, setIsLoadingAnswers] = useState(false);
+  
+  // State for validation errors
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
 
   // Dialog handlers
   const openCreateDialog = useCallback(() => {
     resetFormData();
+    setValidationErrors([]);
+    setFieldErrors({});
     setIsCreateDialogOpen(true);
   }, [resetFormData]);
 
   const openEditDialog = useCallback(async (question: QuestionEntityType) => {
     setEditingQuestion(question);
+    setValidationErrors([]);
+    setFieldErrors({});
     setIsEditDialogOpen(true);
     
     // Set basic question data immediately
@@ -325,14 +488,39 @@ export const useQuestionBank = (
       levelN: question.levelN as JLPTLevel,
       pronunciation: question.pronunciation || "",
       audioUrl: question.audioUrl || "",
-      meanings: Array.isArray(question.meanings) ? question.meanings : [
-        {
+      meanings: Array.isArray(question.meanings) ? 
+        (() => {
+          // Find Vietnamese and English translations from API data
+          let viTranslation = "";
+          let enTranslation = "";
+          
+          question.meanings.forEach(meaning => {
+            if ('language' in meaning && 'value' in meaning) {
+              // New API format (language/value)
+              if (meaning.language === "vi") {
+                viTranslation = meaning.value;
+              } else if (meaning.language === "en") {
+                enTranslation = meaning.value;
+              }
+            } else if ('translations' in meaning) {
+              // Old format (translations.vi/en)
+              viTranslation = meaning.translations.vi || "";
+              enTranslation = meaning.translations.en || "";
+            }
+          });
+          
+          return [{
+            translations: {
+              vi: viTranslation,
+              en: enTranslation,
+            }
+          }];
+        })() : [{
           translations: {
             vi: question.meaning || "",
             en: "",
           },
-        },
-      ],
+        }],
       answers: [], // Will be populated after fetching
     });
 
@@ -348,6 +536,7 @@ export const useQuestionBank = (
       console.log(fetchedAnswers)
       // Transform the fetched answers to match the form structure
       const formattedAnswers = fetchedAnswers.map((answer) => ({
+        id: answer.id, // Store the answer ID for updates
         answerJp: answer.answerJp,
         isCorrect: answer.isCorrect,
         translations: answer.translations,
@@ -358,6 +547,7 @@ export const useQuestionBank = (
         ...prev,
         answers: formattedAnswers.length > 0 ? formattedAnswers : [
           {
+            id: undefined,
             answerJp: "",
             isCorrect: true,
             translations: {
@@ -377,11 +567,13 @@ export const useQuestionBank = (
       }));
     } catch (error) {
       console.error("Error fetching answers:", error);
+      toast.error("Không thể tải danh sách câu trả lời");
       // If fetching fails, use empty answers
       setFormData((prev) => ({
         ...prev,
         answers: [
           {
+            id: undefined,
             answerJp: "",
             isCorrect: true,
             translations: {
@@ -408,6 +600,8 @@ export const useQuestionBank = (
     setIsCreateDialogOpen(false);
     setIsEditDialogOpen(false);
     setEditingQuestion(null);
+    setValidationErrors([]);
+    setFieldErrors({});
   }, []);
 
   // Get current language
@@ -423,6 +617,63 @@ export const useQuestionBank = (
     const labels = JLPT_LEVEL_LABELS[language as keyof typeof JLPT_LEVEL_LABELS];
     return labels?.[level as keyof typeof labels] || `N${level}`;
   }, [language]);
+
+  // Handler for updating only question part
+  const handleUpdateQuestion = useCallback(async () => {
+    if (!editingQuestion) return;
+    
+    const questionData = {
+      questionJp: formData.questionJp,
+      questionType: formData.questionType,
+      levelN: formData.levelN,
+      pronunciation: formData.pronunciation,
+      audioUrl: formData.audioUrl,
+      meanings: formData.meanings, // Already array format
+    };
+
+    await updateQuestionMutation.mutateAsync({
+      id: editingQuestion.id,
+      data: questionData as ICreateQuestionRequest,
+    });
+  }, [editingQuestion, formData, updateQuestionMutation]);
+
+  // Handler for updating only answer part
+  const handleUpdateAnswer = useCallback(async () => {
+    if (!editingQuestion || !formData.answers) return;
+    
+    try {
+      // Update each answer individually using the answer API
+      const updatePromises = formData.answers.map(async (answer) => {
+        console.log("Updating answer:", answer);
+        if (answer.id) {
+          // Update existing answer
+          return updateAnswerMutation.mutateAsync({
+            id: answer.id,
+            data: {
+              answerJp: answer.answerJp,
+              isCorrect: answer.isCorrect,
+              questionId: editingQuestion.id,
+              translations: answer.translations,
+            },
+          });
+        } else {
+          // Create new answer
+          return createAnswerMutation.mutateAsync({
+            answerJp: answer.answerJp,
+            isCorrect: answer.isCorrect,
+            questionId: editingQuestion.id,
+            translations: answer.translations,
+          });
+        }
+      });
+
+      await Promise.all(updatePromises);
+      toast.success("Cập nhật đáp án thành công!");
+    } catch (error) {
+      console.error("Error updating answers:", error);
+      toast.error("Có lỗi xảy ra khi cập nhật đáp án");
+    }
+  }, [editingQuestion, formData.answers, updateAnswerMutation, createAnswerMutation]);
 
   return {
     // Data
@@ -443,6 +694,7 @@ export const useQuestionBank = (
     isCreating: createQuestionMutation.isPending,
     isUpdating: updateQuestionMutation.isPending,
     isDeleting: deleteQuestionMutation.isPending,
+    isUpdatingAnswer: updateAnswerMutation.isPending || createAnswerMutation.isPending,
 
     // Handlers
     handleFilterChange,
@@ -451,6 +703,8 @@ export const useQuestionBank = (
     handleCreateQuestion,
     handleEditQuestion,
     handleDeleteQuestion,
+    handleUpdateQuestion,
+    handleUpdateAnswer,
     openCreateDialog,
     openEditDialog,
     closeDialogs,
@@ -473,5 +727,11 @@ export const useQuestionBank = (
     
     // Loading states
     isLoadingAnswers,
+    
+    // Validation
+    validationErrors,
+    setValidationErrors,
+    fieldErrors,
+    setFieldErrors,
   };
 };

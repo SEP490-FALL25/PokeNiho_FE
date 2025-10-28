@@ -3,7 +3,7 @@ import { Card, CardContent } from "@ui/Card";
 import { Button } from "@ui/Button";
 import { Input } from "@ui/Input";
 import { Badge } from "@ui/Badge";
-import { Dialog, DialogTrigger } from "@ui/Dialog";
+import { Dialog } from "@ui/Dialog";
 import {
   Select,
   SelectContent,
@@ -24,9 +24,12 @@ import {
   Loader2,
 } from "lucide-react";
 import CreateExerciseDialog from "../../Dialogs/CreateExerciseDialog";
+import SelectTestSetDialog from "../../Dialogs/SelectTestSetDialog";
 import { useLessonExercises } from "@hooks/useLessonExercises";
+import { useCreateExercise } from "@hooks/useExercise";
 import { useTranslation } from "react-i18next";
 import { ExerciseResponseType } from "@models/exercise/response";
+import { TestSetEntity } from "@models/testSet/entity";
 
 interface LessonItem {
   id: number;
@@ -45,6 +48,7 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
+  const [isSelectTestSetOpen, setIsSelectTestSetOpen] = useState<boolean>(false);
   const [activeTypeTab, setActiveTypeTab] = useState<string>("all");
 
   // Use hook to fetch exercises for this lesson
@@ -54,6 +58,33 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
     error,
     deleteExercise,
   } = useLessonExercises(lesson.id);
+
+  // Use hook to create exercise
+  const { createExercise, isLoading: isCreatingExercise } = useCreateExercise();
+
+  // Handle testset selection and create exercise
+  const handleSelectTestSet = (testSet: TestSetEntity) => {
+    const exerciseData = {
+      exerciseType: "multiple_choice" as const,
+      isBlocked: false,
+      lessonId: lesson.id,
+      testSetId: testSet.id,
+    };
+    
+    createExercise(exerciseData);
+    setIsSelectTestSetOpen(false);
+  };
+
+  // Handle add exercise button click
+  const handleAddExercise = () => {
+    if (exercises.length === 0) {
+      // If no exercises, show testset selection dialog
+      setIsSelectTestSetOpen(true);
+    } else {
+      // If has exercises, show create exercise dialog
+      setIsAddDialogOpen(true);
+    }
+  };
 
   const getExerciseTypeBadge = (exerciseType: string) => {
     const types = {
@@ -164,19 +195,24 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
             <h4 className="text-lg font-semibold text-foreground">
               {t('workflow.exercises.exerciseItems')} ({filteredExercises.length})
             </h4>
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-primary text-white hover:bg-primary/90">
-                  <Plus className="h-4 w-4 mr-2" />
-                  {t('workflow.exercises.addExercise')}
-                </Button>
-              </DialogTrigger>
-              <CreateExerciseDialog
-                setIsAddDialogOpen={setIsAddDialogOpen}
-                lessonId={lesson.id}
-                lessonTitle={lesson.titleKey}
-              />
-            </Dialog>
+            <div className="flex gap-2">
+              <Button 
+                className="bg-primary text-white hover:bg-primary/90"
+                onClick={handleAddExercise}
+                disabled={isCreatingExercise}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                {isCreatingExercise ? "Đang tạo..." : t('workflow.exercises.addExercise')}
+              </Button>
+              
+              <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                <CreateExerciseDialog
+                  setIsAddDialogOpen={setIsAddDialogOpen}
+                  lessonId={lesson.id}
+                  lessonTitle={lesson.titleKey}
+                />
+              </Dialog>
+            </div>
           </div>
 
           {/* Loading State */}
@@ -306,6 +342,15 @@ const LessonExercisesStep = ({ lesson, onNext, onBack }: LessonExercisesStepProp
           ) : null}
         </CardContent>
       </Card>
+
+      {/* Select TestSet Dialog */}
+      <SelectTestSetDialog
+        isOpen={isSelectTestSetOpen}
+        onClose={() => setIsSelectTestSetOpen(false)}
+        onSelectTestSet={handleSelectTestSet}
+        lessonId={lesson.id}
+        lessonLevel={lesson.levelJlpt}
+      />
     </div>
   );
 };

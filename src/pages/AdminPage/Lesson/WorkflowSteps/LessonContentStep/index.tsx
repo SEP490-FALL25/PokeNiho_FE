@@ -18,6 +18,7 @@ import ViewContentDialog from "../../Dialogs/ViewContentDialog";
 import { useTranslation } from "react-i18next";
 import lessonService from "@services/lesson";
 import { QUESTION_TYPE } from "@constants/questionBank";
+import { toast } from "react-toastify";
 import {
   DndContext,
   closestCenter,
@@ -307,8 +308,15 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
             : section
         )
       );
+      
+      // Show success toast
+      toast.success('Đã xóa content thành công!');
     } catch (error) {
       console.error("Failed to delete content:", error);
+      
+      // Show error toast
+      const errorMessage = error instanceof Error ? error.message : 'Không thể xóa content';
+      toast.error(errorMessage);
     }
   };
 
@@ -353,10 +361,14 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
       setPendingChanges({});
       console.log('✅ All changes saved successfully');
       
-      // TODO: Show success toast to user
+      // Show success toast
+      toast.success('Đã lưu thay đổi vị trí thành công!');
     } catch (error) {
       console.error(`❌ Failed to save changes:`, error);
-      // TODO: Show error toast to user
+      
+      // Show error toast
+      const errorMessage = error instanceof Error ? error.message : 'Không thể lưu thay đổi vị trí';
+      toast.error(errorMessage);
     }
   };
 
