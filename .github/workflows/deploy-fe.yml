@@ -18,7 +18,18 @@ jobs:
           npm ci
           npm run build
 
-      - name: Upload dist to VPS
+      - name: Clean old FE build on VPS
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "🧹 Removing old FE dist folder..."
+            rm -rf /home/root/FE/dist
+            mkdir -p /home/root/FE/dist
+
+      - name: Upload new dist to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
