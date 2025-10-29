@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@ui/Button";
 import { Input } from "@ui/Input";
 import { Textarea } from "@ui/Textarea";
@@ -16,11 +16,46 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/Card";
 import { Badge } from "@ui/Badge";
 import { Skeleton } from "@ui/Skeleton";
-import { Search, DollarSign } from "lucide-react";
+import { Search, DollarSign, X } from "lucide-react";
 import HeaderAdmin from "@organisms/Header/Admin";
 import PaginationControls from "@ui/PaginationControls";
+import { Checkbox } from "@ui/Checkbox";
+import { useQuestionBankList } from "@hooks/useQuestionBank";
+import { IQueryQuestionRequest } from "@models/questionBank/request";
+import { QuestionEntityType } from "@models/questionBank/entity";
+import { QuestionType } from "@constants/questionBank";
+import { toast } from "react-toastify";
+import { useQueryClient } from "@tanstack/react-query";
 
 const TestSetManagement: React.FC = () => {
+  type TranslationEntry = { language: string; value: string };
+  const isTranslationArray = (field: unknown): field is TranslationEntry[] =>
+    Array.isArray(field);
+
+  const extractText = (
+    field: unknown,
+    lang: string = "vi"
+  ): string => {
+    if (isTranslationArray(field)) {
+      const byLang = field.find((f) => f?.language === lang)?.value?.trim();
+      if (byLang) return byLang;
+      const vi = field.find((f) => f?.language === "vi")?.value?.trim();
+      if (vi) return vi;
+      const en = field.find((f) => f?.language === "en")?.value?.trim();
+      if (en) return en;
+      const first = field.find((f) => f?.value)?.value?.trim();
+      return first || "";
+    }
+    if (typeof field === "string") return field;
+    return "";
+  };
+
+  const getTranslation = (field: unknown, language: string): string => {
+    if (isTranslationArray(field)) {
+      return field.find((f) => f?.language === language)?.value || "";
+    }
+    return typeof field === "string" ? field : "";
+  };
   const {
     testSets,
     isLoading,
@@ -36,6 +71,10 @@ const TestSetManagement: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAddQuestionsOpen, setIsAddQuestionsOpen] = useState(false);
+  // Linked questions of current test set
+  const [linkedQuestions, setLinkedQuestions] = useState<Array<{ id: number; questionJp: string }>>([]);
+  const [loadingLinked, setLoadingLinked] = useState(false);
   const [form, setForm] = useState({
     nameVi: "Đề thi từ vựng N3 - Phần 1",
     nameEn: "N3 Vocabulary Test - Part 1",
@@ -74,11 +113,17 @@ const TestSetManagement: React.FC = () => {
     const item = testSets.find((t) => t.id === id);
     if (!item) return;
     setForm({
-      nameVi: item.name,
-      nameEn: item.name,
-      descriptionVi: item.description,
-      descriptionEn: item.description,
-      content: item.content,
+      nameVi: getTranslation((item as unknown as Record<string, unknown>).name, "vi") ||
+        extractText((item as unknown as Record<string, unknown>).name, "vi"),
+      nameEn: getTranslation((item as unknown as Record<string, unknown>).name, "en") ||
+        extractText((item as unknown as Record<string, unknown>).name, "en"),
+      descriptionVi:
+        getTranslation((item as unknown as Record<string, unknown>).description, "vi") ||
+        extractText((item as unknown as Record<string, unknown>).description, "vi"),
+      descriptionEn:
+        getTranslation((item as unknown as Record<string, unknown>).description, "en") ||
+        extractText((item as unknown as Record<string, unknown>).description, "en"),
+      content: (item as unknown as Record<string, unknown>).content as string,
       audioUrl: item.audioUrl || "",
       price: item.price || 0,
       levelN: item.levelN,
@@ -87,6 +132,36 @@ const TestSetManagement: React.FC = () => {
     });
     setSelectedId(id);
     setIsDialogOpen(true);
+  };
+
+  // Load questions already linked to the test set when opening dialog in edit mode
+  useEffect(() => {
+    const loadLinked = async () => {
+      if (!isDialogOpen || !selectedId) {
+        setLinkedQuestions([]);
+        return;
+      }
+      try {
+        setLoadingLinked(true);
+        const list = await testSetService.getLinkedQuestionBanksByTestSet(selectedId);
+        setLinkedQuestions(Array.isArray(list) ? list : []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingLinked(false);
+      }
+    };
+    loadLinked();
+  }, [isDialogOpen, selectedId]);
+
+  const handleRemoveLinked = async (id: number) => {
+    if (!id) return;
+    try {
+      await testSetService.deleteLinkedQuestionBanksMany([id]);
+      setLinkedQuestions((prev) => prev.filter((q) => q.id !== id));
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const handleSave = async () => {
@@ -113,18 +188,111 @@ const TestSetManagement: React.FC = () => {
     try {
       if (selectedId) {
         await testSetService.updateTestSet(selectedId, body);
-        alert("Cập nhật thành công");
+        // Link selected questions if any on update flow
+        if (selectedQuestionIds.length > 0) {
+          await testSetService.linkQuestionBanksMultiple({
+            testSetId: selectedId,
+            questionBankIds: selectedQuestionIds,
+          });
+          setSelectedQuestionIds([]);
+        }
+        // refresh list
+        queryClient.invalidateQueries({ queryKey: ["testset-list"] });
+        toast.success("Cập nhật thành công");
       } else {
-        await testSetService.createTestSetWithMeanings(body);
-        alert("Tạo bộ đề thành công");
+        const created = await testSetService.createTestSetWithMeanings(body);
+        const newId = created?.data?.id;
+        // If admin has pre-selected questions, link them now using new id
+        if (newId && selectedQuestionIds.length > 0) {
+          await testSetService.linkQuestionBanksMultiple({
+            testSetId: newId,
+            questionBankIds: selectedQuestionIds,
+          });
+          setSelectedQuestionIds([]);
+        }
+        // refresh list to include newly created item
+        queryClient.invalidateQueries({ queryKey: ["testset-list"] });
+        toast.success("Tạo bộ đề thành công");
+        if (newId) {
+          // keep dialog open and switch to edit mode for further actions
+          setSelectedId(newId);
+          setIsDialogOpen(true);
+          // open add-questions dialog so admin can tiếp tục thêm
+          setQbForceKey((k) => k + 1);
+          setIsAddQuestionsOpen(true);
+          return; // skip closing below for create flow
+        }
       }
       setIsDialogOpen(false);
       setSelectedId(null);
     } catch (e) {
       console.error(e);
-      alert("Lưu thất bại");
+      toast.error("Lưu thất bại");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const queryClient = useQueryClient();
+
+  // Add questions dialog state
+  const [qbSearch, setQbSearch] = useState("");
+  const [qbPage, setQbPage] = useState(1);
+  const [qbPageSize, setQbPageSize] = useState(15);
+  const [selectedQuestionIds, setSelectedQuestionIds] = useState<number[]>([]);
+  const [qbForceKey, setQbForceKey] = useState(0);
+
+  type QuestionListFilters = IQueryQuestionRequest & { testSetId?: number; noTestSet?: boolean };
+
+  const {
+    data: qbItems,
+    pagination: qbPagination,
+    isLoading: qbLoading,
+  } = useQuestionBankList({
+    page: qbPage,
+    limit: qbPageSize,
+    search: qbSearch || undefined,
+    levelN: form.levelN as unknown as number,
+    questionType: form.testType as unknown as QuestionType,
+    // extra flexible fields supported by backend through catchall
+    testSetId: selectedId || undefined,
+    noTestSet: true,
+    forceKey: qbForceKey,
+  } as QuestionListFilters);
+
+  const toggleSelectQuestion = (id: number) => {
+    setSelectedQuestionIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const handleOpenAddQuestions = () => {
+    if (!selectedId) return;
+    setSelectedQuestionIds([]);
+    setQbSearch("");
+    setQbPage(1);
+    setQbForceKey((k) => k + 1);
+    setIsAddQuestionsOpen(true);
+  };
+
+  const handleLinkSelected = async () => {
+    if (!selectedId || selectedQuestionIds.length === 0) {
+      toast.error("Hãy chọn ít nhất một câu hỏi");
+      return;
+    }
+    try {
+      await testSetService.linkQuestionBanksMultiple({
+        testSetId: selectedId,
+        questionBankIds: selectedQuestionIds,
+      });
+      toast.success("Đã thêm câu hỏi vào TestSet");
+      // refresh caches and next-open fetches
+      queryClient.invalidateQueries({ queryKey: ["question-bank-list"] });
+      setQbForceKey((k) => k + 1);
+      setIsAddQuestionsOpen(false);
+    } catch (e) {
+      console.error(e);
+      toast.error("Không thể liên kết câu hỏi");
     }
   };
 
@@ -251,9 +419,11 @@ const TestSetManagement: React.FC = () => {
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <CardTitle className="text-lg">{t.name}</CardTitle>
+                        <CardTitle className="text-lg">
+                          {extractText((t as unknown as Record<string, unknown>).name, "vi")}
+                        </CardTitle>
                         <p className="text-sm text-gray-600 line-clamp-2">
-                          {t.description}
+                          {extractText((t as unknown as Record<string, unknown>).description, "vi")}
                         </p>
                       </div>
                       <div className="flex gap-2">
@@ -452,7 +622,43 @@ const TestSetManagement: React.FC = () => {
                   </Select>
                 </div>
               </div>
+              {selectedId && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Câu hỏi đã thêm</label>
+                  <div className="flex items-center gap-2 overflow-x-auto py-1">
+                    {loadingLinked ? (
+                      <div className="text-sm text-gray-500 px-2 py-1">Đang tải...</div>
+                    ) : linkedQuestions.length === 0 ? (
+                      <div className="text-sm text-gray-500 px-2 py-1">Chưa có câu hỏi</div>
+                    ) : (
+                      linkedQuestions.map((q) => (
+                        <div
+                          key={q.id}
+                          className="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-full border bg-gray-50 text-sm"
+                        >
+                          <span className="whitespace-nowrap">{q.questionJp}</span>
+                          <button
+                            type="button"
+                            aria-label="Remove"
+                            className="ml-1 text-gray-500 hover:text-red-600"
+                            onClick={() => handleRemoveLinked(q.id)}
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
               <div className="flex justify-end gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleOpenAddQuestions}
+                >
+                  Thêm câu hỏi
+                </Button>
                 <Button
                   variant="ghost"
                   onClick={() => {
@@ -465,6 +671,76 @@ const TestSetManagement: React.FC = () => {
                 <Button onClick={handleSave} disabled={saving}>
                   {saving ? "Đang lưu..." : "Lưu"}
                 </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add Questions Dialog */}
+        <Dialog open={isAddQuestionsOpen} onOpenChange={setIsAddQuestionsOpen}>
+          <DialogContent className="max-w-3xl bg-white">
+            <DialogHeader>
+              <DialogTitle>Thêm câu hỏi vào TestSet #{selectedId}</DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <Input
+                  placeholder="Tìm kiếm câu hỏi..."
+                  value={qbSearch}
+                  onChange={(e) => {
+                    setQbSearch(e.target.value);
+                    setQbPage(1);
+                  }}
+                />
+              </div>
+
+              <div className="border rounded">
+                {qbLoading ? (
+                  <div className="p-4 text-sm text-gray-500">Đang tải...</div>
+                ) : qbItems.length === 0 ? (
+                  <div className="p-4 text-sm text-gray-500">Không có câu hỏi phù hợp</div>
+                ) : (
+                  <div className="max-h-[50vh] overflow-auto">
+                    {(qbItems as unknown as QuestionEntityType[]).map((q) => (
+                      <div
+                        key={q.id}
+                        className="flex items-start gap-3 p-3 border-b cursor-pointer hover:bg-gray-50"
+                        role="button"
+                        onClick={() => toggleSelectQuestion(q.id)}
+                      >
+                        <Checkbox
+                          checked={selectedQuestionIds.includes(q.id)}
+                          onCheckedChange={() => toggleSelectQuestion(q.id)}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <div className="flex-1">
+                          <div className="font-medium">{q.questionJp}</div>
+                          <div className="text-xs text-gray-600">#{q.id} • N{q.levelN} • {q.questionType}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {qbPagination && (
+                <div className="flex justify-end">
+                  <PaginationControls
+                    currentPage={qbPagination.current || 1}
+                    totalPages={qbPagination.totalPage || 0}
+                    totalItems={qbPagination.totalItem || 0}
+                    itemsPerPage={qbPagination.pageSize || qbPageSize}
+                    onPageChange={(p:number)=>setQbPage(p)}
+                    onItemsPerPageChange={(s:number)=>{setQbPageSize(s); setQbPage(1);}}
+                    isLoading={qbLoading}
+                  />
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2">
+                <Button variant="ghost" onClick={() => setIsAddQuestionsOpen(false)}>Đóng</Button>
+                <Button onClick={handleLinkSelected} disabled={selectedQuestionIds.length===0}>Thêm vào TestSet</Button>
               </div>
             </div>
           </DialogContent>

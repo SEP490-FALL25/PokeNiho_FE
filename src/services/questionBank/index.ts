@@ -56,6 +56,14 @@ const questionBankService = {
       queryParams.append("sort", params.sort);
     }
 
+    if (params?.noTestSet) {
+      queryParams.append("noTestSet", params.noTestSet.toString());
+    }
+
+    if (params?.testSetId) {
+      queryParams.append("testSetId", params.testSetId.toString());
+    }
+
     const queryString = queryParams.toString();
     return axiosPrivate.get(
       `/question-bank${queryString ? `?${queryString}` : ""}`

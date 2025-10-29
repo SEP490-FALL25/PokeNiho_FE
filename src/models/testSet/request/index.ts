@@ -29,3 +29,11 @@ export const TestSetCreateRequestSchema = z.object({
 });
 
 export type TestSetCreateRequest = z.infer<typeof TestSetCreateRequestSchema>;
+
+// Link multiple QuestionBanks to a TestSet
+export const TestSetQuestionBankLinkMultipleSchema = z.object({
+  testSetId: z.number(),
+  questionBankIds: z.array(z.number()).min(1),
+});
+
+export type TestSetQuestionBankLinkMultipleRequest = z.infer<typeof TestSetQuestionBankLinkMultipleSchema>;

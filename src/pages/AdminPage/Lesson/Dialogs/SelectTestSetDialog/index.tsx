@@ -42,7 +42,30 @@ const SelectTestSetDialog: React.FC<SelectTestSetDialogProps> = ({
   onSelectTestSet,
   lessonLevel,
 }) => {
-  useTranslation();
+  const { i18n } = useTranslation();
+  const currentLang = (i18n?.language || "vi").slice(0, 2);
+
+  type TranslationEntry = { language: string; value: string };
+  const isTranslationArray = (field: unknown): field is TranslationEntry[] =>
+    Array.isArray(field);
+
+  const extractText = (
+    field: unknown,
+    lang: string = currentLang
+  ): string => {
+    if (isTranslationArray(field)) {
+      const byLang = field.find((f) => f?.language === lang)?.value?.trim();
+      if (byLang) return byLang;
+      const vi = field.find((f) => f?.language === "vi")?.value?.trim();
+      if (vi) return vi;
+      const en = field.find((f) => f?.language === "en")?.value?.trim();
+      if (en) return en;
+      const first = field.find((f) => f?.value)?.value?.trim();
+      return first || "";
+    }
+    if (typeof field === "string") return field;
+    return "";
+  };
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTestType, setSelectedTestType] = useState<string | undefined>(
     undefined
@@ -284,10 +307,10 @@ const SelectTestSetDialog: React.FC<SelectTestSetDialogProps> = ({
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <CardTitle className="text-lg">
-                            {testSet.name}
+                            {extractText((testSet as unknown as Record<string, unknown>).name)}
                           </CardTitle>
                           <CardDescription className="mt-1">
-                            {testSet.description}
+                            {extractText((testSet as unknown as Record<string, unknown>).description)}
                           </CardDescription>
                         </div>
                         <div className="flex gap-2">

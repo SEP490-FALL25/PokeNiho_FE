@@ -123,6 +123,13 @@ const lessonService = {
   deleteLessonContent: async (lessonContentId: number) => {
     return axiosPrivate.delete(`/lesson-contents/${lessonContentId}`);
   },
+  // Bulk delete lesson-contents by ids
+  deleteLessonContentsBulk: async (ids: number[]) => {
+    // axios.delete supports a request body via the `data` config field
+    return axiosPrivate.delete(`/lesson-contents/bulk`, {
+      data: { ids },
+    });
+  },
 };
 
 export default lessonService;
