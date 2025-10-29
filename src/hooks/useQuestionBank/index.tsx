@@ -166,6 +166,8 @@ export const useQuestionBank = (
     status: undefined,
     sortBy: undefined,
     sortOrder: undefined,
+    noTestSet: false,
+    testSetId: undefined,
   }
 ) => {
   // State management
@@ -193,19 +195,46 @@ export const useQuestionBank = (
     ],
     answers: [
       {
-        id: undefined, // Will be set when editing existing answers
+        id: undefined,
         answerJp: "",
         isCorrect: true,
         translations: {
           meaning: [
-            {
-              language_code: "vi",
-              value: "",
-            },
-            {
-              language_code: "en",
-              value: "",
-            },
+            { language_code: "vi", value: "" },
+            { language_code: "en", value: "" },
+          ],
+        },
+      },
+      {
+        id: undefined,
+        answerJp: "",
+        isCorrect: false,
+        translations: {
+          meaning: [
+            { language_code: "vi", value: "" },
+            { language_code: "en", value: "" },
+          ],
+        },
+      },
+      {
+        id: undefined,
+        answerJp: "",
+        isCorrect: false,
+        translations: {
+          meaning: [
+            { language_code: "vi", value: "" },
+            { language_code: "en", value: "" },
+          ],
+        },
+      },
+      {
+        id: undefined,
+        answerJp: "",
+        isCorrect: false,
+        translations: {
+          meaning: [
+            { language_code: "vi", value: "" },
+            { language_code: "en", value: "" },
           ],
         },
       },
@@ -382,14 +411,41 @@ export const useQuestionBank = (
           isCorrect: true,
           translations: {
             meaning: [
-              {
-                language_code: "vi",
-                value: "",
-              },
-              {
-                language_code: "en",
-                value: "",
-              },
+              { language_code: "vi", value: "" },
+              { language_code: "en", value: "" },
+            ],
+          },
+        },
+        {
+          id: undefined,
+          answerJp: "",
+          isCorrect: false,
+          translations: {
+            meaning: [
+              { language_code: "vi", value: "" },
+              { language_code: "en", value: "" },
+            ],
+          },
+        },
+        {
+          id: undefined,
+          answerJp: "",
+          isCorrect: false,
+          translations: {
+            meaning: [
+              { language_code: "vi", value: "" },
+              { language_code: "en", value: "" },
+            ],
+          },
+        },
+        {
+          id: undefined,
+          answerJp: "",
+          isCorrect: false,
+          translations: {
+            meaning: [
+              { language_code: "vi", value: "" },
+              { language_code: "en", value: "" },
             ],
           },
         },
@@ -607,31 +663,42 @@ export const useQuestionBank = (
       );
 
       // Update form data with fetched answers
-      setFormData((prev) => ({
-        ...prev,
-        answers:
-          formattedAnswers.length > 0
-            ? formattedAnswers
-            : [
-                {
-                  id: undefined,
-                  answerJp: "",
-                  isCorrect: true,
-                  translations: {
-                    meaning: [
-                      {
-                        language_code: "vi",
-                        value: "",
-                      },
-                      {
-                        language_code: "en",
-                        value: "",
-                      },
-                    ],
-                  },
-                },
+      setFormData((prev) => {
+        const base = formattedAnswers.length > 0 ? formattedAnswers : [
+          {
+            id: undefined,
+            answerJp: "",
+            isCorrect: true,
+            translations: {
+              meaning: [
+                { language_code: "vi", value: "" },
+                { language_code: "en", value: "" },
               ],
-      }));
+            },
+          },
+        ];
+
+        // For non-MATCHING, ensure exactly 4 answer slots by padding blanks
+        if (question.questionType !== "MATCHING") {
+          const padded = [...base];
+          while (padded.length < 4) {
+            padded.push({
+              id: undefined,
+              answerJp: "",
+              isCorrect: false,
+              translations: {
+                meaning: [
+                  { language_code: "vi", value: "" },
+                  { language_code: "en", value: "" },
+                ],
+              },
+            });
+          }
+          return { ...prev, answers: padded.slice(0, 4) };
+        }
+
+        return { ...prev, answers: base.slice(0, 1) };
+      });
     } catch (error) {
       console.error("Error fetching answers:", error);
       toast.error("Không thể tải danh sách câu trả lời");

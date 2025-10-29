@@ -483,8 +483,37 @@ const QuestionBankManagement: React.FC = () => {
                         ) {
                           newFormData.audioUrl = "";
                         }
-                        if (!["GRAMMAR", "KANJI"].includes(newQuestionType)) {
-                          newFormData.answers = [];
+                        // Seed answers depending on type: 4 for non-MATCHING, 1 for MATCHING
+                        if (newQuestionType === "MATCHING") {
+                          newFormData.answers = [
+                            {
+                              answerJp: "",
+                              isCorrect: true,
+                              translations: {
+                                meaning: [
+                                  { language_code: "vi", value: "" },
+                                  { language_code: "en", value: "" },
+                                ],
+                              },
+                            },
+                          ];
+                        } else {
+                          const blankAnswer = () => ({
+                            answerJp: "",
+                            isCorrect: false,
+                            translations: {
+                              meaning: [
+                                { language_code: "vi", value: "" },
+                                { language_code: "en", value: "" },
+                              ],
+                            },
+                          });
+                          newFormData.answers = [
+                            { ...blankAnswer(), isCorrect: true },
+                            blankAnswer(),
+                            blankAnswer(),
+                            blankAnswer(),
+                          ];
                         }
 
                         return newFormData;

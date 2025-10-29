@@ -1,5 +1,5 @@
 import { axiosPrivate } from "@configs/axios";
-import { TestSetListRequest, TestSetCreateRequest } from "@models/testSet/request";
+import { TestSetListRequest, TestSetCreateRequest, TestSetQuestionBankLinkMultipleRequest } from "@models/testSet/request";
 import { TestSetListResponseType, TestSetCreateResponseType } from "@models/testSet/response";
 
 const testSetService = {
@@ -31,7 +31,33 @@ const testSetService = {
     id: number,
     body: Partial<TestSetCreateRequest>
   ): Promise<TestSetCreateResponseType> => {
-    const response = await axiosPrivate.put(`/testset/${id}`, body);
+    const response = await axiosPrivate.put(`/testset/${id}/with-meanings`, body);
+    return response.data;
+  },
+  linkQuestionBanksMultiple: async (
+    body: TestSetQuestionBankLinkMultipleRequest
+  ): Promise<{ message: string } & Record<string, unknown>> => {
+    const response = await axiosPrivate.post('/testset-questionbank/multiple', body);
+    return response.data;
+  },
+  // Fetch questions already linked to a TestSet
+  getLinkedQuestionBanksByTestSet: async (
+    testSetId: number
+  ): Promise<Array<{ id: number; questionJp: string }>> => {
+    const response = await axiosPrivate.get(
+      `/testset-questionbank/testset/${testSetId}/full`
+    );
+    // API returns { statusCode, data, message }
+    return response.data?.data ?? [];
+  },
+  // Remove linked questions from a TestSet by link/question ids
+  deleteLinkedQuestionBanksMany: async (
+    ids: number[]
+  ): Promise<{ message: string } & Record<string, unknown>> => {
+    const response = await axiosPrivate.delete(
+      '/testset-questionbank/delete-many',
+      { data: { ids } }
+    );
     return response.data;
   },
 };

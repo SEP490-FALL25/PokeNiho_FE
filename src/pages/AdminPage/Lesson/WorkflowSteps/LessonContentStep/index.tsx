@@ -3,6 +3,7 @@ import type { LessonContent } from "@models/lessonContent/entity";
 import { Card, CardContent } from "@ui/Card";
 import { Button } from "@ui/Button";
 import { Dialog } from "@ui/Dialog";
+import { Checkbox } from "@ui/Checkbox";
 import {
   Plus,
   ArrowRight,
@@ -177,6 +178,8 @@ interface SortableItemProps {
   onView: (content: SectionItem) => void;
   onEdit: (content: SectionItem) => void;
   onDelete: (contentId: number) => void;
+  onToggleSelect: (lessonContentId: number) => void;
+  isSelected: boolean;
   sectionType:
     | typeof QUESTION_TYPE.VOCABULARY
     | typeof QUESTION_TYPE.GRAMMAR
@@ -191,6 +194,8 @@ const SortableItem = ({
   onView,
   onEdit,
   onDelete,
+  onToggleSelect,
+  isSelected,
   sectionType,
   currentLanguage,
 }: SortableItemProps) => {
@@ -226,6 +231,14 @@ const SortableItem = ({
           >
             <GripVertical className="h-4 w-4" />
           </div>
+        )}
+        {!isDragMode && (
+          <Checkbox
+            checked={isSelected}
+            onCheckedChange={() =>
+              onToggleSelect((content.lessonContentId as number) || content.id)
+            }
+          />
         )}
         <div className="text-sm font-medium text-gray-600">{index + 1}.</div>
         <div className="flex-1">
@@ -321,6 +334,43 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
       }
     >
   >({});
+
+  // Selected lesson-content ids for bulk actions
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+
+  const toggleSelect = (lessonContentId: number) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(lessonContentId)) next.delete(lessonContentId);
+      else next.add(lessonContentId);
+      return next;
+    });
+  };
+
+  const getSectionSelectedCount = (sectionType: string) => {
+    const section = contentSections.find((s) => s.type === sectionType);
+    if (!section) return 0;
+    return section.contents.reduce((acc, c) => {
+      const id = (c.lessonContentId as number) || c.id;
+      return acc + (selectedIds.has(id) ? 1 : 0);
+    }, 0);
+  };
+
+  const toggleSelectAllInSection = (sectionType: string) => {
+    const section = contentSections.find((s) => s.type === sectionType);
+    if (!section) return;
+    const allIds = section.contents.map((c) => (c.lessonContentId as number) || c.id);
+    const allSelected = allIds.every((id) => selectedIds.has(id));
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allSelected) {
+        allIds.forEach((id) => next.delete(id));
+      } else {
+        allIds.forEach((id) => next.add(id));
+      }
+      return next;
+    });
+  };
 
   // State for the three content sections
   const [contentSections, setContentSections] = useState<ContentSection[]>([
@@ -529,8 +579,14 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
         )
       );
 
-      // Show success toast
-      toast.success("Đã xóa content thành công!");
+      // Unselect if present
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(lessonContentId);
+        return next;
+      });
+
+      // silent success
     } catch (error) {
       console.error("Failed to delete content:", error);
 
@@ -538,6 +594,52 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
       const errorMessage =
         error instanceof Error ? error.message : "Không thể xóa content";
       toast.error(errorMessage);
+    }
+  };
+
+  const handleBulkDelete = async (sectionType?: string) => {
+    // If a section is provided, only delete selected in that section; otherwise, delete all selected
+    let idsToDelete: number[] = [];
+    if (sectionType) {
+      const section = contentSections.find((s) => s.type === sectionType);
+      if (section) {
+        idsToDelete = section.contents
+          .map((c) => (c.lessonContentId as number) || c.id)
+          .filter((id) => selectedIds.has(id));
+      }
+    } else {
+      idsToDelete = Array.from(selectedIds);
+    }
+
+    if (idsToDelete.length === 0) {
+      toast.error("Hãy chọn ít nhất một content để xóa");
+      return;
+    }
+
+    try {
+      await lessonService.deleteLessonContentsBulk(idsToDelete);
+
+      // Remove from UI
+      setContentSections((prev) =>
+        prev.map((section) => ({
+          ...section,
+          contents: section.contents.filter(
+            (c) => !idsToDelete.includes((c.lessonContentId as number) || c.id)
+          ),
+        }))
+      );
+
+      // Clear selection of deleted ids
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        idsToDelete.forEach((id) => next.delete(id));
+        return next;
+      });
+
+      // silent success
+    } catch (error) {
+      console.error("Failed to bulk delete lesson contents:", error);
+      toast.error("Không thể xóa các content đã chọn");
     }
   };
 
@@ -820,6 +922,30 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
                           <GripVertical className="h-4 w-4 mr-1" />
                           {section.isDragMode ? "Done" : "Reorder"}
                         </Button>
+                        {/* Select all / delete selected for this section */}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => toggleSelectAllInSection(section.type)}
+                        >
+                          {getSectionSelectedCount(section.type) ===
+                          section.contents.length
+                            ? "Bỏ chọn"
+                            : "Chọn tất cả"}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={getSectionSelectedCount(section.type) === 0}
+                          className={
+                            getSectionSelectedCount(section.type) > 0
+                              ? "text-red-600 border-red-200 hover:bg-red-50"
+                              : ""
+                          }
+                          onClick={() => handleBulkDelete(section.type)}
+                        >
+                          Xóa đã chọn ({getSectionSelectedCount(section.type)})
+                        </Button>
                       </div>
                     )}
                     <Button
@@ -906,6 +1032,10 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
                                 onDelete={(contentId) =>
                                   handleDeleteContent(contentId, section.type)
                                 }
+                                isSelected={selectedIds.has(
+                                  (content.lessonContentId as number) || content.id
+                                )}
+                                onToggleSelect={toggleSelect}
                               />
                             ))}
                           </div>

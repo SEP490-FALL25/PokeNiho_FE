@@ -242,9 +242,15 @@ const ListVocabulary = ({ isAddVocabularyDialogOpen, setIsAddVocabularyDialogOpe
                                             <TableCell className="font-semibold text-lg text-gray-800 w-40 whitespace-nowrap">{vocab.wordJp}</TableCell>
                                             <TableCell className="text-gray-500 w-36 whitespace-nowrap">{vocab.reading}</TableCell>
                                             <TableCell className="w-28 whitespace-nowrap">
-                                                <Badge className={getTypeBadgeColor(vocab.wordType.name) + " font-semibold"}>
-                                                    {vocab.wordType.name.charAt(0).toUpperCase() + vocab.wordType.name.slice(1)}
-                                                </Badge>
+                                                {(() => {
+                                                    const typeName = (vocab?.wordType?.name as string | undefined) || "unknown";
+                                                    const label = typeName ? typeName.charAt(0).toUpperCase() + typeName.slice(1) : "-";
+                                                    return (
+                                                        <Badge className={getTypeBadgeColor(typeName) + " font-semibold"}>
+                                                            {label}
+                                                        </Badge>
+                                                    );
+                                                })()}
                                             </TableCell>
                                             <TableCell className="w-24 whitespace-nowrap">
                                                 <Badge className={"text-white font-semibold"}>N{vocab.levelN}</Badge>

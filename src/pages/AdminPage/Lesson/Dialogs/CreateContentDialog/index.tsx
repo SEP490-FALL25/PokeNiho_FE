@@ -420,10 +420,13 @@ const CreateContentDialog = ({
                 ? "bg-primary/10 border-primary/20"
                 : "bg-background border-border hover:bg-muted/50"
             }`}
+            role="button"
+            onClick={() => handleItemToggle(vocab.id)}
           >
             <Checkbox
               checked={isSelected}
               onCheckedChange={() => handleItemToggle(vocab.id)}
+              onClick={(e) => e.stopPropagation()}
             />
             <div className="flex-1">
               <div className="flex items-center gap-3">
@@ -468,10 +471,13 @@ const CreateContentDialog = ({
                 ? "bg-primary/10 border-primary/20"
                 : "bg-background border-border hover:bg-muted/50"
             }`}
+            role="button"
+            onClick={() => handleItemToggle(grammar.id)}
           >
             <Checkbox
               checked={isSelected}
               onCheckedChange={() => handleItemToggle(grammar.id)}
+              onClick={(e) => e.stopPropagation()}
             />
             <div className="flex-1">
               <div className="flex items-center gap-3">
@@ -499,10 +505,13 @@ const CreateContentDialog = ({
                 ? "bg-primary/10 border-primary/20"
                 : "bg-background border-border hover:bg-muted/50"
             }`}
+            role="button"
+            onClick={() => handleItemToggle(kanji.id)}
           >
             <Checkbox
               checked={isSelected}
               onCheckedChange={() => handleItemToggle(kanji.id)}
+              onClick={(e) => e.stopPropagation()}
             />
             <div className="flex-1">
               <div className="flex items-center gap-3">
