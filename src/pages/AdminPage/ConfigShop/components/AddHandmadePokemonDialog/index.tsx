@@ -320,9 +320,36 @@ const AddHandmadePokemonDialog = ({ isOpen, onClose, bannerId }: AddHandmadePoke
                 </div>
 
                 <DialogFooter className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-border">
-                    <div className="flex justify-between items-center w-full">
-                        <div className="text-sm text-muted-foreground">
-                            {selectedPokemon.size} {t('configShop.pokemonSelected')}
+                    <div className="flex justify-between items-center w-full gap-4">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div className="text-sm text-muted-foreground whitespace-nowrap">
+                                {selectedPokemon.size} {t('configShop.pokemonSelected')}
+                            </div>
+                            <div className="flex-1 overflow-x-auto">
+                                <div className="flex items-center gap-2 pr-2">
+                                    {Array.from(selectedPokemon.values()).map((p) => (
+                                        <button
+                                            key={p.id}
+                                            type="button"
+                                            onClick={() => handlePokemonToggle(p)}
+                                            className="group flex items-center gap-2 pl-1.5 pr-2 py-1 rounded-full border border-primary/30 bg-primary/10 hover:bg-primary/20 transition-colors flex-shrink-0"
+                                            title={p.nameTranslations.en}
+                                        >
+                                            <img
+                                                src={p.imageUrl}
+                                                alt={p.nameTranslations.en}
+                                                className="w-6 h-6 rounded-full bg-white object-contain ring-1 ring-primary/20"
+                                            />
+                                            <span className="text-xs text-foreground/90 max-w-[120px] truncate">
+                                                {p.nameTranslations.en}
+                                            </span>
+                                            <span className="ml-0.5 inline-flex items-center justify-center h-4 w-4 rounded-full bg-destructive/80 text-white text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">
+                                                ×
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                         <div className="flex justify-end space-x-2">
                             <Button type="button" variant="outline" onClick={onClose}>
