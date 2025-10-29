@@ -38,7 +38,6 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
         titleJp: '',
         levelJlpt: 5,
         estimatedTimeMinutes: 45,
-        lessonOrder: 1,
         isPublished: false,
         version: '1.0.0',
         lessonCategoryId: 1,
@@ -58,7 +57,6 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
         titleJp: commonValidationRules.titleJp,
         levelJlpt: commonValidationRules.levelJlpt,
         estimatedTimeMinutes: commonValidationRules.estimatedTimeMinutes,
-        lessonOrder: commonValidationRules.lessonOrder,
         version: commonValidationRules.version,
         lessonCategoryId: commonValidationRules.lessonCategoryId,
         rewardId: commonValidationRules.rewardId,
@@ -363,26 +361,6 @@ const CreateLesson = ({ setIsAddDialogOpen }: CreateLessonProps) => {
                                         {errors.estimatedTimeMinutes && <p className="text-sm text-red-500 flex items-center gap-1">
                                             <X className="h-3 w-3" />
                                             {errors.estimatedTimeMinutes}
-                                        </p>}
-                                    </div>
-
-                                    {/* Thứ tự bài học */}
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-semibold text-foreground flex items-center gap-2">
-                                            <Hash className="h-4 w-4 text-primary" />
-                                            Thứ tự *
-                                        </label>
-                                        <Input
-                                            type="number"
-                                            placeholder="1"
-                                            className="bg-background border-border text-foreground h-11"
-                                            value={formData.lessonOrder}
-                                            onChange={(e) => handleInputChange('lessonOrder', parseInt(e.target.value) || 0)}
-                                            onBlur={() => handleBlur('lessonOrder')}
-                                        />
-                                        {errors.lessonOrder && <p className="text-sm text-red-500 flex items-center gap-1">
-                                            <X className="h-3 w-3" />
-                                            {errors.lessonOrder}
                                         </p>}
                                     </div>
 

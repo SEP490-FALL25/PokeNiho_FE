@@ -60,7 +60,8 @@
         "questionBank": "問題バンク",
         "lessonTypes": "レッスンタイプ",
         "lessonContent": "レッスン内容",
-        "configShop": "ショップ設定"
+        "configShop": "ショップ設定",
+        "testSets": "テストセット"
     },
     "dailyQuest": {
         "title": "デイリークエスト管理",
@@ -328,7 +329,8 @@
             "manageForLesson": "レッスンの演習を管理:",
             "created": "作成日:",
             "active": "アクティブ",
-            "inactive": "非アクティブ"
+            "inactive": "非アクティブ",
+            "completeSetup": "レッスン設定を完了"
         },
         "questionSets": {
             "title": "問題セット管理",

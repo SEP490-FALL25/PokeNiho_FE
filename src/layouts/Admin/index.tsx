@@ -67,7 +67,7 @@ const AdminLayout = () => {
       icon: FileText,
     },
     {
-      name: "Test Sets",
+      name: t("navigation.testSets"),
       href: ROUTES.ADMIN.TESTSET_MANAGEMENT,
       icon: Layers,
     },

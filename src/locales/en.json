@@ -80,7 +80,8 @@
         "questionBank": "Question Bank",
         "lessonTypes": "Lesson Types",
         "lessonContent": "Lesson Content",
-        "configShop": "Shop Configuration"
+        "configShop": "Shop Configuration",
+        "testSets": "Test Sets"
     },
     "dailyQuest": {
         "title": "Daily Quest Management",
@@ -349,7 +350,8 @@
             "manageForLesson": "Manage exercises for lesson:",
             "created": "Created:",
             "active": "Active",
-            "inactive": "Inactive"
+            "inactive": "Inactive",
+            "completeSetup": "Complete Lesson Setup"
         },
         "questionSets": {
             "title": "Question Sets Management",

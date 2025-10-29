@@ -34,6 +34,14 @@ interface SelectTestSetDialogProps {
   onSelectTestSet: (testSet: TestSetEntity) => void;
   lessonId: number;
   lessonLevel: number;
+  testType?:
+    | "VOCABULARY"
+    | "GRAMMAR"
+    | "KANJI"
+    | "LISTENING"
+    | "READING"
+    | "SPEAKING"
+    | "GENERAL";
 }
 
 const SelectTestSetDialog: React.FC<SelectTestSetDialogProps> = ({
@@ -41,6 +49,7 @@ const SelectTestSetDialog: React.FC<SelectTestSetDialogProps> = ({
   onClose,
   onSelectTestSet,
   lessonLevel,
+  testType,
 }) => {
   const { i18n } = useTranslation();
   const currentLang = (i18n?.language || "vi").slice(0, 2);
@@ -49,10 +58,7 @@ const SelectTestSetDialog: React.FC<SelectTestSetDialogProps> = ({
   const isTranslationArray = (field: unknown): field is TranslationEntry[] =>
     Array.isArray(field);
 
-  const extractText = (
-    field: unknown,
-    lang: string = currentLang
-  ): string => {
+  const extractText = (field: unknown, lang: string = currentLang): string => {
     if (isTranslationArray(field)) {
       const byLang = field.find((f) => f?.language === lang)?.value?.trim();
       if (byLang) return byLang;
@@ -89,7 +95,7 @@ const SelectTestSetDialog: React.FC<SelectTestSetDialogProps> = ({
     () => ({
       levelN: lessonLevel,
       search: searchTerm || undefined,
-      testType: selectedTestType as
+      testType: (testType || selectedTestType) as
         | "VOCABULARY"
         | "GRAMMAR"
         | "KANJI"
@@ -101,11 +107,13 @@ const SelectTestSetDialog: React.FC<SelectTestSetDialogProps> = ({
       status: selectedStatus as "DRAFT" | "ACTIVE" | "INACTIVE" | undefined,
       pageSize: itemsPerPage,
       currentPage: page,
+      noExercies: true,
     }),
     [
       lessonLevel,
       searchTerm,
       selectedTestType,
+      testType,
       selectedStatus,
       itemsPerPage,
       page,
@@ -165,11 +173,13 @@ const SelectTestSetDialog: React.FC<SelectTestSetDialogProps> = ({
       setAllTestSets([]);
       setHasMore(true);
       setIsLoadingMore(false);
+      // if a testType is provided from parent, prefer it as the active filter
+      setSelectedTestType(testType || undefined);
       if (scrollContainerRef.current) {
         scrollContainerRef.current.scrollTop = 0;
       }
     }
-  }, [isOpen, searchTerm, selectedTestType, selectedStatus, lessonLevel]);
+  }, [isOpen, searchTerm, selectedTestType, selectedStatus, lessonLevel, testType]);
 
   // Append or replace data when fetched
   useEffect(() => {
@@ -307,10 +317,16 @@ const SelectTestSetDialog: React.FC<SelectTestSetDialogProps> = ({
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <CardTitle className="text-lg">
-                            {extractText((testSet as unknown as Record<string, unknown>).name)}
+                            {extractText(
+                              (testSet as unknown as Record<string, unknown>)
+                                .name
+                            )}
                           </CardTitle>
                           <CardDescription className="mt-1">
-                            {extractText((testSet as unknown as Record<string, unknown>).description)}
+                            {extractText(
+                              (testSet as unknown as Record<string, unknown>)
+                                .description
+                            )}
                           </CardDescription>
                         </div>
                         <div className="flex gap-2">

@@ -155,7 +155,6 @@ export const validateCreateLesson = (data: any): ValidationErrors => {
   validator.addRule('titleJp', commonValidationRules.titleJp);
   validator.addRule('levelJlpt', commonValidationRules.levelJlpt);
   validator.addRule('estimatedTimeMinutes', commonValidationRules.estimatedTimeMinutes);
-  validator.addRule('lessonOrder', commonValidationRules.lessonOrder);
   validator.addRule('version', commonValidationRules.version);
   validator.addRule('lessonCategoryId', commonValidationRules.lessonCategoryId);
   validator.addRule('rewardId', commonValidationRules.rewardId);
