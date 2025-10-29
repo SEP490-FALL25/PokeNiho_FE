@@ -21,6 +21,34 @@ import HeaderAdmin from "@organisms/Header/Admin";
 import PaginationControls from "@ui/PaginationControls";
 
 const TestSetManagement: React.FC = () => {
+  type TranslationEntry = { language: string; value: string };
+  const isTranslationArray = (field: unknown): field is TranslationEntry[] =>
+    Array.isArray(field);
+
+  const extractText = (
+    field: unknown,
+    lang: string = "vi"
+  ): string => {
+    if (isTranslationArray(field)) {
+      const byLang = field.find((f) => f?.language === lang)?.value?.trim();
+      if (byLang) return byLang;
+      const vi = field.find((f) => f?.language === "vi")?.value?.trim();
+      if (vi) return vi;
+      const en = field.find((f) => f?.language === "en")?.value?.trim();
+      if (en) return en;
+      const first = field.find((f) => f?.value)?.value?.trim();
+      return first || "";
+    }
+    if (typeof field === "string") return field;
+    return "";
+  };
+
+  const getTranslation = (field: unknown, language: string): string => {
+    if (isTranslationArray(field)) {
+      return field.find((f) => f?.language === language)?.value || "";
+    }
+    return typeof field === "string" ? field : "";
+  };
   const {
     testSets,
     isLoading,
@@ -74,11 +102,17 @@ const TestSetManagement: React.FC = () => {
     const item = testSets.find((t) => t.id === id);
     if (!item) return;
     setForm({
-      nameVi: item.name,
-      nameEn: item.name,
-      descriptionVi: item.description,
-      descriptionEn: item.description,
-      content: item.content,
+      nameVi: getTranslation((item as unknown as Record<string, unknown>).name, "vi") ||
+        extractText((item as unknown as Record<string, unknown>).name, "vi"),
+      nameEn: getTranslation((item as unknown as Record<string, unknown>).name, "en") ||
+        extractText((item as unknown as Record<string, unknown>).name, "en"),
+      descriptionVi:
+        getTranslation((item as unknown as Record<string, unknown>).description, "vi") ||
+        extractText((item as unknown as Record<string, unknown>).description, "vi"),
+      descriptionEn:
+        getTranslation((item as unknown as Record<string, unknown>).description, "en") ||
+        extractText((item as unknown as Record<string, unknown>).description, "en"),
+      content: (item as unknown as Record<string, unknown>).content as string,
       audioUrl: item.audioUrl || "",
       price: item.price || 0,
       levelN: item.levelN,
@@ -251,9 +285,11 @@ const TestSetManagement: React.FC = () => {
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <CardTitle className="text-lg">{t.name}</CardTitle>
+                        <CardTitle className="text-lg">
+                          {extractText((t as unknown as Record<string, unknown>).name, "vi")}
+                        </CardTitle>
                         <p className="text-sm text-gray-600 line-clamp-2">
-                          {t.description}
+                          {extractText((t as unknown as Record<string, unknown>).description, "vi")}
                         </p>
                       </div>
                       <div className="flex gap-2">

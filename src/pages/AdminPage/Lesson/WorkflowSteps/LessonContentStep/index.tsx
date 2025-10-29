@@ -247,7 +247,10 @@ const SortableItem = ({
               ? (content as GrammarItem)?.description ?? ""
               : sectionType === QUESTION_TYPE.KANJI &&
                 (content as KanjiItem)?.meaning
-              ? ((content as KanjiItem).meaning as string)
+              ? extractMeaningText(
+                  { meaning: (content as KanjiItem).meaning },
+                  currentLanguage
+                )
               : Array.isArray(content?.meanings)
               ? (content.meanings as MeaningEntry[])
                   .map((m) => extractMeaningText(m, currentLanguage))
@@ -496,16 +499,20 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
   ) => {
     try {
       // Find the content to get lessonContentId
-      const section = contentSections.find(s => s.type === sectionType);
-      const content = section?.contents.find(c => c.id === contentId);
-      
+      const section = contentSections.find((s) => s.type === sectionType);
+      const content = section?.contents.find((c) => c.id === contentId);
+
       if (!content) {
         toast.error("Không tìm thấy content để xóa");
         return;
       }
 
       const lessonContentId = content.lessonContentId || content.id;
-      console.log("Deleting content:", { contentId, lessonContentId, sectionType });
+      console.log("Deleting content:", {
+        contentId,
+        lessonContentId,
+        sectionType,
+      });
 
       // Call API to delete content
       await lessonService.deleteLessonContent(lessonContentId);
