@@ -39,7 +39,8 @@
         "notFound": "Không tìm thấy",
         "all": "Tất cả",
         "minutes": "phút",
-        "retry": "Thử lại"
+        "retry": "Thử lại",
+        "clearAll": "Xóa hết"
     },
     "navigation": {
         "dashboard": "Tổng quan",
@@ -397,7 +398,12 @@
         "filterByType": "Lọc theo hệ",
         "filterByRarity": "Lọc theo độ hiếm",
         "allTypes": "Tất cả hệ",
-        "allRarities": "Tất cả độ hiếm"
+        "allRarities": "Tất cả độ hiếm",
+        "selectOptional": "Chọn Pokémon (không bắt buộc)",
+        "selectOptionalHelp": "Nếu không chọn, sẽ áp dụng tất cả Pokémon ngẫu nhiên.",
+        "tapCardToSelect": "Nhấn vào thẻ để chọn. Không chọn = tất cả.",
+        "selectedCount": "Đã chọn {{count}}",
+        "noneSelectedMeansAll": "Không chọn nghĩa là sẽ áp dụng tất cả"
     },
     "createLesson": {
         "title": "Tạo bài học mới",

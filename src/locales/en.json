@@ -41,6 +41,7 @@
         "all": "All",
         "minutes": "minutes",
         "retry": "Retry",
+        "clearAll": "Clear all",
         "created": "Created",
         "published": "Published",
         "draft": "Draft",
@@ -419,7 +420,12 @@
         "filterByType": "Filter by type",
         "filterByRarity": "Filter by rarity",
         "allTypes": "All types",
-        "allRarities": "All rarities"
+        "allRarities": "All rarities",
+        "selectOptional": "Select Pokémon (optional)",
+        "selectOptionalHelp": "If none selected, all random Pokémon will be included.",
+        "tapCardToSelect": "Tap card to select. No selection = all.",
+        "selectedCount": "{{count}} selected",
+        "noneSelectedMeansAll": "No selection means all will be included"
     },
     "createLesson": {
         "title": "Create New Lesson",

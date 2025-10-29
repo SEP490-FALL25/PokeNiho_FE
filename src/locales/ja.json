@@ -40,7 +40,8 @@
         "notFound": "見つかりません",
         "all": "すべて",
         "minutes": "分",
-        "retry": "再試行"
+        "retry": "再試行",
+        "clearAll": "すべてクリア"
     },
     "navigation": {
         "dashboard": "ダッシュボード",
@@ -398,7 +399,12 @@
         "filterByType": "タイプでフィルター",
         "filterByRarity": "レア度でフィルター",
         "allTypes": "すべてのタイプ",
-        "allRarities": "すべてのレア度"
+        "allRarities": "すべてのレア度",
+        "selectOptional": "ポケモンを選択（任意）",
+        "selectOptionalHelp": "選択しない場合、すべてのランダムポケモンが対象になります。",
+        "tapCardToSelect": "カードをタップして選択。未選択＝すべて",
+        "selectedCount": "{{count}}件を選択",
+        "noneSelectedMeansAll": "未選択はすべてを含むことを意味します"
     },
     "createLesson": {
         "title": "新しいレッスンを作成",
