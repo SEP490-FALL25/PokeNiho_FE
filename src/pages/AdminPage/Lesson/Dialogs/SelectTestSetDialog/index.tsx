@@ -34,6 +34,14 @@ interface SelectTestSetDialogProps {
   onSelectTestSet: (testSet: TestSetEntity) => void;
   lessonId: number;
   lessonLevel: number;
+  testType?:
+    | "VOCABULARY"
+    | "GRAMMAR"
+    | "KANJI"
+    | "LISTENING"
+    | "READING"
+    | "SPEAKING"
+    | "GENERAL";
 }
 
 const SelectTestSetDialog: React.FC<SelectTestSetDialogProps> = ({
@@ -41,6 +49,7 @@ const SelectTestSetDialog: React.FC<SelectTestSetDialogProps> = ({
   onClose,
   onSelectTestSet,
   lessonLevel,
+  testType,
 }) => {
   const { i18n } = useTranslation();
   const currentLang = (i18n?.language || "vi").slice(0, 2);
@@ -86,7 +95,7 @@ const SelectTestSetDialog: React.FC<SelectTestSetDialogProps> = ({
     () => ({
       levelN: lessonLevel,
       search: searchTerm || undefined,
-      testType: selectedTestType as
+      testType: (testType || selectedTestType) as
         | "VOCABULARY"
         | "GRAMMAR"
         | "KANJI"
@@ -104,6 +113,7 @@ const SelectTestSetDialog: React.FC<SelectTestSetDialogProps> = ({
       lessonLevel,
       searchTerm,
       selectedTestType,
+      testType,
       selectedStatus,
       itemsPerPage,
       page,
@@ -163,11 +173,13 @@ const SelectTestSetDialog: React.FC<SelectTestSetDialogProps> = ({
       setAllTestSets([]);
       setHasMore(true);
       setIsLoadingMore(false);
+      // if a testType is provided from parent, prefer it as the active filter
+      setSelectedTestType(testType || undefined);
       if (scrollContainerRef.current) {
         scrollContainerRef.current.scrollTop = 0;
       }
     }
-  }, [isOpen, searchTerm, selectedTestType, selectedStatus, lessonLevel]);
+  }, [isOpen, searchTerm, selectedTestType, selectedStatus, lessonLevel, testType]);
 
   // Append or replace data when fetched
   useEffect(() => {

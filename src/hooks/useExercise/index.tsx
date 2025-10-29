@@ -59,3 +59,29 @@ export const useExercisesByLessonId = (lessonId: number) => {
     ...query,
   };
 };
+
+/**
+ * Hook for deleting an exercise by id
+ */
+export const useDeleteExercise = (lessonId: number) => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (id: number) => exerciseService.deleteExercise(id),
+    onSuccess: (response) => {
+      toast.success((response as any)?.message || 'Xóa bài tập thành công');
+      queryClient.invalidateQueries({ queryKey: ["exercises", { lessonId }] });
+    },
+    onError: (error: ApiError) => {
+      const msg = error?.response?.data?.message;
+      if (Array.isArray(msg)) toast.error(msg.join(', '));
+      else toast.error(msg || 'Không thể xóa bài tập');
+    },
+  });
+
+  return {
+    deleteExercise: mutation.mutate,
+    isDeleting: mutation.isPending,
+    error: mutation.error,
+  };
+};

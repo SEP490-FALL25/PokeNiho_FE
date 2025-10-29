@@ -11,6 +11,10 @@ const exerciseService = {
     const response = await axiosPrivate.post('/exercises', data);
     return response.data;
   },
+  deleteExercise: async (id: number): Promise<{ message: string } & Record<string, unknown>> => {
+    const response = await axiosPrivate.delete(`/exercises/${id}`);
+    return response.data;
+  },
 };
 
 export default exerciseService;

@@ -1,7 +1,7 @@
 import z from "zod";
 
 export const CreateExerciseRequestSchema = z.object({
-  exerciseType: z.enum(['QUIZ', 'multiple_choice', 'matching', 'listening', 'speaking']),
+  exerciseType: z.enum(['QUIZ', 'multiple_choice', 'matching', 'listening', 'speaking', 'VOCABULARY', 'GRAMMAR', 'KANJI']),
   isBlocked: z.boolean(),
   lessonId: z.number(),
   testSetId: z.number(),

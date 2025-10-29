@@ -12,7 +12,6 @@ import {
   FileText,
   BookMarked,
   GripVertical,
-  ArrowUpDown,
 } from "lucide-react";
 import CreateContentDialog from "../../Dialogs/CreateContentDialog";
 import ViewContentDialog from "../../Dialogs/ViewContentDialog";
@@ -759,49 +758,49 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
   };
 
   // Change sort order for a section
-  const changeSortOrder = (
-    sectionType: string,
-    newOrder: "contentOrder" | "alphabetical" | "level"
-  ) => {
-    setContentSections((prev) =>
-      prev.map((section) => {
-        if (section.type === sectionType) {
-          const sortedContents = [...section.contents];
+  // const changeSortOrder = (
+  //   sectionType: string,
+  //   newOrder: "contentOrder" | "alphabetical" | "level"
+  // ) => {
+  //   setContentSections((prev) =>
+  //     prev.map((section) => {
+  //       if (section.type === sectionType) {
+  //         const sortedContents = [...section.contents];
 
-          switch (newOrder) {
-            case "alphabetical":
-              sortedContents.sort((a, b) =>
-                `${a.contentType}#${a.contentId}`.localeCompare(
-                  `${b.contentType}#${b.contentId}`
-                )
-              );
-              break;
-            case "level":
-              sortedContents.sort(
-                (a, b) => (a.contentId || 0) - (b.contentId || 0)
-              );
-              break;
-            case "contentOrder":
-            default:
-              sortedContents.sort(
-                (a, b) => (a.contentOrder || 0) - (b.contentOrder || 0)
-              );
-              break;
-          }
+  //         switch (newOrder) {
+  //           case "alphabetical":
+  //             sortedContents.sort((a, b) =>
+  //               `${a.contentType}#${a.contentId}`.localeCompare(
+  //                 `${b.contentType}#${b.contentId}`
+  //               )
+  //             );
+  //             break;
+  //           case "level":
+  //             sortedContents.sort(
+  //               (a, b) => (a.contentId || 0) - (b.contentId || 0)
+  //             );
+  //             break;
+  //           case "contentOrder":
+  //           default:
+  //             sortedContents.sort(
+  //               (a, b) => (a.contentOrder || 0) - (b.contentOrder || 0)
+  //             );
+  //             break;
+  //         }
 
-          return {
-            ...section,
-            contents: sortedContents,
-            sortOrder: newOrder,
-          };
-        }
-        return section;
-      })
-    );
-  };
+  //         return {
+  //           ...section,
+  //           contents: sortedContents,
+  //           sortOrder: newOrder,
+  //         };
+  //       }
+  //       return section;
+  //     })
+  //   );
+  // };
 
   return (
-    <div className="space-y-6 bg-gradient-to-br from-blue-50 via-white to-indigo-100 min-h-screen p-6">
+    <div className="space-y-6 min-h-screen p-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -816,7 +815,7 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
           {Object.keys(pendingChanges).length > 0 && (
             <Button
               onClick={saveAllChanges}
-              className="bg-green-600 text-white hover:bg-green-700"
+              className="bg-green-600 text-white hover:bg-green-700 cursor-pointer"
             >
               💾 Lưu thay đổi ({Object.keys(pendingChanges).length})
             </Button>
@@ -824,7 +823,7 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
           <Button
             variant="outline"
             onClick={onNext}
-            className="border-border text-foreground hover:bg-muted"
+            className="border-border text-foreground hover:bg-muted cursor-pointer"
           >
             {t("workflow.content.skipContent")}
           </Button>
@@ -950,7 +949,7 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
                     )}
                     <Button
                       onClick={() => handleAddContent(section.type)}
-                      className="bg-primary text-white hover:bg-primary/90"
+                      className="bg-primary text-white hover:bg-primary/90 cursor-pointer"
                       size="sm"
                     >
                       <Plus className="h-4 w-4 mr-2" />

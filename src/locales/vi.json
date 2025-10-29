@@ -59,7 +59,8 @@
         "lessonManagement": "Danh sách bài học",
         "lessonTypes": "Loại bài học",
         "lessonContent": "Nội dung bài học",
-        "configShop": "Cấu hình Shop"
+        "configShop": "Cấu hình Shop",
+        "testSets": "Bộ đề"
     },
     "dailyQuest": {
         "title": "Quản lý Nhiệm vụ hàng ngày",
@@ -327,7 +328,8 @@
             "manageForLesson": "Quản lý bài tập cho bài học:",
             "created": "Đã tạo:",
             "active": "Hoạt động",
-            "inactive": "Không hoạt động"
+            "inactive": "Không hoạt động",
+            "completeSetup": "Hoàn thành thiết lập bài học"
         },
         "questionSets": {
             "title": "Quản lý Bộ câu hỏi",
