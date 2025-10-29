@@ -20,6 +20,7 @@ import { Search, DollarSign, X } from "lucide-react";
 import HeaderAdmin from "@organisms/Header/Admin";
 import PaginationControls from "@ui/PaginationControls";
 import { Checkbox } from "@ui/Checkbox";
+import { Switch } from "@ui/Switch";
 import { useQuestionBankList } from "@hooks/useQuestionBank";
 import { IQueryQuestionRequest } from "@models/questionBank/request";
 import { QuestionEntityType } from "@models/questionBank/entity";
@@ -239,6 +240,7 @@ const TestSetManagement: React.FC = () => {
   const [qbSearch, setQbSearch] = useState("");
   const [qbPage, setQbPage] = useState(1);
   const [qbPageSize, setQbPageSize] = useState(15);
+  const [qbNoTestSet, setQbNoTestSet] = useState<boolean>(true);
   const [selectedQuestionIds, setSelectedQuestionIds] = useState<number[]>([]);
   const [qbForceKey, setQbForceKey] = useState(0);
 
@@ -256,7 +258,7 @@ const TestSetManagement: React.FC = () => {
     questionType: form.testType as unknown as QuestionType,
     // extra flexible fields supported by backend through catchall
     testSetId: selectedId || undefined,
-    noTestSet: true,
+    noTestSet: qbNoTestSet,
     forceKey: qbForceKey,
   } as QuestionListFilters);
 
@@ -408,70 +410,70 @@ const TestSetManagement: React.FC = () => {
           ) : testSets.length === 0 ? (
             <div className="text-center text-gray-500 py-16">Không có test set</div>
           ) : (
-          <>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {testSets.map((t) => (
-                <Card
-                  key={t.id}
-                  className="hover:border-primary/40 transition-colors cursor-pointer"
-                  onClick={() => openEdit(t.id)}
-                >
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="text-lg">
-                          {extractText((t as unknown as Record<string, unknown>).name, "vi")}
-                        </CardTitle>
-                        <p className="text-sm text-gray-600 line-clamp-2">
-                          {extractText((t as unknown as Record<string, unknown>).description, "vi")}
-                        </p>
+            <>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {testSets.map((t) => (
+                  <Card
+                    key={t.id}
+                    className="hover:border-primary/40 transition-colors cursor-pointer"
+                    onClick={() => openEdit(t.id)}
+                  >
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-lg">
+                            {extractText((t as unknown as Record<string, unknown>).name, "vi")}
+                          </CardTitle>
+                          <p className="text-sm text-gray-600 line-clamp-2">
+                            {extractText((t as unknown as Record<string, unknown>).description, "vi")}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Badge variant="outline">N{t.levelN}</Badge>
+                          <Badge
+                            className={
+                              t.status === "ACTIVE"
+                                ? "bg-green-100 text-green-800"
+                                : t.status === "DRAFT"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "bg-gray-100 text-gray-800"
+                            }
+                          >
+                            {t.status}
+                          </Badge>
+                        </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Badge variant="outline">N{t.levelN}</Badge>
-                        <Badge
-                          className={
-                            t.status === "ACTIVE"
-                              ? "bg-green-100 text-green-800"
-                              : t.status === "DRAFT"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-gray-100 text-gray-800"
-                          }
-                        >
-                          {t.status}
-                        </Badge>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-sm text-gray-700 mb-3 line-clamp-3">
+                        {t.content}
                       </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-sm text-gray-700 mb-3 line-clamp-3">
-                      {t.content}
-                    </div>
-                    <div className="flex items-center justify-between text-sm text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <DollarSign className="h-4 w-4" />
-                        {t.price ? `${t.price.toLocaleString()} ₫` : "Miễn phí"}
+                      <div className="flex items-center justify-between text-sm text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <DollarSign className="h-4 w-4" />
+                          {t.price ? `${t.price.toLocaleString()} ₫` : "Miễn phí"}
+                        </div>
+                        <div>{t.testType}</div>
+                        <div>#{t.id}</div>
                       </div>
-                      <div>{t.testType}</div>
-                      <div>#{t.id}</div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-          </div>
-          <div className="flex justify-end mt-6">
-            {pagination && (
-              <PaginationControls
-                currentPage={pagination.current || 1}
-                totalPages={pagination.totalPage || 0}
-                totalItems={pagination.totalItem || 0}
-                itemsPerPage={pagination.pageSize || 10}
-                onPageChange={(nextPage: number) => handlePageChange(nextPage)}
-                onItemsPerPageChange={(size: number) => handlePageSizeChange(size)}
-                isLoading={isLoading}
-              />
-            )}
-          </div>
-          </>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              <div className="flex justify-end mt-6">
+                {pagination && (
+                  <PaginationControls
+                    currentPage={pagination.current || 1}
+                    totalPages={pagination.totalPage || 0}
+                    totalItems={pagination.totalItem || 0}
+                    itemsPerPage={pagination.pageSize || 10}
+                    onPageChange={(nextPage: number) => handlePageChange(nextPage)}
+                    onItemsPerPageChange={(size: number) => handlePageSizeChange(size)}
+                    isLoading={isLoading}
+                  />
+                )}
+              </div>
+            </>
           )}
         </div>
 
@@ -693,6 +695,13 @@ const TestSetManagement: React.FC = () => {
                     setQbPage(1);
                   }}
                 />
+                <div className="flex items-center gap-2 ml-2">
+                  <span className="text-sm text-muted-foreground">noTestSet</span>
+                  <Switch
+                    checked={qbNoTestSet}
+                    onCheckedChange={(val) => { setQbNoTestSet(Boolean(val)); setQbPage(1); setQbForceKey(k => k + 1); }}
+                  />
+                </div>
               </div>
 
               <div className="border rounded">
@@ -731,8 +740,8 @@ const TestSetManagement: React.FC = () => {
                     totalPages={qbPagination.totalPage || 0}
                     totalItems={qbPagination.totalItem || 0}
                     itemsPerPage={qbPagination.pageSize || qbPageSize}
-                    onPageChange={(p:number)=>setQbPage(p)}
-                    onItemsPerPageChange={(s:number)=>{setQbPageSize(s); setQbPage(1);}}
+                    onPageChange={(p: number) => setQbPage(p)}
+                    onItemsPerPageChange={(s: number) => { setQbPageSize(s); setQbPage(1); }}
                     isLoading={qbLoading}
                   />
                 </div>
@@ -740,7 +749,7 @@ const TestSetManagement: React.FC = () => {
 
               <div className="flex justify-end gap-2">
                 <Button variant="ghost" onClick={() => setIsAddQuestionsOpen(false)}>Đóng</Button>
-                <Button onClick={handleLinkSelected} disabled={selectedQuestionIds.length===0}>Thêm vào TestSet</Button>
+                <Button onClick={handleLinkSelected} disabled={selectedQuestionIds.length === 0}>Thêm vào TestSet</Button>
               </div>
             </div>
           </DialogContent>
