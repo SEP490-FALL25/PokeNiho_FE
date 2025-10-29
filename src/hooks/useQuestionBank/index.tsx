@@ -117,7 +117,7 @@ export const useUpdateQuestion = () => {
       } else {
         toast.error(
           apiError?.response?.data?.message ||
-            "Có lỗi xảy ra khi cập nhật câu hỏi"
+          "Có lỗi xảy ra khi cập nhật câu hỏi"
         );
       }
     },
@@ -276,7 +276,7 @@ export const useQuestionBank = (
   const handleSort = useCallback((sortKey: string) => {
     setFilters((prev) => {
       const currentSortBy = prev.sortBy;
-      const currentSortOrder = prev.sortOrder;
+      const currentSortOrder = prev.sort;
 
       // If clicking the same column, toggle sort order
       if (currentSortBy === sortKey) {
@@ -284,7 +284,7 @@ export const useQuestionBank = (
         return {
           ...prev,
           sortBy: sortKey,
-          sortOrder: newSortOrder,
+          sort: newSortOrder,
           page: 1, // Reset to first page when sorting
         };
       }
@@ -293,7 +293,7 @@ export const useQuestionBank = (
       return {
         ...prev,
         sortBy: sortKey,
-        sortOrder: "asc",
+        sort: "asc",
         page: 1, // Reset to first page when sorting
       };
     });
@@ -573,42 +573,42 @@ export const useQuestionBank = (
       audioUrl: question.audioUrl || "",
       meanings: Array.isArray(question.meanings)
         ? (() => {
-            // Find Vietnamese and English translations from API data
-            let viTranslation = "";
-            let enTranslation = "";
+          // Find Vietnamese and English translations from API data
+          let viTranslation = "";
+          let enTranslation = "";
 
-            question.meanings.forEach((meaning) => {
-              if ("language" in meaning && "value" in meaning) {
-                // New API format (language/value)
-                if (meaning.language === "vi") {
-                  viTranslation = meaning.value;
-                } else if (meaning.language === "en") {
-                  enTranslation = meaning.value;
-                }
-              } else if ("translations" in meaning) {
-                // Old format (translations.vi/en)
-                viTranslation = meaning.translations.vi || "";
-                enTranslation = meaning.translations.en || "";
+          question.meanings.forEach((meaning) => {
+            if ("language" in meaning && "value" in meaning) {
+              // New API format (language/value)
+              if (meaning.language === "vi") {
+                viTranslation = meaning.value;
+              } else if (meaning.language === "en") {
+                enTranslation = meaning.value;
               }
-            });
+            } else if ("translations" in meaning) {
+              // Old format (translations.vi/en)
+              viTranslation = meaning.translations.vi || "";
+              enTranslation = meaning.translations.en || "";
+            }
+          });
 
-            return [
-              {
-                translations: {
-                  vi: viTranslation,
-                  en: enTranslation,
-                },
-              },
-            ];
-          })()
-        : [
+          return [
             {
               translations: {
-                vi: question.meaning || "",
-                en: "",
+                vi: viTranslation,
+                en: enTranslation,
               },
             },
-          ],
+          ];
+        })()
+        : [
+          {
+            translations: {
+              vi: question.meaning || "",
+              en: "",
+            },
+          },
+        ],
       answers: [], // Will be populated after fetching
     });
 

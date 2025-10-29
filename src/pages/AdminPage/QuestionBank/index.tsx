@@ -72,6 +72,7 @@ const QuestionBankManagement: React.FC = () => {
   // Local state for search input with debounce
   const [searchInput, setSearchInput] = useState(filters.search || "");
   const debouncedSearchInput = useDebounce(searchInput, 500);
+  const [answerExtras, setAnswerExtras] = useState<Record<number, { vi: string; en: string }>>({});
 
   // Update filters when debounced search changes
   useEffect(() => {
@@ -192,7 +193,7 @@ const QuestionBankManagement: React.FC = () => {
                     </SelectItem>
                     {Object.entries(
                       JLPT_LEVEL_LABELS[
-                        language as keyof typeof JLPT_LEVEL_LABELS
+                      language as keyof typeof JLPT_LEVEL_LABELS
                       ] || {}
                     ).map(([key, label]) => (
                       <SelectItem key={key} value={key}>
@@ -221,7 +222,7 @@ const QuestionBankManagement: React.FC = () => {
                     </SelectItem>
                     {Object.entries(
                       QUESTION_TYPE_LABELS[
-                        language as keyof typeof QUESTION_TYPE_LABELS
+                      language as keyof typeof QUESTION_TYPE_LABELS
                       ] || {}
                     ).map(([key, label]) => (
                       <SelectItem key={key} value={key}>
@@ -530,7 +531,7 @@ const QuestionBankManagement: React.FC = () => {
                     <SelectContent>
                       {Object.entries(
                         QUESTION_TYPE_LABELS[
-                          language as keyof typeof QUESTION_TYPE_LABELS
+                        language as keyof typeof QUESTION_TYPE_LABELS
                         ] || {}
                       ).map(([key, label]) => (
                         <SelectItem key={key} value={key}>
@@ -563,7 +564,7 @@ const QuestionBankManagement: React.FC = () => {
                     <SelectContent>
                       {Object.entries(
                         JLPT_LEVEL_LABELS[
-                          language as keyof typeof JLPT_LEVEL_LABELS
+                        language as keyof typeof JLPT_LEVEL_LABELS
                         ] || {}
                       ).map(([key, label]) => (
                         <SelectItem key={key} value={key}>
@@ -577,79 +578,79 @@ const QuestionBankManagement: React.FC = () => {
               {/* Pronunciation - Show for VOCABULARY and SPEAKING */}
               {(formData.questionType === "VOCABULARY" ||
                 formData.questionType === "SPEAKING") && (
-                <div>
-                  <Input
-                    label={`${t(
-                      "questionBank.createDialog.pronunciationLabel"
-                    )}${formData.questionType === "SPEAKING" ? " *" : ""}`}
-                    value={formData.pronunciation || ""}
-                    onChange={(e) => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        pronunciation: e.target.value,
-                      }));
-                      // Clear field error when user starts typing
-                      if (fieldErrors.pronunciation) {
-                        setFieldErrors((prev) => {
-                          const newErrors = { ...prev };
-                          delete newErrors.pronunciation;
-                          return newErrors;
-                        });
-                      }
-                    }}
-                    placeholder={t(
-                      "questionBank.createDialog.pronunciationPlaceholder"
+                  <div>
+                    <Input
+                      label={`${t(
+                        "questionBank.createDialog.pronunciationLabel"
+                      )}${formData.questionType === "SPEAKING" ? " *" : ""}`}
+                      value={formData.pronunciation || ""}
+                      onChange={(e) => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          pronunciation: e.target.value,
+                        }));
+                        // Clear field error when user starts typing
+                        if (fieldErrors.pronunciation) {
+                          setFieldErrors((prev) => {
+                            const newErrors = { ...prev };
+                            delete newErrors.pronunciation;
+                            return newErrors;
+                          });
+                        }
+                      }}
+                      placeholder={t(
+                        "questionBank.createDialog.pronunciationPlaceholder"
+                      )}
+                      required={formData.questionType === "SPEAKING"}
+                    />
+                    {fieldErrors.pronunciation && (
+                      <div className="mt-1 text-sm text-red-600">
+                        {fieldErrors.pronunciation.map((error, index) => (
+                          <div key={index}>{error}</div>
+                        ))}
+                      </div>
                     )}
-                    required={formData.questionType === "SPEAKING"}
-                  />
-                  {fieldErrors.pronunciation && (
-                    <div className="mt-1 text-sm text-red-600">
-                      {fieldErrors.pronunciation.map((error, index) => (
-                        <div key={index}>{error}</div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+                  </div>
+                )}
 
               {/* Audio URL - Show for VOCABULARY and LISTENING */}
               {(formData.questionType === "VOCABULARY" ||
                 formData.questionType === "LISTENING") && (
-                <div className="space-y-2">
-                  <Input
-                    label={t("questionBank.createDialog.audioUrlLabel")}
-                    value={formData.audioUrl || ""}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        audioUrl: e.target.value,
-                      }))
-                    }
-                    placeholder={
-                      formData.questionType === "LISTENING"
-                        ? "Optional - will auto-generate TTS if not provided"
-                        : "Optional"
-                    }
-                  />
-                  {formData.questionType === "VOCABULARY" &&
-                    formData.audioUrl && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            audioUrl: "",
-                          }))
-                        }
-                        className="w-full"
-                      >
-                        Remove Audio URL
-                      </Button>
-                    )}
-                </div>
-              )}
+                  <div className="space-y-2">
+                    <Input
+                      label={t("questionBank.createDialog.audioUrlLabel")}
+                      value={formData.audioUrl || ""}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          audioUrl: e.target.value,
+                        }))
+                      }
+                      placeholder={
+                        formData.questionType === "LISTENING"
+                          ? "Optional - will auto-generate TTS if not provided"
+                          : "Optional"
+                      }
+                    />
+                    {formData.questionType === "VOCABULARY" &&
+                      formData.audioUrl && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              audioUrl: "",
+                            }))
+                          }
+                          className="w-full"
+                        >
+                          Remove Audio URL
+                        </Button>
+                      )}
+                  </div>
+                )}
               {/* Meanings/Translations - Show for all question types */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -747,11 +748,10 @@ const QuestionBankManagement: React.FC = () => {
                     formData.answers?.map((answer, index) => (
                       <div
                         key={index}
-                        className={`border rounded-lg p-4 mb-4 cursor-pointer transition-all duration-200 hover:shadow-md ${
-                          answer.isCorrect
-                            ? "border-green-500 bg-green-50"
-                            : "border-red-300 bg-red-50 hover:border-red-400"
-                        }`}
+                        className={`border rounded-lg p-4 mb-4 cursor-pointer transition-all duration-200 hover:shadow-md ${answer.isCorrect
+                          ? "border-green-500 bg-green-50"
+                          : "border-red-300 bg-red-50 hover:border-red-400"
+                          }`}
                         onClick={() =>
                           setFormData((prev) => ({
                             ...prev,
@@ -824,29 +824,108 @@ const QuestionBankManagement: React.FC = () => {
                           className="space-y-3"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <Input
-                            label="Japanese Answer"
-                            value={answer.answerJp}
-                            onChange={(e) => {
-                              setFormData((prev) => ({
-                                ...prev,
-                                answers: prev.answers?.map((a, i) =>
-                                  i === index
-                                    ? { ...a, answerJp: e.target.value }
-                                    : a
-                                ),
-                              }));
-                              // Clear field error when user starts typing
-                              if (fieldErrors.answers) {
-                                setFieldErrors((prev) => {
-                                  const newErrors = { ...prev };
-                                  delete newErrors.answers;
-                                  return newErrors;
-                                });
-                              }
-                            }}
-                            placeholder="Enter Japanese answer"
-                          />
+                          {(() => {
+                            const parseCombined = (s: string) => {
+                              const m = /^jp:(.*?)(?:\+vi:(.*?))?(?:\+en:(.*?))?$/.exec(s || "");
+                              if (!m) return { jp: s || "", vi: "", en: "", isCombined: false };
+                              return { jp: m[1] ?? "", vi: m[2] ?? "", en: m[3] ?? "", isCombined: true };
+                            };
+                            const ensureCompose = (jp: string, vi: string, en: string) => {
+                              if ((jp ?? "") === "" && (vi ?? "") === "" && (en ?? "") === "") return "";
+                              return `jp:${jp || ""}+vi:${vi || ""}+en:${en || ""}`;
+                            };
+
+                            const parsed = parseCombined(answer.answerJp || "");
+                            const jpValue = parsed.isCombined ? parsed.jp : (answer.answerJp || "");
+                            const viValue = answerExtras[index]?.vi ?? (parsed.isCombined ? parsed.vi : "");
+                            const enValue = answerExtras[index]?.en ?? (parsed.isCombined ? parsed.en : "");
+
+                            const compose = ensureCompose;
+
+                            return (
+                              <>
+                                <Input
+                                  label="Japanese Answer"
+                                  value={jpValue}
+                                  onChange={(e) => {
+                                    const newJp = e.target.value;
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      answers: prev.answers?.map((a, i) =>
+                                        i === index ? { ...a, answerJp: compose(newJp, viValue, enValue) } : a
+                                      ),
+                                    }));
+                                    if (fieldErrors.answers) {
+                                      setFieldErrors((prev) => {
+                                        const newErrors = { ...prev } as any;
+                                        delete newErrors.answers;
+                                        return newErrors;
+                                      });
+                                    }
+                                  }}
+                                  placeholder="Enter Japanese answer"
+                                />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+                                  <Input
+                                    label="Vietnamese Answer"
+                                    value={viValue}
+                                    onChange={(e) => {
+                                      const newVi = e.target.value;
+                                      setAnswerExtras((prev) => ({ ...prev, [index]: { vi: newVi, en: enValue } }));
+                                      setFormData((prev) => ({
+                                        ...prev,
+                                        answers: prev.answers?.map((a, i) =>
+                                          i === index ? { ...a, answerJp: compose(jpValue, newVi, enValue) } : a
+                                        ),
+                                      }));
+                                    }}
+                                    placeholder="Enter Vietnamese answer"
+                                  />
+                                  <Input
+                                    label="English Answer"
+                                    value={enValue}
+                                    onChange={(e) => {
+                                      const newEn = e.target.value;
+                                      setAnswerExtras((prev) => ({ ...prev, [index]: { vi: viValue, en: newEn } }));
+                                      setFormData((prev) => ({
+                                        ...prev,
+                                        answers: prev.answers?.map((a, i) =>
+                                          i === index ? { ...a, answerJp: compose(jpValue, viValue, newEn) } : a
+                                        ),
+                                      }));
+                                    }}
+                                    placeholder="Enter English answer"
+                                  />
+                                </div>
+                                <div className="mt-2 text-xs text-gray-500 flex items-center gap-2 flex-wrap">
+                                  <span>
+                                    Tự động ghép: <code className="px-1 py-0.5 bg-gray-100 rounded">{compose(jpValue, viValue, enValue) || "(trống)"}</code>
+                                  </span>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 px-2"
+                                    onClick={() => {
+                                      const filledVi = viValue || jpValue;
+                                      const filledEn = enValue || jpValue;
+                                      setAnswerExtras((prev) => ({ ...prev, [index]: { vi: filledVi, en: filledEn } }));
+                                      setFormData((prev) => ({
+                                        ...prev,
+                                        answers: prev.answers?.map((a, i) =>
+                                          i === index ? { ...a, answerJp: compose(jpValue, filledVi, filledEn) } : a
+                                        ),
+                                      }));
+                                      const toCopy = compose(jpValue, filledVi, filledEn);
+                                      if (toCopy) navigator.clipboard && navigator.clipboard.writeText(toCopy);
+                                    }}
+                                  >
+                                    Copy
+                                  </Button>
+                                </div>
+                              </>
+                            );
+                          })()}
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                               <label className="block text-sm font-medium text-gray-600 mb-1">
@@ -864,25 +943,25 @@ const QuestionBankManagement: React.FC = () => {
                                     answers: prev.answers?.map((a, i) =>
                                       i === index
                                         ? {
-                                            ...a,
-                                            translations: {
-                                              meaning: (() => {
-                                                const existingMeanings = a.translations?.meaning || [];
-                                                const enMeaning = existingMeanings.find(m => m && m.language_code === "en");
-                                                
-                                                return [
-                                                  {
-                                                    language_code: "vi",
-                                                    value: e.target.value,
-                                                  },
-                                                  {
-                                                    language_code: "en", 
-                                                    value: enMeaning?.value || "",
-                                                  }
-                                                ];
-                                              })(),
-                                            },
-                                          }
+                                          ...a,
+                                          translations: {
+                                            meaning: (() => {
+                                              const existingMeanings = a.translations?.meaning || [];
+                                              const enMeaning = existingMeanings.find(m => m && m.language_code === "en");
+
+                                              return [
+                                                {
+                                                  language_code: "vi",
+                                                  value: e.target.value,
+                                                },
+                                                {
+                                                  language_code: "en",
+                                                  value: enMeaning?.value || "",
+                                                }
+                                              ];
+                                            })(),
+                                          },
+                                        }
                                         : a
                                     ),
                                   }))
@@ -906,25 +985,25 @@ const QuestionBankManagement: React.FC = () => {
                                     answers: prev.answers?.map((a, i) =>
                                       i === index
                                         ? {
-                                            ...a,
-                                            translations: {
-                                              meaning: (() => {
-                                                const existingMeanings = a.translations?.meaning || [];
-                                                const viMeaning = existingMeanings.find(m => m && m.language_code === "vi");
-                                                
-                                                return [
-                                                  {
-                                                    language_code: "vi",
-                                                    value: viMeaning?.value || "",
-                                                  },
-                                                  {
-                                                    language_code: "en", 
-                                                    value: e.target.value,
-                                                  }
-                                                ];
-                                              })(),
-                                            },
-                                          }
+                                          ...a,
+                                          translations: {
+                                            meaning: (() => {
+                                              const existingMeanings = a.translations?.meaning || [];
+                                              const viMeaning = existingMeanings.find(m => m && m.language_code === "vi");
+
+                                              return [
+                                                {
+                                                  language_code: "vi",
+                                                  value: viMeaning?.value || "",
+                                                },
+                                                {
+                                                  language_code: "en",
+                                                  value: e.target.value,
+                                                }
+                                              ];
+                                            })(),
+                                          },
+                                        }
                                         : a
                                     ),
                                   }))
@@ -1046,14 +1125,14 @@ const QuestionBankManagement: React.FC = () => {
                                       meaning: (() => {
                                         const existingMeanings = prev.answers?.[0]?.translations?.meaning || [];
                                         const enMeaning = existingMeanings.find(m => m && m.language_code === "en");
-                                        
+
                                         return [
                                           {
                                             language_code: "vi",
                                             value: e.target.value,
                                           },
                                           {
-                                            language_code: "en", 
+                                            language_code: "en",
                                             value: enMeaning?.value || "",
                                           }
                                         ];
@@ -1088,14 +1167,14 @@ const QuestionBankManagement: React.FC = () => {
                                       meaning: (() => {
                                         const existingMeanings = prev.answers?.[0]?.translations?.meaning || [];
                                         const viMeaning = existingMeanings.find(m => m && m.language_code === "vi");
-                                        
+
                                         return [
                                           {
                                             language_code: "vi",
                                             value: viMeaning?.value || "",
                                           },
                                           {
-                                            language_code: "en", 
+                                            language_code: "en",
                                             value: e.target.value,
                                           }
                                         ];
