@@ -10,6 +10,7 @@ export const ShopItemRandomSchema = z.object({
     price: z.number(),
     purchaseLimit: z.number(),
     isActive: z.boolean(),
+    isHas: z.boolean(),
     pokemon: PokemonEntitySchema,
 });
 export type IShopItemRandomSchema = z.infer<typeof ShopItemRandomSchema>;

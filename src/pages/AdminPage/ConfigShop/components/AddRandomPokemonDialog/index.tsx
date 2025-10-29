@@ -33,6 +33,9 @@ const AddRandomPokemonDialog = ({ isOpen, onClose, bannerId }: AddRandomPokemonD
      */
     const { data: randomPokemonData, isLoading: isLoadingRandom, refetch } = useShopItemRandom(bannerId, amount);
     const randomPokemon = randomPokemonData?.data ?? [];
+    const eligibleCount = selectedPokemonIds.length
+        ? randomPokemon.filter((i: IShopItemRandomSchema) => selectedPokemonIds.includes(i.pokemonId) && !i.isHas).length
+        : randomPokemon.filter((i: IShopItemRandomSchema) => !i.isHas).length;
 
     const handleGetRandom = async () => {
         await refetch();
@@ -56,8 +59,8 @@ const AddRandomPokemonDialog = ({ isOpen, onClose, bannerId }: AddRandomPokemonD
     const createShopItemsMutation = useCreateShopItems();
     const handleSubmit = async () => {
         const source = selectedPokemonIds.length
-            ? randomPokemon.filter((i: IShopItemRandomSchema) => selectedPokemonIds.includes(i.pokemonId))
-            : randomPokemon;
+            ? randomPokemon.filter((i: IShopItemRandomSchema) => selectedPokemonIds.includes(i.pokemonId) && !i.isHas)
+            : randomPokemon.filter((i: IShopItemRandomSchema) => !i.isHas);
 
         const items = source.map((item: IShopItemRandomSchema) => ({
             shopBannerId: item.shopBannerId,
@@ -150,17 +153,27 @@ const AddRandomPokemonDialog = ({ isOpen, onClose, bannerId }: AddRandomPokemonD
                                 <div className="grid gap-3 md:grid-cols-2 max-h-[400px] overflow-y-auto p-2 pb-16">
                                     {randomPokemon.map((item: IShopItemRandomSchema, index: number) => {
                                         const selected = selectedPokemonIds.includes(item.pokemonId);
+                                        const disabled = Boolean((item as any)?.isHas);
                                         return (
                                             <div
                                                 key={index}
                                                 className={cn(
-                                                    "relative border rounded-lg p-4 bg-muted/30 border-border cursor-pointer select-none",
-                                                    "hover:border-primary/50 transition-colors",
-                                                    selected && "border-primary ring-2 ring-primary/30 bg-primary/5"
+                                                    "relative border rounded-lg p-4 bg-muted/30 border-border select-none",
+                                                    "transition-colors",
+                                                    selected && !disabled && "border-primary ring-2 ring-primary/30 bg-primary/5",
+                                                    disabled ? "opacity-60 pointer-events-none saturate-0 contrast-75" : "hover:border-primary/50 cursor-pointer"
                                                 )}
-                                                onClick={() => toggleSelectId(item.pokemonId)}
+                                                onClick={() => { if (!disabled) toggleSelectId(item.pokemonId); }}
                                             >
-                                                {selected && (
+                                                {disabled && (
+                                                    <div className="absolute inset-0 rounded-lg bg-white/50" />
+                                                )}
+                                                {disabled && (
+                                                    <div className="absolute top-2 right-2 text-[10px] px-2 py-0.5 rounded-full bg-muted border border-border text-foreground/70">
+                                                        {t('configShop.alreadyExist')}
+                                                    </div>
+                                                )}
+                                                {selected && !disabled && (
                                                     <div className="absolute top-2 right-2 h-5 w-5 rounded-full bg-primary text-primary-foreground grid place-items-center text-[10px]">
                                                         ✓
                                                     </div>
@@ -224,7 +237,7 @@ const AddRandomPokemonDialog = ({ isOpen, onClose, bannerId }: AddRandomPokemonD
                         <Button
                             type="button"
                             onClick={handleSubmit}
-                            disabled={createShopItemsMutation.isPending || randomPokemon.length === 0}
+                            disabled={createShopItemsMutation.isPending || eligibleCount === 0}
                             className="bg-primary text-primary-foreground hover:bg-primary/90"
                         >
                             {createShopItemsMutation.isPending ? t('configShop.adding') : t('configShop.addToShop')}
