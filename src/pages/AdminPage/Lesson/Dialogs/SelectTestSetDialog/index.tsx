@@ -49,10 +49,7 @@ const SelectTestSetDialog: React.FC<SelectTestSetDialogProps> = ({
   const isTranslationArray = (field: unknown): field is TranslationEntry[] =>
     Array.isArray(field);
 
-  const extractText = (
-    field: unknown,
-    lang: string = currentLang
-  ): string => {
+  const extractText = (field: unknown, lang: string = currentLang): string => {
     if (isTranslationArray(field)) {
       const byLang = field.find((f) => f?.language === lang)?.value?.trim();
       if (byLang) return byLang;
@@ -101,6 +98,7 @@ const SelectTestSetDialog: React.FC<SelectTestSetDialogProps> = ({
       status: selectedStatus as "DRAFT" | "ACTIVE" | "INACTIVE" | undefined,
       pageSize: itemsPerPage,
       currentPage: page,
+      noExercies: true,
     }),
     [
       lessonLevel,
@@ -307,10 +305,16 @@ const SelectTestSetDialog: React.FC<SelectTestSetDialogProps> = ({
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <CardTitle className="text-lg">
-                            {extractText((testSet as unknown as Record<string, unknown>).name)}
+                            {extractText(
+                              (testSet as unknown as Record<string, unknown>)
+                                .name
+                            )}
                           </CardTitle>
                           <CardDescription className="mt-1">
-                            {extractText((testSet as unknown as Record<string, unknown>).description)}
+                            {extractText(
+                              (testSet as unknown as Record<string, unknown>)
+                                .description
+                            )}
                           </CardDescription>
                         </div>
                         <div className="flex gap-2">

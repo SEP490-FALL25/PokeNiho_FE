@@ -419,7 +419,7 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
     try {
       const response = await lessonService.getLessonContentsByLessonId(
         lesson.id,
-        null
+        currentLanguage
       );
       const payload = response?.data?.data ?? response?.data ?? {};
 
@@ -870,7 +870,7 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
                     {/* Sort Controls */}
                     {section.contents.length > 0 && (
                       <div className="flex items-center gap-1">
-                        <Button
+                        {/* <Button
                           variant="outline"
                           size="sm"
                           onClick={() =>
@@ -910,7 +910,7 @@ const LessonContentStep = ({ lesson, onNext }: LessonContentStepProps) => {
                           }
                         >
                           Level
-                        </Button>
+                        </Button> */}
                         <Button
                           variant="outline"
                           size="sm"

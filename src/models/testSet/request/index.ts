@@ -9,6 +9,7 @@ export const TestSetListRequestSchema = z.object({
   status: z.enum(['DRAFT', 'ACTIVE', 'INACTIVE']).optional(),
   creatorId: z.number().optional(),
   language: z.enum(['vi', 'en', 'ja']).optional(),
+  noExercies: z.boolean().optional(),
 });
 
 export type TestSetListRequest = z.infer<typeof TestSetListRequestSchema>;
