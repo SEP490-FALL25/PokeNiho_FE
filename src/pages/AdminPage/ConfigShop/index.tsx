@@ -6,7 +6,7 @@ import { Skeleton } from "@ui/Skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ui/Select";
 import HeaderAdmin from "@organisms/Header/Admin";
 import PaginationControls from "@ui/PaginationControls";
-import { Plus, ShoppingBag, Calendar, X } from "lucide-react";
+import { Plus, ShoppingBag, Calendar, X, Sparkles } from "lucide-react";
 import { useShopBannerList } from "@hooks/useShop";
 import { IShopBannerSchema } from "@models/shop/entity";
 import { useTranslation } from "react-i18next";
@@ -104,20 +104,25 @@ export default function ConfigShop() {
                     <CardHeader>
                         <div className="flex items-center justify-between">
                             <CardTitle className="text-foreground">{t('configShop.bannerList')}</CardTitle>
-                            <Button
-                                className="bg-primary text-primary-foreground hover:bg-primary/90"
-                                onClick={() => setIsCreateDialogOpen(true)}
-                            >
-                                <Plus className="h-4 w-4 mr-2" />
-                                {t('configShop.createBanner')}
-                            </Button>
-                            <Button
-                                className="bg-primary text-primary-foreground hover:bg-primary/90"
-                                onClick={() => setIsUpdateRarityPriceDialogOpen(true)}
-                            >
-                                <Plus className="h-4 w-4 mr-2" />
-                                {t('configShop.updateRarityPrice')}
-                            </Button>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    className="bg-primary text-primary-foreground hover:bg-primary/90"
+                                    onClick={() => setIsCreateDialogOpen(true)}
+                                >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    {t('configShop.createBanner')}
+                                </Button>
+                                <Button
+                                    className="group relative overflow-hidden bg-gradient-to-r from-[hsl(var(--primary-hsl))] via-[hsl(var(--primary-hsl)/0.88)] to-[hsl(var(--primary-hsl)/0.72)] text-primary-foreground transition-all duration-300 hover:opacity-95 hover:scale-[1.01] active:scale-95 shadow-md"
+                                    onClick={() => setIsUpdateRarityPriceDialogOpen(true)}
+                                >
+                                    <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-white/20 via-transparent to-white/20 transition-transform duration-700 group-hover:translate-x-full" />
+                                    <span className="relative z-10 inline-flex items-center">
+                                        <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
+                                        {t('configShop.updateRarityPrice')}
+                                    </span>
+                                </Button>
+                            </div>
                         </div>
                     </CardHeader>
 

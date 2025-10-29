@@ -39,7 +39,8 @@
         "notFound": "Không tìm thấy",
         "all": "Tất cả",
         "minutes": "phút",
-        "retry": "Thử lại"
+        "retry": "Thử lại",
+        "clearAll": "Xóa hết"
     },
     "navigation": {
         "dashboard": "Tổng quan",
@@ -186,11 +187,15 @@
         "changeAllShopPreview": "Áp dụng cho tất cả Shop Preview",
         "changeAllShopPreviewDescription": "Cập nhật giá cho tất cả các shop preview hiện có với các giá mới này",
         "noRarityPricesFound": "Không tìm thấy giá độ hiếm",
+        "priceRequired": "Giá không được để trống",
+        "priceInvalid": "Giá không hợp lệ",
+        "priceValidationInfo": "Yêu cầu về giá",
+        "priceRangeInfo": "Giá phải từ {{min}} đến {{max}} points",
         "enterNewPrice": "Nhập giá mới",
         "noChange": "Không thay đổi",
         "priceRange": "Khoảng giá",
         "priceMinError": "Giá phải lớn hơn hoặc bằng 0",
-        "priceMaxError": "Giá không được vượt quá 1.000.000",
+        "priceMaxError": "Giá không được vượt quá 10.000.000",
         "precreateBeforeEndDaysRequired": "Số ngày trước kết thúc là bắt buộc",
         "precreateBeforeEndDaysMax": "Số ngày trước kết thúc không được vượt quá 7 ngày",
         "enablePrecreate": "Cho phép tạo lại",
@@ -393,7 +398,12 @@
         "filterByType": "Lọc theo hệ",
         "filterByRarity": "Lọc theo độ hiếm",
         "allTypes": "Tất cả hệ",
-        "allRarities": "Tất cả độ hiếm"
+        "allRarities": "Tất cả độ hiếm",
+        "selectOptional": "Chọn Pokémon (không bắt buộc)",
+        "selectOptionalHelp": "Nếu không chọn, sẽ áp dụng tất cả Pokémon ngẫu nhiên.",
+        "tapCardToSelect": "Nhấn vào thẻ để chọn. Không chọn = tất cả.",
+        "selectedCount": "Đã chọn {{count}}",
+        "noneSelectedMeansAll": "Không chọn nghĩa là sẽ áp dụng tất cả"
     },
     "createLesson": {
         "title": "Tạo bài học mới",

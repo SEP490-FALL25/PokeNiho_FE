@@ -40,7 +40,8 @@
         "notFound": "見つかりません",
         "all": "すべて",
         "minutes": "分",
-        "retry": "再試行"
+        "retry": "再試行",
+        "clearAll": "すべてクリア"
     },
     "navigation": {
         "dashboard": "ダッシュボード",
@@ -187,11 +188,15 @@
         "changeAllShopPreview": "すべてのショッププレビューに適用",
         "changeAllShopPreviewDescription": "これらの新しい価格ですべての既存のショッププレビューの価格を更新します",
         "noRarityPricesFound": "レア度価格が見つかりません",
+        "priceRequired": "価格は必須です",
+        "priceInvalid": "無効な価格形式です",
+        "priceValidationInfo": "価格の要件",
+        "priceRangeInfo": "価格は{{min}}〜{{max}}ポイントの間である必要があります",
         "enterNewPrice": "新しい価格を入力",
         "noChange": "変更なし",
         "priceRange": "価格範囲",
         "priceMinError": "価格は0以上でなければなりません",
-        "priceMaxError": "価格は1,000,000を超えることはできません",
+        "priceMaxError": "価格は10,000,000を超えることはできません",
         "precreateBeforeEndDaysRequired": "終了日までの事前作成日数は必須です",
         "precreateBeforeEndDaysMax": "事前作成日数は7日を超えることはできません",
         "enablePrecreate": "事前作成を有効にする",
@@ -394,7 +399,12 @@
         "filterByType": "タイプでフィルター",
         "filterByRarity": "レア度でフィルター",
         "allTypes": "すべてのタイプ",
-        "allRarities": "すべてのレア度"
+        "allRarities": "すべてのレア度",
+        "selectOptional": "ポケモンを選択（任意）",
+        "selectOptionalHelp": "選択しない場合、すべてのランダムポケモンが対象になります。",
+        "tapCardToSelect": "カードをタップして選択。未選択＝すべて",
+        "selectedCount": "{{count}}件を選択",
+        "noneSelectedMeansAll": "未選択はすべてを含むことを意味します"
     },
     "createLesson": {
         "title": "新しいレッスンを作成",
