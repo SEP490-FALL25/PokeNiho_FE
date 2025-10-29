@@ -831,7 +831,18 @@ const QuestionBankManagement: React.FC = () => {
                               return { jp: m[1] ?? "", vi: m[2] ?? "", en: m[3] ?? "", isCombined: true };
                             };
                             const ensureCompose = (jp: string, vi: string, en: string) => {
-                              if ((jp ?? "") === "" && (vi ?? "") === "" && (en ?? "") === "") return "";
+                              const hasJp = (jp ?? "") !== "";
+                              const hasVi = (vi ?? "") !== "";
+                              const hasEn = (en ?? "") !== "";
+                              if (!hasJp && !hasVi && !hasEn) return "";
+
+                              // Always include jp when anything is present
+                              if (!hasVi && !hasEn) {
+                                // Only JP provided
+                                return `jp:${jp || ""}`;
+                              }
+
+                              // If either VI or EN present, include both keys, filling missing with empty
                               return `jp:${jp || ""}+vi:${vi || ""}+en:${en || ""}`;
                             };
 
