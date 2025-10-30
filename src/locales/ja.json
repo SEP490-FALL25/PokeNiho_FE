@@ -34,7 +34,6 @@
         "type": "タイプ",
         "reward": "報酬",
         "condition": "条件",
-        "required": "必須",
         "optional": "オプション",
         "view": "表示",
         "notFound": "見つかりません",
@@ -301,11 +300,23 @@
         "selectEndDate": "終了日を選択",
         "selectStatus": "ステータスを選択",
         "clearFilters": "フィルターをクリア",
+        "costRoll": "ロールコスト",
+        "hardPity": "5★保険",
         "languages": {
             "vi": "ベトナム語",
             "en": "英語",
             "ja": "日本語"
-        }
+        },
+        "pokemonInGacha": "ガチャのポケモン",
+        "noPokemonInGacha": "ガチャにポケモンがありません",
+        "starType": "スタータイプ",
+        "rate": "確率",
+        "amount5Star": "5★数",
+        "amount4Star": "4★数",
+        "amount3Star": "3★数",
+        "amount2Star": "2★数",
+        "amount1Star": "1★数",
+        "gachaStats": "ガチャ統計"
     },
     "lesson": {
         "title": "レッスン管理",
@@ -319,7 +330,6 @@
         "searchPlaceholder": "レッスンを検索...",
         "createdAt": "作成日",
         "updatedAt": "更新日",
-        "title": "タイトル",
         "ascending": "昇順",
         "descending": "降順",
         "noLessons": "レッスンが見つかりません",

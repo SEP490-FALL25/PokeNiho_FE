@@ -34,7 +34,6 @@
         "type": "Type",
         "reward": "Reward",
         "condition": "Condition",
-        "required": "Required",
         "optional": "Optional",
         "view": "View",
         "notFound": "Not found",
@@ -321,11 +320,23 @@
         "selectEndDate": "Select End Date",
         "selectStatus": "Select Status",
         "clearFilters": "Clear Filters",
+        "costRoll": "Roll Cost",
+        "hardPity": "5★ Guarantee",
         "languages": {
             "vi": "Vietnamese",
             "en": "English",
             "ja": "Japanese"
-        }
+        },
+        "pokemonInGacha": "Pokemon in Gacha",
+        "noPokemonInGacha": "No Pokemon in Gacha",
+        "starType": "Star Type",
+        "rate": "Rate",
+        "amount5Star": "5★ Amount",
+        "amount4Star": "4★ Amount",
+        "amount3Star": "3★ Amount",
+        "amount2Star": "2★ Amount",
+        "amount1Star": "1★ Amount",
+        "gachaStats": "Gacha Statistics"
     },
     "lesson": {
         "title": "Lesson Management",

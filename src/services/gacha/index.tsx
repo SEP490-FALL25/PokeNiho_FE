@@ -47,6 +47,11 @@ const gachaService = {
         const queryString = queryParams.toString();
         return axiosPrivate.get(`/gacha-banner${queryString ? `?${queryString}` : ''}`);
     },
+
+    getGachaBannerById: async (id: number) => {
+        return axiosPrivate.get(`/gacha-banner/${id}`);
+    },
+
     createGacha: async (data: ICreateGachaRequest) => {
         return axiosPrivate.post('/gacha-banner', data);
     },

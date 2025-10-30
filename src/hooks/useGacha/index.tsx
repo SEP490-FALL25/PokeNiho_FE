@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { selectCurrentLanguage } from "@redux/features/language/selector";
 import gachaService from "@services/gacha";
+import { IGachaBannerEntity } from "@models/gacha/entity";
 
 /**
  * Handle Gacha Banner List
@@ -46,3 +47,22 @@ export const useCreateGachaBanner = () => {
     });
 };
 //-------------------End-------------------//
+
+
+/**
+ * Handle Get Gacha Banner By ID
+ * @param id 
+ * @returns 
+ */
+export const useGachaBannerById = (id: number | null) => {
+    return useQuery<{ data: IGachaBannerEntity }>({
+        queryKey: ["gachaBanner", id],
+        queryFn: async () => {
+            if (!id) throw new Error("Gacha banner ID is required");
+            const response = await gachaService.getGachaBannerById(id);
+            return response.data;
+        },
+        enabled: !!id,
+    });
+};
+//------------------------End------------------------//

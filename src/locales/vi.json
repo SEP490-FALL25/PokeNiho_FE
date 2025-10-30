@@ -301,11 +301,23 @@
         "selectEndDate": "Chọn ngày kết thúc",
         "selectStatus": "Chọn trạng thái",
         "clearFilters": "Xóa bộ lọc",
+        "costRoll": "Chi phí rút",
+        "hardPity": "Bảo hiểm 5★",
         "languages": {
             "vi": "Tiếng Việt",
             "en": "Tiếng Anh",
             "ja": "Tiếng Nhật"
-        }
+        },
+        "pokemonInGacha": "Pokemon trong Gacha",
+        "noPokemonInGacha": "Không có Pokemon nào trong Gacha",
+        "starType": "Sao",
+        "rate": "Tỷ lệ",
+        "amount5Star": "Số lượng 5★",
+        "amount4Star": "Số lượng 4★",
+        "amount3Star": "Số lượng 3★",
+        "amount2Star": "Số lượng 2★",
+        "amount1Star": "Số lượng 1★",
+        "gachaStats": "Thống kê Gacha"
     },
     "lesson": {
         "title": "Quản lý bài học",
