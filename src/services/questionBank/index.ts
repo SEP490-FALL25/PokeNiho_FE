@@ -65,8 +65,6 @@ const questionBankService = {
     }
 
     const queryString = queryParams.toString();
-    console.log(queryString);
-    console.log(`/question-bank${queryString ? `?${queryString}` : ""}`);
     return axiosPrivate.get(
       `/question-bank${queryString ? `?${queryString}` : ""}`
     );

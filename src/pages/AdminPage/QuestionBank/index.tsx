@@ -34,6 +34,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@ui/Card";
 import { Badge } from "@ui/Badge";
 import HeaderAdmin from "@organisms/Header/Admin";
 import { BookOpen, Edit, Trash2 } from "lucide-react";
+import mediaService from "@services/media";
+import { toast } from "react-toastify";
+import AudioDropzone from "@ui/AudioDropzone";
 
 const QuestionBankManagement: React.FC = () => {
   const { t } = useTranslation();
@@ -72,7 +75,11 @@ const QuestionBankManagement: React.FC = () => {
   // Local state for search input with debounce
   const [searchInput, setSearchInput] = useState(filters.search || "");
   const debouncedSearchInput = useDebounce(searchInput, 500);
-  const [answerExtras, setAnswerExtras] = useState<Record<number, { vi: string; en: string }>>({});
+  const [answerExtras, setAnswerExtras] = useState<
+    Record<number, { vi: string; en: string }>
+  >({});
+  const [audioInputMode, setAudioInputMode] = useState<"url" | "file">("url");
+  const [selectedAudioFile, setSelectedAudioFile] = useState<File | null>(null);
 
   // Update filters when debounced search changes
   useEffect(() => {
@@ -193,7 +200,7 @@ const QuestionBankManagement: React.FC = () => {
                     </SelectItem>
                     {Object.entries(
                       JLPT_LEVEL_LABELS[
-                      language as keyof typeof JLPT_LEVEL_LABELS
+                        language as keyof typeof JLPT_LEVEL_LABELS
                       ] || {}
                     ).map(([key, label]) => (
                       <SelectItem key={key} value={key}>
@@ -222,7 +229,7 @@ const QuestionBankManagement: React.FC = () => {
                     </SelectItem>
                     {Object.entries(
                       QUESTION_TYPE_LABELS[
-                      language as keyof typeof QUESTION_TYPE_LABELS
+                        language as keyof typeof QUESTION_TYPE_LABELS
                       ] || {}
                     ).map(([key, label]) => (
                       <SelectItem key={key} value={key}>
@@ -342,19 +349,29 @@ const QuestionBankManagement: React.FC = () => {
                               {question.meanings.map((meaning, index) => (
                                 <div key={index} className="truncate">
                                   {/* Handle new API format (language/value) */}
-                                  {'language' in meaning && 'value' in meaning ? (
+                                  {"language" in meaning &&
+                                  "value" in meaning ? (
                                     <>
-                                      <span className="font-medium">{meaning.language}:</span> {meaning.value}
+                                      <span className="font-medium">
+                                        {meaning.language}:
+                                      </span>{" "}
+                                      {meaning.value}
                                     </>
                                   ) : (
                                     /* Handle old format (translations.vi/en) */
                                     <>
-                                      {'translations' in meaning && meaning.translations?.vi && (
-                                        <div>vi: {meaning.translations.vi}</div>
-                                      )}
-                                      {'translations' in meaning && meaning.translations?.en && (
-                                        <div>en: {meaning.translations.en}</div>
-                                      )}
+                                      {"translations" in meaning &&
+                                        meaning.translations?.vi && (
+                                          <div>
+                                            vi: {meaning.translations.vi}
+                                          </div>
+                                        )}
+                                      {"translations" in meaning &&
+                                        meaning.translations?.en && (
+                                          <div>
+                                            en: {meaning.translations.en}
+                                          </div>
+                                        )}
                                     </>
                                   )}
                                 </div>
@@ -531,7 +548,7 @@ const QuestionBankManagement: React.FC = () => {
                     <SelectContent>
                       {Object.entries(
                         QUESTION_TYPE_LABELS[
-                        language as keyof typeof QUESTION_TYPE_LABELS
+                          language as keyof typeof QUESTION_TYPE_LABELS
                         ] || {}
                       ).map(([key, label]) => (
                         <SelectItem key={key} value={key}>
@@ -564,7 +581,7 @@ const QuestionBankManagement: React.FC = () => {
                     <SelectContent>
                       {Object.entries(
                         JLPT_LEVEL_LABELS[
-                        language as keyof typeof JLPT_LEVEL_LABELS
+                          language as keyof typeof JLPT_LEVEL_LABELS
                         ] || {}
                       ).map(([key, label]) => (
                         <SelectItem key={key} value={key}>
@@ -578,62 +595,84 @@ const QuestionBankManagement: React.FC = () => {
               {/* Pronunciation - Show for VOCABULARY and SPEAKING */}
               {(formData.questionType === "VOCABULARY" ||
                 formData.questionType === "SPEAKING") && (
-                  <div>
-                    <Input
-                      label={`${t(
-                        "questionBank.createDialog.pronunciationLabel"
-                      )}${formData.questionType === "SPEAKING" ? " *" : ""}`}
-                      value={formData.pronunciation || ""}
-                      onChange={(e) => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          pronunciation: e.target.value,
-                        }));
-                        // Clear field error when user starts typing
-                        if (fieldErrors.pronunciation) {
-                          setFieldErrors((prev) => {
-                            const newErrors = { ...prev };
-                            delete newErrors.pronunciation;
-                            return newErrors;
-                          });
-                        }
-                      }}
-                      placeholder={t(
-                        "questionBank.createDialog.pronunciationPlaceholder"
-                      )}
-                      required={formData.questionType === "SPEAKING"}
-                    />
-                    {fieldErrors.pronunciation && (
-                      <div className="mt-1 text-sm text-red-600">
-                        {fieldErrors.pronunciation.map((error, index) => (
-                          <div key={index}>{error}</div>
-                        ))}
-                      </div>
+                <div>
+                  <Input
+                    label={`${t(
+                      "questionBank.createDialog.pronunciationLabel"
+                    )}${formData.questionType === "SPEAKING" ? " *" : ""}`}
+                    value={formData.pronunciation || ""}
+                    onChange={(e) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        pronunciation: e.target.value,
+                      }));
+                      // Clear field error when user starts typing
+                      if (fieldErrors.pronunciation) {
+                        setFieldErrors((prev) => {
+                          const newErrors = { ...prev };
+                          delete newErrors.pronunciation;
+                          return newErrors;
+                        });
+                      }
+                    }}
+                    placeholder={t(
+                      "questionBank.createDialog.pronunciationPlaceholder"
                     )}
-                  </div>
-                )}
+                    required={formData.questionType === "SPEAKING"}
+                  />
+                  {fieldErrors.pronunciation && (
+                    <div className="mt-1 text-sm text-red-600">
+                      {fieldErrors.pronunciation.map((error, index) => (
+                        <div key={index}>{error}</div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Audio URL - Show for VOCABULARY and LISTENING */}
               {(formData.questionType === "VOCABULARY" ||
                 formData.questionType === "LISTENING") && (
-                  <div className="space-y-2">
-                    <Input
-                      label={t("questionBank.createDialog.audioUrlLabel")}
-                      value={formData.audioUrl || ""}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          audioUrl: e.target.value,
-                        }))
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant={audioInputMode === "url" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setAudioInputMode("url")}
+                    >
+                      URL
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={
+                        audioInputMode === "file" ? "default" : "outline"
                       }
-                      placeholder={
-                        formData.questionType === "LISTENING"
-                          ? "Optional - will auto-generate TTS if not provided"
-                          : "Optional"
-                      }
-                    />
-                    {formData.questionType === "VOCABULARY" &&
-                      formData.audioUrl && (
+                      size="sm"
+                      onClick={() => setAudioInputMode("file")}
+                    >
+                      File
+                    </Button>
+                  </div>
+
+                  {audioInputMode === "url" ? (
+                    <>
+                      <Input
+                        label={t("questionBank.createDialog.audioUrlLabel")}
+                        value={formData.audioUrl || ""}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            audioUrl: e.target.value,
+                          }))
+                        }
+                        placeholder={
+                          formData.questionType === "LISTENING"
+                            ? "Optional - will auto-generate TTS if not provided"
+                            : "Optional"
+                        }
+                      />
+                      {formData.audioUrl && (
                         <Button
                           type="button"
                           variant="outline"
@@ -649,8 +688,16 @@ const QuestionBankManagement: React.FC = () => {
                           Remove Audio URL
                         </Button>
                       )}
-                  </div>
-                )}
+                    </>
+                  ) : (
+                    <AudioDropzone
+                      label="Audio"
+                      value={selectedAudioFile || undefined}
+                      onChange={(file) => setSelectedAudioFile(file || null)}
+                    />
+                  )}
+                </div>
+              )}
               {/* Meanings/Translations - Show for all question types */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -674,13 +721,15 @@ const QuestionBankManagement: React.FC = () => {
                         onChange={(e) => {
                           setFormData((prev) => ({
                             ...prev,
-                            meanings: [{
-                              ...prev.meanings?.[0],
-                              translations: {
-                                ...prev.meanings?.[0]?.translations,
-                                vi: e.target.value,
+                            meanings: [
+                              {
+                                ...prev.meanings?.[0],
+                                translations: {
+                                  ...prev.meanings?.[0]?.translations,
+                                  vi: e.target.value,
+                                },
                               },
-                            }],
+                            ],
                           }));
                           // Clear field error when user starts typing
                           if (fieldErrors.meanings) {
@@ -703,13 +752,15 @@ const QuestionBankManagement: React.FC = () => {
                         onChange={(e) => {
                           setFormData((prev) => ({
                             ...prev,
-                            meanings: [{
-                              ...prev.meanings?.[0],
-                              translations: {
-                                ...prev.meanings?.[0]?.translations,
-                                en: e.target.value,
+                            meanings: [
+                              {
+                                ...prev.meanings?.[0],
+                                translations: {
+                                  ...prev.meanings?.[0]?.translations,
+                                  en: e.target.value,
+                                },
                               },
-                            }],
+                            ],
                           }));
                           // Clear field error when user starts typing
                           if (fieldErrors.meanings) {
@@ -748,10 +799,11 @@ const QuestionBankManagement: React.FC = () => {
                     formData.answers?.map((answer, index) => (
                       <div
                         key={index}
-                        className={`border rounded-lg p-4 mb-4 cursor-pointer transition-all duration-200 hover:shadow-md ${answer.isCorrect
-                          ? "border-green-500 bg-green-50"
-                          : "border-red-300 bg-red-50 hover:border-red-400"
-                          }`}
+                        className={`border rounded-lg p-4 mb-4 cursor-pointer transition-all duration-200 hover:shadow-md ${
+                          answer.isCorrect
+                            ? "border-green-500 bg-green-50"
+                            : "border-red-300 bg-red-50 hover:border-red-400"
+                        }`}
                         onClick={() =>
                           setFormData((prev) => ({
                             ...prev,
@@ -826,11 +878,29 @@ const QuestionBankManagement: React.FC = () => {
                         >
                           {(() => {
                             const parseCombined = (s: string) => {
-                              const m = /^jp:(.*?)(?:\+vi:(.*?))?(?:\+en:(.*?))?$/.exec(s || "");
-                              if (!m) return { jp: s || "", vi: "", en: "", isCombined: false };
-                              return { jp: m[1] ?? "", vi: m[2] ?? "", en: m[3] ?? "", isCombined: true };
+                              const m =
+                                /^jp:(.*?)(?:\+vi:(.*?))?(?:\+en:(.*?))?$/.exec(
+                                  s || ""
+                                );
+                              if (!m)
+                                return {
+                                  jp: s || "",
+                                  vi: "",
+                                  en: "",
+                                  isCombined: false,
+                                };
+                              return {
+                                jp: m[1] ?? "",
+                                vi: m[2] ?? "",
+                                en: m[3] ?? "",
+                                isCombined: true,
+                              };
                             };
-                            const ensureCompose = (jp: string, vi: string, en: string) => {
+                            const ensureCompose = (
+                              jp: string,
+                              vi: string,
+                              en: string
+                            ) => {
                               const hasJp = (jp ?? "") !== "";
                               const hasVi = (vi ?? "") !== "";
                               const hasEn = (en ?? "") !== "";
@@ -843,13 +913,21 @@ const QuestionBankManagement: React.FC = () => {
                               }
 
                               // If either VI or EN present, include both keys, filling missing with empty
-                              return `jp:${jp || ""}+vi:${vi || ""}+en:${en || ""}`;
+                              return `jp:${jp || ""}+vi:${vi || ""}+en:${
+                                en || ""
+                              }`;
                             };
 
                             const parsed = parseCombined(answer.answerJp || "");
-                            const jpValue = parsed.isCombined ? parsed.jp : (answer.answerJp || "");
-                            const viValue = answerExtras[index]?.vi ?? (parsed.isCombined ? parsed.vi : "");
-                            const enValue = answerExtras[index]?.en ?? (parsed.isCombined ? parsed.en : "");
+                            const jpValue = parsed.isCombined
+                              ? parsed.jp
+                              : answer.answerJp || "";
+                            const viValue =
+                              answerExtras[index]?.vi ??
+                              (parsed.isCombined ? parsed.vi : "");
+                            const enValue =
+                              answerExtras[index]?.en ??
+                              (parsed.isCombined ? parsed.en : "");
 
                             const compose = ensureCompose;
 
@@ -863,13 +941,27 @@ const QuestionBankManagement: React.FC = () => {
                                     setFormData((prev) => ({
                                       ...prev,
                                       answers: prev.answers?.map((a, i) =>
-                                        i === index ? { ...a, answerJp: compose(newJp, viValue, enValue) } : a
+                                        i === index
+                                          ? {
+                                              ...a,
+                                              answerJp: compose(
+                                                newJp,
+                                                viValue,
+                                                enValue
+                                              ),
+                                            }
+                                          : a
                                       ),
                                     }));
                                     if (fieldErrors.answers) {
                                       setFieldErrors((prev) => {
-                                        const newErrors = { ...prev } as any;
-                                        delete newErrors.answers;
+                                        const newErrors = { ...prev } as Record<
+                                          string,
+                                          string[]
+                                        >;
+                                        delete (
+                                          newErrors as Record<string, string[]>
+                                        ).answers;
                                         return newErrors;
                                       });
                                     }
@@ -882,11 +974,23 @@ const QuestionBankManagement: React.FC = () => {
                                     value={viValue}
                                     onChange={(e) => {
                                       const newVi = e.target.value;
-                                      setAnswerExtras((prev) => ({ ...prev, [index]: { vi: newVi, en: enValue } }));
+                                      setAnswerExtras((prev) => ({
+                                        ...prev,
+                                        [index]: { vi: newVi, en: enValue },
+                                      }));
                                       setFormData((prev) => ({
                                         ...prev,
                                         answers: prev.answers?.map((a, i) =>
-                                          i === index ? { ...a, answerJp: compose(jpValue, newVi, enValue) } : a
+                                          i === index
+                                            ? {
+                                                ...a,
+                                                answerJp: compose(
+                                                  jpValue,
+                                                  newVi,
+                                                  enValue
+                                                ),
+                                              }
+                                            : a
                                         ),
                                       }));
                                     }}
@@ -897,11 +1001,23 @@ const QuestionBankManagement: React.FC = () => {
                                     value={enValue}
                                     onChange={(e) => {
                                       const newEn = e.target.value;
-                                      setAnswerExtras((prev) => ({ ...prev, [index]: { vi: viValue, en: newEn } }));
+                                      setAnswerExtras((prev) => ({
+                                        ...prev,
+                                        [index]: { vi: viValue, en: newEn },
+                                      }));
                                       setFormData((prev) => ({
                                         ...prev,
                                         answers: prev.answers?.map((a, i) =>
-                                          i === index ? { ...a, answerJp: compose(jpValue, viValue, newEn) } : a
+                                          i === index
+                                            ? {
+                                                ...a,
+                                                answerJp: compose(
+                                                  jpValue,
+                                                  viValue,
+                                                  newEn
+                                                ),
+                                              }
+                                            : a
                                         ),
                                       }));
                                     }}
@@ -910,7 +1026,11 @@ const QuestionBankManagement: React.FC = () => {
                                 </div>
                                 <div className="mt-2 text-xs text-gray-500 flex items-center gap-2 flex-wrap">
                                   <span>
-                                    Tự động ghép: <code className="px-1 py-0.5 bg-gray-100 rounded">{compose(jpValue, viValue, enValue) || "(trống)"}</code>
+                                    Tự động ghép:{" "}
+                                    <code className="px-1 py-0.5 bg-gray-100 rounded">
+                                      {compose(jpValue, viValue, enValue) ||
+                                        "(trống)"}
+                                    </code>
                                   </span>
                                   <Button
                                     type="button"
@@ -920,15 +1040,37 @@ const QuestionBankManagement: React.FC = () => {
                                     onClick={() => {
                                       const filledVi = viValue || jpValue;
                                       const filledEn = enValue || jpValue;
-                                      setAnswerExtras((prev) => ({ ...prev, [index]: { vi: filledVi, en: filledEn } }));
+                                      setAnswerExtras((prev) => ({
+                                        ...prev,
+                                        [index]: { vi: filledVi, en: filledEn },
+                                      }));
                                       setFormData((prev) => ({
                                         ...prev,
                                         answers: prev.answers?.map((a, i) =>
-                                          i === index ? { ...a, answerJp: compose(jpValue, filledVi, filledEn) } : a
+                                          i === index
+                                            ? {
+                                                ...a,
+                                                answerJp: compose(
+                                                  jpValue,
+                                                  filledVi,
+                                                  filledEn
+                                                ),
+                                              }
+                                            : a
                                         ),
                                       }));
-                                      const toCopy = compose(jpValue, filledVi, filledEn);
-                                      if (toCopy) navigator.clipboard && navigator.clipboard.writeText(toCopy);
+                                      const toCopy = compose(
+                                        jpValue,
+                                        filledVi,
+                                        filledEn
+                                      );
+                                      if (
+                                        toCopy &&
+                                        typeof navigator !== "undefined" &&
+                                        navigator.clipboard
+                                      ) {
+                                        navigator.clipboard.writeText(toCopy);
+                                      }
                                     }}
                                   >
                                     Copy
@@ -954,25 +1096,32 @@ const QuestionBankManagement: React.FC = () => {
                                     answers: prev.answers?.map((a, i) =>
                                       i === index
                                         ? {
-                                          ...a,
-                                          translations: {
-                                            meaning: (() => {
-                                              const existingMeanings = a.translations?.meaning || [];
-                                              const enMeaning = existingMeanings.find(m => m && m.language_code === "en");
+                                            ...a,
+                                            translations: {
+                                              meaning: (() => {
+                                                const existingMeanings =
+                                                  a.translations?.meaning || [];
+                                                const enMeaning =
+                                                  existingMeanings.find(
+                                                    (m) =>
+                                                      m &&
+                                                      m.language_code === "en"
+                                                  );
 
-                                              return [
-                                                {
-                                                  language_code: "vi",
-                                                  value: e.target.value,
-                                                },
-                                                {
-                                                  language_code: "en",
-                                                  value: enMeaning?.value || "",
-                                                }
-                                              ];
-                                            })(),
-                                          },
-                                        }
+                                                return [
+                                                  {
+                                                    language_code: "vi",
+                                                    value: e.target.value,
+                                                  },
+                                                  {
+                                                    language_code: "en",
+                                                    value:
+                                                      enMeaning?.value || "",
+                                                  },
+                                                ];
+                                              })(),
+                                            },
+                                          }
                                         : a
                                     ),
                                   }))
@@ -996,25 +1145,32 @@ const QuestionBankManagement: React.FC = () => {
                                     answers: prev.answers?.map((a, i) =>
                                       i === index
                                         ? {
-                                          ...a,
-                                          translations: {
-                                            meaning: (() => {
-                                              const existingMeanings = a.translations?.meaning || [];
-                                              const viMeaning = existingMeanings.find(m => m && m.language_code === "vi");
+                                            ...a,
+                                            translations: {
+                                              meaning: (() => {
+                                                const existingMeanings =
+                                                  a.translations?.meaning || [];
+                                                const viMeaning =
+                                                  existingMeanings.find(
+                                                    (m) =>
+                                                      m &&
+                                                      m.language_code === "vi"
+                                                  );
 
-                                              return [
-                                                {
-                                                  language_code: "vi",
-                                                  value: viMeaning?.value || "",
-                                                },
-                                                {
-                                                  language_code: "en",
-                                                  value: e.target.value,
-                                                }
-                                              ];
-                                            })(),
-                                          },
-                                        }
+                                                return [
+                                                  {
+                                                    language_code: "vi",
+                                                    value:
+                                                      viMeaning?.value || "",
+                                                  },
+                                                  {
+                                                    language_code: "en",
+                                                    value: e.target.value,
+                                                  },
+                                                ];
+                                              })(),
+                                            },
+                                          }
                                         : a
                                     ),
                                   }))
@@ -1134,8 +1290,12 @@ const QuestionBankManagement: React.FC = () => {
                                     isCorrect: true,
                                     translations: {
                                       meaning: (() => {
-                                        const existingMeanings = prev.answers?.[0]?.translations?.meaning || [];
-                                        const enMeaning = existingMeanings.find(m => m && m.language_code === "en");
+                                        const existingMeanings =
+                                          prev.answers?.[0]?.translations
+                                            ?.meaning || [];
+                                        const enMeaning = existingMeanings.find(
+                                          (m) => m && m.language_code === "en"
+                                        );
 
                                         return [
                                           {
@@ -1145,7 +1305,7 @@ const QuestionBankManagement: React.FC = () => {
                                           {
                                             language_code: "en",
                                             value: enMeaning?.value || "",
-                                          }
+                                          },
                                         ];
                                       })(),
                                     },
@@ -1176,8 +1336,12 @@ const QuestionBankManagement: React.FC = () => {
                                     isCorrect: true,
                                     translations: {
                                       meaning: (() => {
-                                        const existingMeanings = prev.answers?.[0]?.translations?.meaning || [];
-                                        const viMeaning = existingMeanings.find(m => m && m.language_code === "vi");
+                                        const existingMeanings =
+                                          prev.answers?.[0]?.translations
+                                            ?.meaning || [];
+                                        const viMeaning = existingMeanings.find(
+                                          (m) => m && m.language_code === "vi"
+                                        );
 
                                         return [
                                           {
@@ -1187,7 +1351,7 @@ const QuestionBankManagement: React.FC = () => {
                                           {
                                             language_code: "en",
                                             value: e.target.value,
-                                          }
+                                          },
                                         ];
                                       })(),
                                     },
@@ -1212,7 +1376,50 @@ const QuestionBankManagement: React.FC = () => {
                 <div className="flex gap-2">
                   {isCreateDialogOpen ? (
                     <Button
-                      onClick={handleCreateQuestion}
+                      onClick={async () => {
+                        try {
+                          if (
+                            (formData.questionType === "VOCABULARY" ||
+                              formData.questionType === "LISTENING") &&
+                            audioInputMode === "file"
+                          ) {
+                            if (!selectedAudioFile) {
+                              toast.error("Hãy chọn file âm thanh");
+                              return;
+                            }
+                            const uploadResponse =
+                              await mediaService.uploadFile({
+                                folderName: "question-audio",
+                                file: selectedAudioFile,
+                                type: "audio",
+                              });
+                            type UploadResp = {
+                              statusCode?: number;
+                              message?: string;
+                              data?: { url?: string };
+                            };
+                            const respData = uploadResponse?.data as UploadResp;
+                            const url =
+                              respData?.data?.url ||
+                              (respData as unknown as { url?: string })?.url;
+                            if (!url) {
+                              toast.error("Tải âm thanh thất bại");
+                              return;
+                            }
+                            setFormData((prev) => ({ ...prev, audioUrl: url }));
+                            await new Promise((r) => setTimeout(r, 0));
+                          }
+                          await handleCreateQuestion();
+                        } catch (err: unknown) {
+                          const anyErr = err as {
+                            response?: { data?: { message?: string } };
+                          };
+                          toast.error(
+                            anyErr?.response?.data?.message ||
+                              "Không thể tạo câu hỏi"
+                          );
+                        }
+                      }}
                       disabled={isCreating}
                     >
                       {isCreating
@@ -1227,9 +1434,7 @@ const QuestionBankManagement: React.FC = () => {
                         disabled={isUpdating}
                         className="bg-blue-50 text-blue-700 hover:bg-blue-100"
                       >
-                        {isUpdating
-                          ? "Đang cập nhật..."
-                          : "Cập nhật Câu hỏi"}
+                        {isUpdating ? "Đang cập nhật..." : "Cập nhật Câu hỏi"}
                       </Button>
                       <Button
                         onClick={handleUpdateAnswer}
