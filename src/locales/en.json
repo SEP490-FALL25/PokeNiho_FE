@@ -535,7 +535,12 @@
         "translationContentRequired": "Translation content cannot be empty",
         "sentenceTranslationRequired": "Sentence translation cannot be empty",
         "originalSentenceRequired": "Original sentence cannot be empty",
-        "meaningRequired": "At least one meaning is required"
+        "meaningRequired": "At least one meaning is required",
+        "startDateRequired": "Start date is required",
+        "endDateRequired": "End date is required",
+        "minRequired": "Minimum quantity is required",
+        "maxRequired": "Maximum quantity is required",
+        "precreateBeforeEndDaysRequired": "Pre-create days before end date is required"
     },
     "conditionTypes": {
         "DAILY_LOGIN": "Daily Login",

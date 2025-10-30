@@ -497,7 +497,12 @@
         "translationContentRequired": "翻訳内容は空にできません",
         "sentenceTranslationRequired": "文の翻訳は空にできません",
         "originalSentenceRequired": "元の文は空にできません",
-        "meaningRequired": "少なくとも1つの意味が必要です"
+        "meaningRequired": "少なくとも1つの意味が必要です",
+        "startDateRequired": "開始日は必須です",
+        "endDateRequired": "終了日は必須です",
+        "minRequired": "最小数量は必須です",
+        "maxRequired": "最大数量は必須です",
+        "precreateBeforeEndDaysRequired": "終了日までの事前作成日数は必須です"
     },
     "conditionTypes": {
         "DAILY_LOGIN": "ログイン",

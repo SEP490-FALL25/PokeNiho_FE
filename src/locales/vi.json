@@ -496,7 +496,12 @@
         "translationContentRequired": "Nội dung dịch không được để trống",
         "sentenceTranslationRequired": "Câu dịch không được để trống",
         "originalSentenceRequired": "Câu gốc không được để trống",
-        "meaningRequired": "Phải có ít nhất 1 nghĩa"
+        "meaningRequired": "Phải có ít nhất 1 nghĩa",
+        "startDateRequired": "Ngày bắt đầu là bắt buộc",
+        "endDateRequired": "Ngày kết thúc là bắt buộc",
+        "minRequired": "Số lượng tối thiểu là bắt buộc",
+        "maxRequired": "Số lượng tối đa là bắt buộc",
+        "precreateBeforeEndDaysRequired": "Số ngày trước kết thúc là bắt buộc"
     },
     "conditionTypes": {
         "DAILY_LOGIN": "Đăng nhập",
