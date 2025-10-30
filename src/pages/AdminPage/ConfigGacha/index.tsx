@@ -6,7 +6,7 @@ import { Skeleton } from "@ui/Skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ui/Select";
 import HeaderAdmin from "@organisms/Header/Admin";
 import PaginationControls from "@ui/PaginationControls";
-import { Plus, ShoppingBag, Calendar, X, Sparkles } from "lucide-react";
+import { Plus, Calendar, X, Coins, Star } from "lucide-react";
 import { useGachaBannerList } from "@hooks/useGacha";
 import { useTranslation } from "react-i18next";
 import CustomDatePicker from "@ui/DatePicker";
@@ -201,8 +201,12 @@ export default function ConfigGacha() {
                                                     <span>{formatDate(banner.startDate)} - {formatDate(banner.endDate)}</span>
                                                 </div>
                                                 <div className="flex items-center gap-2">
-                                                    <ShoppingBag className="h-4 w-4" />
-                                                    <span>Min: {banner.min} - Max: {banner.max}</span>
+                                                    <Coins className="h-4 w-4" />
+                                                    <span>{t('configGacha.costRoll')}: {banner.costRoll}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Star className="h-4 w-4" />
+                                                    <span>{t('configGacha.hardPity')}: {banner.hardPity5Star}</span>
                                                 </div>
                                                 <div className="text-xs text-foreground/60 mt-2">
                                                     ID: {banner.id}

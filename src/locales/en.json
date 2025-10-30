@@ -34,7 +34,6 @@
         "type": "Type",
         "reward": "Reward",
         "condition": "Condition",
-        "required": "Required",
         "optional": "Optional",
         "view": "View",
         "notFound": "Not found",
@@ -321,6 +320,8 @@
         "selectEndDate": "Select End Date",
         "selectStatus": "Select Status",
         "clearFilters": "Clear Filters",
+        "costRoll": "Roll Cost",
+        "hardPity": "5★ Guarantee",
         "languages": {
             "vi": "Vietnamese",
             "en": "English",
