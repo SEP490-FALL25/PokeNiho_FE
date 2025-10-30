@@ -35,8 +35,8 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "dist/*"
-          target: "/home/root/FE/dist"
+          source: "dist"
+          target: "/home/root/FE"
 
       - name: Restart nginx container
         uses: appleboy/ssh-action@v0.1.8
