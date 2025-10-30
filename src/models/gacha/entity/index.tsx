@@ -2,6 +2,42 @@ import z from "zod";
 import { GACHA } from "@constants/gacha";
 import { at, byUser, TranslationInputSchema } from "@models/common/response";
 import { PokemonOmitEntitySchema } from "@models/pokemon/entity";
+
+//----------------------Gacha Item Rate Entity----------------------//
+/**
+ * Gacha Item Rate Entity Schema
+ */
+export const GachaItemRateEntitySchema = z.object({
+    id: z.number(),
+    starType: z.enum(GACHA.GachaItemRateStarType),
+    rate: z.number(),
+    ...byUser,
+    ...at,
+});
+export type IGachaItemRateEntity = z.infer<typeof GachaItemRateEntitySchema>;
+//----------------------End----------------------//
+
+
+
+//----------------------Gacha Item Entity----------------------//
+/**
+ * Gacha Item Entity Schema
+ */
+export const GachaItemEntitySchema = z.object({
+    id: z.number(),
+    bannerId: z.number(),
+    pokemonId: z.number(),
+    gachaItemRateId: z.number(),
+    ...byUser,
+    ...at,
+    pokemon: PokemonOmitEntitySchema,
+    gachaItemRate: GachaItemRateEntitySchema,
+});
+export type IGachaItemEntity = z.infer<typeof GachaItemEntitySchema>;
+//----------------------End----------------------//
+
+
+
 /**
  * Gacha Banner Entity Schema
  */
@@ -25,7 +61,7 @@ export const GachaBannerEntitySchema = z.object({
     ...at,
     nameTranslation: z.string(),
     nameTranslations: TranslationInputSchema,
-    // items: z.array(GachaItemEntitySchema),
+    items: z.array(GachaItemEntitySchema),
 });
 
 export type IGachaBannerEntity = z.infer<typeof GachaBannerEntitySchema>;
@@ -33,35 +69,7 @@ export type IGachaBannerEntity = z.infer<typeof GachaBannerEntitySchema>;
 
 
 
-//----------------------Gacha Item Rate Entity----------------------//
-/**
- * Gacha Item Rate Entity Schema
- */
-export const GachaItemRateEntitySchema = z.object({
-    id: z.number(),
-    starType: z.enum(GACHA.GachaItemRateStarType),
-    rate: z.number(),
-    ...byUser,
-    ...at,
-});
-//----------------------End----------------------//
 
 
-
-//----------------------Gacha Item Entity----------------------//
-/**
- * Gacha Item Entity Schema
- */
-export const GachaItemEntitySchema = z.object({
-    id: z.number(),
-    bannerId: z.number(),
-    pokemonId: z.number(),
-    gachaItemRateId: z.number(),
-    ...byUser,
-    ...at,
-    pokemon: PokemonOmitEntitySchema,
-    gachaItemRate: GachaItemRateEntitySchema,
-});
-//----------------------End----------------------//
 
 

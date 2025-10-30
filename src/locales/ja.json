@@ -306,7 +306,17 @@
             "vi": "ベトナム語",
             "en": "英語",
             "ja": "日本語"
-        }
+        },
+        "pokemonInGacha": "ガチャのポケモン",
+        "noPokemonInGacha": "ガチャにポケモンがありません",
+        "starType": "スタータイプ",
+        "rate": "確率",
+        "amount5Star": "5★数",
+        "amount4Star": "4★数",
+        "amount3Star": "3★数",
+        "amount2Star": "2★数",
+        "amount1Star": "1★数",
+        "gachaStats": "ガチャ統計"
     },
     "lesson": {
         "title": "レッスン管理",

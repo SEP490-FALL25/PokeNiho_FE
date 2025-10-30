@@ -9,6 +9,8 @@ import AdminLayout from "@layouts/Admin"
 import { lazy } from "react"
 import ConfigShop from "@pages/AdminPage/ConfigShop"
 import ShopBannerDetail from "@pages/AdminPage/ConfigShop/components/ShopBannerDetail"
+import ConfigGacha from "@pages/AdminPage/ConfigGacha"
+import GachaBannerDetail from "@pages/AdminPage/ConfigGacha/components/GachaBannerDetail"
 
 const AdminDashboard = lazy(() => import("@pages/AdminPage/Dashboard"))
 const UsersManagement = lazy(() => import("@pages/AdminPage/Users"))
@@ -23,7 +25,6 @@ const DailyQuestManagement = lazy(() => import("@pages/AdminPage/DailyQuest"))
 const RewardManagement = lazy(() => import("@pages/AdminPage/Reward"))
 const QuestionBankManagement = lazy(() => import("@pages/AdminPage/QuestionBank"))
 const TestSetManagement = lazy(() => import("@pages/AdminPage/TestSetManagement"))
-const ConfigGacha = lazy(() => import("@pages/AdminPage/ConfigGacha"))
 const RouterComponent = () => {
     const router = createBrowserRouter([
         //#region Auth routes
@@ -58,6 +59,7 @@ const RouterComponent = () => {
                                 { path: ROUTES.ADMIN.CONFIG_SHOP, element: <ConfigShop /> },
                                 { path: ROUTES.ADMIN.CONFIG_SHOP_BANNER_DETAIL, element: <ShopBannerDetail /> },
                                 { path: ROUTES.ADMIN.CONFIG_GACHA, element: <ConfigGacha /> },
+                                { path: ROUTES.ADMIN.CONFIG_GACHA_BANNER_DETAIL, element: <GachaBannerDetail /> },
                                 { path: ROUTES.ADMIN.QUESTION_BANK, element: <QuestionBankManagement /> },
                                 { path: ROUTES.ADMIN.TESTSET_MANAGEMENT, element: <TestSetManagement /> },
                             ],
