@@ -1,41 +1,21 @@
 import { Outlet, useLocation, NavLink } from "react-router-dom";
-import {
-  LayoutDashboard,
-  Users,
-  BookOpen,
-  Languages,
-  BarChart3,
-  Settings,
-  LogOut,
-  Menu,
-  Trophy,
-  Package,
-  Brain,
-  Calendar,
-  Gift,
-  LucideIcon,
-  FileText,
-  Layers,
-  Store,
-} from "lucide-react";
+import { LayoutDashboard, Users, BookOpen, Languages, BarChart3, Settings, LogOut, Menu, Trophy, Package, Brain, Calendar, Gift, LucideIcon, FileText, Layers, Store } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@ui/Button";
 import { cn } from "@utils/CN";
 import { ROUTES } from "@constants/route";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../../components/Atoms/LanguageSwitcher";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@ui/Accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, } from "@ui/Accordion";
 import { ChevronDown } from "lucide-react";
+import React from 'react';
+import SparklesFillIcon from "@atoms/SparklesFill";
+
 
 interface NavigationItem {
   name: string;
   href: string;
-  icon: LucideIcon;
+  icon: LucideIcon | React.ComponentType<{ className?: string }>;
   children?: NavigationItem[];
 }
 
@@ -111,6 +91,11 @@ const AdminLayout = () => {
       href: ROUTES.ADMIN.CONFIG_SHOP,
       icon: Store,
     },
+    {
+      name: t("navigation.configGacha"),
+      href: ROUTES.ADMIN.CONFIG_GACHA,
+      icon: SparklesFillIcon,
+    },
   ];
 
   return (
@@ -168,7 +153,7 @@ const AdminLayout = () => {
                       )}
                     >
                       <div className="flex items-center gap-3">
-                        <item.icon className="h-5 w-5 flex-shrink-0" />
+                        {React.createElement(item.icon, { className: "h-5 w-5 flex-shrink-0" })}
                         <span>{item.name}</span>
                       </div>
                       <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
@@ -211,7 +196,7 @@ const AdminLayout = () => {
                     : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 )}
               >
-                <item.icon className="h-5 w-5 flex-shrink-0" />
+                {React.createElement(item.icon, { className: "h-5 w-5 flex-shrink-0" })}
                 {isSidebarOpen && <span>{item.name}</span>}
               </NavLink>
             );

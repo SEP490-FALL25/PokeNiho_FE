@@ -19,11 +19,11 @@ const gachaService = {
         }
 
         if (params?.startDate) {
-            qsParts.push(`startDate:gte=${params.startDate}`);
+            qsParts.push(`startDate:lte=${params.startDate}`);
         }
 
         if (params?.endDate) {
-            qsParts.push(`endDate:lte=${params.endDate}`);
+            qsParts.push(`endDate:gte=${params.endDate}`);
         }
 
         if (params?.status && params.status.length > 0) {
