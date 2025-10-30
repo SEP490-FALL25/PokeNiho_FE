@@ -635,7 +635,7 @@ export const useQuestionBank = (
       };
       // Transform the fetched answers to match the form structure
       const formattedAnswers = fetchedAnswers.map((answer: FetchedAnswer) => {
-        // Meanings are independent of answerVi/answerEn. Build translations only from meanings/legacy.
+        // Build translations from meanings/legacy only for explanation
         let translations: Array<{ language_code: string; value: string }> = [];
         if (answer.meanings && Array.isArray(answer.meanings)) {
           translations = answer.meanings.map(
@@ -656,23 +656,18 @@ export const useQuestionBank = (
           ];
         }
 
-        // Compose combined answer string using answerVi/answerEn if present, otherwise try from meanings
-        const viFromAnswer =
-          typeof answer.answerVi === "string" ? answer.answerVi : undefined;
-        const viFromMeaning = translations.find(
-          (m) => m.language_code === "vi"
-        )?.value;
-        const viVal = viFromAnswer ?? viFromMeaning ?? "";
-        const enFromAnswer =
-          typeof answer.answerEn === "string" ? answer.answerEn : undefined;
-        const enFromMeaning = translations.find(
-          (m) => m.language_code === "en"
-        )?.value;
-        const enVal = enFromAnswer ?? enFromMeaning ?? "";
-        const hasAnyExtra = viVal?.trim() || enVal?.trim() ? true : false;
-        const composedAnswerJp = hasAnyExtra
-          ? `jp:${answer.answerJp || ""}+vi:${viVal || ""}+en:${enVal || ""}`
-          : answer.answerJp || "";
+        // Compose combined answer string using ONLY answerVi/answerEn if provided
+        const viVal =
+          typeof answer.answerVi === "string" ? answer.answerVi : "";
+        const enVal =
+          typeof answer.answerEn === "string" ? answer.answerEn : "";
+        const parts: string[] = [
+          `jp:${answer.answerJp || ""}`,
+        ];
+        if (viVal.trim()) parts.push(`vi:${viVal}`);
+        if (enVal.trim()) parts.push(`en:${enVal}`);
+        const composedAnswerJp =
+          parts.length > 1 ? parts.join("+") : (answer.answerJp || "");
 
         return {
           id: answer.id, // Store the answer ID for updates
