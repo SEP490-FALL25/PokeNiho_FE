@@ -117,7 +117,7 @@ export const useUpdateQuestion = () => {
       } else {
         toast.error(
           apiError?.response?.data?.message ||
-          "Có lỗi xảy ra khi cập nhật câu hỏi"
+            "Có lỗi xảy ra khi cập nhật câu hỏi"
         );
       }
     },
@@ -573,42 +573,42 @@ export const useQuestionBank = (
       audioUrl: question.audioUrl || "",
       meanings: Array.isArray(question.meanings)
         ? (() => {
-          // Find Vietnamese and English translations from API data
-          let viTranslation = "";
-          let enTranslation = "";
+            // Find Vietnamese and English translations from API data
+            let viTranslation = "";
+            let enTranslation = "";
 
-          question.meanings.forEach((meaning) => {
-            if ("language" in meaning && "value" in meaning) {
-              // New API format (language/value)
-              if (meaning.language === "vi") {
-                viTranslation = meaning.value;
-              } else if (meaning.language === "en") {
-                enTranslation = meaning.value;
+            question.meanings.forEach((meaning) => {
+              if ("language" in meaning && "value" in meaning) {
+                // New API format (language/value)
+                if (meaning.language === "vi") {
+                  viTranslation = meaning.value;
+                } else if (meaning.language === "en") {
+                  enTranslation = meaning.value;
+                }
+              } else if ("translations" in meaning) {
+                // Old format (translations.vi/en)
+                viTranslation = meaning.translations.vi || "";
+                enTranslation = meaning.translations.en || "";
               }
-            } else if ("translations" in meaning) {
-              // Old format (translations.vi/en)
-              viTranslation = meaning.translations.vi || "";
-              enTranslation = meaning.translations.en || "";
-            }
-          });
+            });
 
-          return [
+            return [
+              {
+                translations: {
+                  vi: viTranslation,
+                  en: enTranslation,
+                },
+              },
+            ];
+          })()
+        : [
             {
               translations: {
-                vi: viTranslation,
-                en: enTranslation,
+                vi: question.meaning || "",
+                en: "",
               },
             },
-          ];
-        })()
-        : [
-          {
-            translations: {
-              vi: question.meaning || "",
-              en: "",
-            },
-          },
-        ],
+          ],
       answers: [], // Will be populated after fetching
     });
 
@@ -621,62 +621,82 @@ export const useQuestionBank = (
       };
       const response = await answerService.getAnswerList(filters);
       const fetchedAnswers = response.data.data.results || [];
-      // Transform the fetched answers to match the form structure
-      const formattedAnswers = fetchedAnswers.map(
-        (answer: {
-          id: number;
-          answerJp: string;
-          isCorrect: boolean;
-          meanings?: Array<{ language: string; value: string }>;
-          translations?: {
-            meaning: Array<{ language_code: string; value: string }>;
-          };
-        }) => {
-          // Handle both API response formats
-          let translations: Array<{ language_code: string; value: string }> =
-            [];
-          if (answer.meanings && Array.isArray(answer.meanings)) {
-            // New format: answer.meanings with {language, value}
-            translations = answer.meanings.map(
-              (m: { language: string; value: string }) => ({
-                language_code: m.language,
-                value: m.value,
-              })
-            );
-          } else if (
-            answer.translations?.meaning &&
-            Array.isArray(answer.translations.meaning)
-          ) {
-            // Old format: answer.translations.meaning with {language_code, value}
-            translations = answer.translations.meaning;
-          }
 
-          return {
-            id: answer.id, // Store the answer ID for updates
-            answerJp: answer.answerJp,
-            isCorrect: answer.isCorrect,
-            translations: {
-              meaning: translations,
-            },
-          };
+      type FetchedAnswer = {
+        id: number;
+        answerJp: string;
+        isCorrect: boolean;
+        meanings?: Array<{ language: string; value: string }>;
+        translations?: {
+          meaning: Array<{ language_code: string; value: string }>;
+        };
+        answerVi?: string;
+        answerEn?: string;
+      };
+      // Transform the fetched answers to match the form structure
+      const formattedAnswers = fetchedAnswers.map((answer: FetchedAnswer) => {
+        // Build translations from meanings/legacy only for explanation
+        let translations: Array<{ language_code: string; value: string }> = [];
+        if (answer.meanings && Array.isArray(answer.meanings)) {
+          translations = answer.meanings.map(
+            (m: { language: string; value: string }) => ({
+              language_code: m.language,
+              value: m.value,
+            })
+          );
+        } else if (
+          answer.translations?.meaning &&
+          Array.isArray(answer.translations.meaning)
+        ) {
+          translations = answer.translations.meaning;
+        } else {
+          translations = [
+            { language_code: "vi", value: "" },
+            { language_code: "en", value: "" },
+          ];
         }
-      );
+
+        // Compose combined answer string using ONLY answerVi/answerEn if provided
+        const viVal =
+          typeof answer.answerVi === "string" ? answer.answerVi : "";
+        const enVal =
+          typeof answer.answerEn === "string" ? answer.answerEn : "";
+        const parts: string[] = [
+          `jp:${answer.answerJp || ""}`,
+        ];
+        if (viVal.trim()) parts.push(`vi:${viVal}`);
+        if (enVal.trim()) parts.push(`en:${enVal}`);
+        const composedAnswerJp =
+          parts.length > 1 ? parts.join("+") : (answer.answerJp || "");
+
+        return {
+          id: answer.id, // Store the answer ID for updates
+          answerJp: composedAnswerJp,
+          isCorrect: answer.isCorrect,
+          translations: {
+            meaning: translations,
+          },
+        };
+      });
 
       // Update form data with fetched answers
       setFormData((prev) => {
-        const base = formattedAnswers.length > 0 ? formattedAnswers : [
-          {
-            id: undefined,
-            answerJp: "",
-            isCorrect: true,
-            translations: {
-              meaning: [
-                { language_code: "vi", value: "" },
-                { language_code: "en", value: "" },
-              ],
-            },
-          },
-        ];
+        const base =
+          formattedAnswers.length > 0
+            ? formattedAnswers
+            : [
+                {
+                  id: undefined,
+                  answerJp: "",
+                  isCorrect: true,
+                  translations: {
+                    meaning: [
+                      { language_code: "vi", value: "" },
+                      { language_code: "en", value: "" },
+                    ],
+                  },
+                },
+              ];
 
         // For non-MATCHING, ensure exactly 4 answer slots by padding blanks
         if (question.questionType !== "MATCHING") {
