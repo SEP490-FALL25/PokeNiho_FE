@@ -1,50 +1,9 @@
 import z from "zod";
 import { GACHA } from "@constants/gacha";
 import { at, byUser, TranslationInputSchema } from "@models/common/response";
+import { PokemonOmitEntitySchema } from "@models/pokemon/entity";
 /**
- * {
-    "statusCode": 200,
-    "data": {
-        "id": 2,
-        "nameKey": "gachaBanner.name.2",
-        "startDate": "2025-10-27T00:00:00.000Z",
-        "endDate": "2025-11-27T00:00:00.000Z",
-        "status": "ACTIVE",
-        "enablePrecreate": true,
-        "precreateBeforeEndDays": 2,
-        "isRandomItemAgain": true,
-        "hardPity5Star": 90,
-        "costRoll": 160,
-        "amount5Star": 1,
-        "amount4Star": 2,
-        "amount3Star": 3,
-        "amount2Star": 4,
-        "amount1Star": 5,
-        "createdById": 1,
-        "updatedById": null,
-        "deletedById": null,
-        "deletedAt": null,
-        "createdAt": "2025-10-30T17:43:53.011Z",
-        "updatedAt": "2025-10-30T17:43:53.042Z",
-        "nameTranslation": "Banner Ước Nguyện Giáng 111",
-        "nameTranslations": [
-            {
-                "key": "en",
-                "value": "Christmas Wishes Banner111Banner111111"
-            },
-            {
-                "key": "vi",
-                "value": "Banner Ước Nguyện Giáng 111"
-            },
-            {
-                "key": "ja",
-                "value": "11"
-            }
-        ],
-        "items": []
-    },
-    "message": "Lấy thông tin banner gacha thành công"
-}
+ * Gacha Banner Entity Schema
  */
 export const GachaBannerEntitySchema = z.object({
     id: z.number(),
@@ -69,4 +28,40 @@ export const GachaBannerEntitySchema = z.object({
     // items: z.array(GachaItemEntitySchema),
 });
 
-export type GachaBannerEntity = z.infer<typeof GachaBannerEntitySchema>;
+export type IGachaBannerEntity = z.infer<typeof GachaBannerEntitySchema>;
+//----------------------End----------------------//
+
+
+
+//----------------------Gacha Item Rate Entity----------------------//
+/**
+ * Gacha Item Rate Entity Schema
+ */
+export const GachaItemRateEntitySchema = z.object({
+    id: z.number(),
+    starType: z.enum(GACHA.GachaItemRateStarType),
+    rate: z.number(),
+    ...byUser,
+    ...at,
+});
+//----------------------End----------------------//
+
+
+
+//----------------------Gacha Item Entity----------------------//
+/**
+ * Gacha Item Entity Schema
+ */
+export const GachaItemEntitySchema = z.object({
+    id: z.number(),
+    bannerId: z.number(),
+    pokemonId: z.number(),
+    gachaItemRateId: z.number(),
+    ...byUser,
+    ...at,
+    pokemon: PokemonOmitEntitySchema,
+    gachaItemRate: GachaItemRateEntitySchema,
+});
+//----------------------End----------------------//
+
+

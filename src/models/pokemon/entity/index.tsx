@@ -20,3 +20,17 @@ export const PokemonEntitySchema = z.object({
 
 export type PokemonEntityType = z.infer<typeof PokemonEntitySchema>;
 //------------------------End------------------------//
+
+
+/**
+ * Pokemon omit
+ */
+export const PokemonOmitEntitySchema = PokemonEntitySchema.omit({
+    pokedex_number: true,
+    description: true,
+    conditionLevel: true,
+    isStarted: true,
+});
+
+export type IPokemonOmitEntity = z.infer<typeof PokemonOmitEntitySchema>;
+//------------------------End------------------------//
