@@ -3,6 +3,7 @@ import { Button } from '@ui/Button'
 import { Input } from '@ui/Input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ui/Select'
 import { usePreparePokemonList } from '@hooks/useGacha'
+import { RarityBadge } from '@atoms/BadgeRarity'
 
 interface PokemonLite {
     id: number
@@ -21,7 +22,6 @@ interface Props {
 export default function AddGachaPokemonSidebar({ isOpen, onClose, gachaBannerId }: Props) {
     const [list, setList] = useState<PokemonLite[]>([])
     const [loading, setLoading] = useState<boolean>(false)
-    const [isDragging, setIsDragging] = useState<boolean>(false)
     const [selected, setSelected] = useState<Record<number, boolean>>({})
     const [search, setSearch] = useState<string>('')
     const [debouncedSearch, setDebouncedSearch] = useState<string>('')
@@ -123,16 +123,13 @@ export default function AddGachaPokemonSidebar({ isOpen, onClose, gachaBannerId 
                                                     // also set single for compatibility
                                                     e.dataTransfer.setData('application/pokemon', JSON.stringify(p))
                                                     e.dataTransfer.effectAllowed = 'move'
-                                                    setIsDragging(true)
-                                                }}
-                                                onDragEnd={() => {
-                                                    setIsDragging(false)
                                                 }}
                                             >
                                                 <img src={p.imageUrl} alt={p.nameTranslations.en} className="w-12 h-12 rounded-md shadow-sm" />
-                                                <div className="min-w-0">
+                                                <div className="min-w-0 flex-1">
                                                     <div className="text-sm font-medium truncate">{p.nameTranslations.en}</div>
-                                                    <div className="text-[11px] text-muted-foreground truncate">Dex #{p.pokedex_number} • {p.rarity}</div>
+                                                    <div className="text-[11px] text-muted-foreground truncate mb-1">Dex #{p.pokedex_number}</div>
+                                                    <RarityBadge level={p.rarity} />
                                                 </div>
                                             </div>
                                         )
