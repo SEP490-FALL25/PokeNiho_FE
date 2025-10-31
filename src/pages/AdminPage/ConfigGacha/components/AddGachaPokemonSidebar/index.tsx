@@ -5,14 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { usePreparePokemonList } from '@hooks/useGacha'
 import { RarityBadge } from '@atoms/BadgeRarity'
 import { Loader2 } from 'lucide-react'
-
-interface PokemonLite {
-    id: number
-    imageUrl: string
-    nameTranslations: { en: string }
-    pokedex_number: number
-    rarity: 'COMMON' | 'UNCOMMON' | 'RARE' | 'EPIC' | 'LEGENDARY'
-}
+import { IPokemonLiteEntity } from '@models/pokemon/entity'
 
 interface Props {
     isOpen: boolean
@@ -21,15 +14,13 @@ interface Props {
 }
 
 export default function AddGachaPokemonSidebar({ isOpen, onClose, gachaBannerId }: Props) {
-    const [accumulatedResults, setAccumulatedResults] = useState<PokemonLite[]>([])
-    console.log('accumulatedResults', accumulatedResults)
+    /**
+     * UsePreparePokemonList Hook
+     */
     const [currentPage, setCurrentPage] = useState<number>(1)
-    const [selected, setSelected] = useState<Record<number, boolean>>({})
     const [search, setSearch] = useState<string>('')
     const [debouncedSearch, setDebouncedSearch] = useState<string>('')
     const [rarity, setRarity] = useState<'ALL' | 'COMMON' | 'UNCOMMON' | 'RARE' | 'EPIC' | 'LEGENDARY'>('ALL')
-    const observerRef = useRef<IntersectionObserver | null>(null)
-
     const { data: preparePokemonList, isLoading: isPreparePokemonListLoading } = usePreparePokemonList(
         gachaBannerId,
         {
@@ -39,13 +30,18 @@ export default function AddGachaPokemonSidebar({ isOpen, onClose, gachaBannerId 
             pageSize: 15
         }
     )
+    //------------------------End------------------------//
 
-    // Accumulate results as pages load
+
+    /**
+     * Handle Accumulated Results
+     */
+    const [accumulatedResults, setAccumulatedResults] = useState<IPokemonLiteEntity[]>([])
     useEffect(() => {
         const results = preparePokemonList?.data?.results as any[] | undefined
         if (results && Array.isArray(results) && results.length > 0) {
             if (currentPage === 1) {
-                setAccumulatedResults(results as unknown as PokemonLite[])
+                setAccumulatedResults(results as unknown as IPokemonLiteEntity[])
             } else {
                 setAccumulatedResults(prev => {
                     const existingIds = new Set(prev.map(p => p.id))
@@ -57,8 +53,13 @@ export default function AddGachaPokemonSidebar({ isOpen, onClose, gachaBannerId 
             setAccumulatedResults([])
         }
     }, [preparePokemonList, currentPage, isPreparePokemonListLoading])
+    //------------------------End------------------------//
 
-    // IntersectionObserver for infinite scroll
+
+    /**
+     * Handle Intersection Observer
+     */
+    const observerRef = useRef<IntersectionObserver | null>(null)
     const lastPokemonElementRef = useCallback((node: HTMLDivElement | null) => {
         if (observerRef.current) observerRef.current.disconnect()
         observerRef.current = new IntersectionObserver(entries => {
@@ -72,25 +73,40 @@ export default function AddGachaPokemonSidebar({ isOpen, onClose, gachaBannerId 
         })
         if (node) observerRef.current.observe(node)
     }, [preparePokemonList?.data?.pagination, isPreparePokemonListLoading])
+    //------------------------End------------------------//
 
-    // Reset page and accumulated results when filters change
+
+    /**
+     * Handle Reset Page and Accumulated Results
+     */
     useEffect(() => {
         setCurrentPage(1)
         setAccumulatedResults([])
     }, [debouncedSearch, rarity])
+    //------------------------End------------------------//
 
-    // Only clear selection when sidebar opens; keep filters and list intact
+
+    /**
+     * Handle Selected Pokemon
+     */
+    const [selected, setSelected] = useState<Record<number, boolean>>({})
     useEffect(() => {
         if (isOpen) {
             setSelected({})
         }
     }, [isOpen])
+    //------------------------End------------------------//
 
-    // debounce search
+
+    /**
+     * Handle Debounce Search
+     */
     useEffect(() => {
         const t = setTimeout(() => setDebouncedSearch(search.trim().toLowerCase()), 300)
         return () => clearTimeout(t)
     }, [search])
+    //------------------------End------------------------//
+
 
     if (!isOpen) return null
 
@@ -164,7 +180,7 @@ export default function AddGachaPokemonSidebar({ isOpen, onClose, gachaBannerId 
                                             <img src={p.imageUrl} alt={p.nameTranslations.en} className="w-12 h-12 rounded-md shadow-sm" />
                                             <div className="min-w-0 flex-1">
                                                 <div className="text-sm font-medium truncate">{p.nameTranslations.en}</div>
-                                                <div className="text-[11px] text-muted-foreground truncate mb-1">Dex #{p.pokedex_number}</div>
+                                                <div className="text-[11px] text-muted-foreground truncate mb-1">#{p.pokedex_number}</div>
                                                 <RarityBadge level={p.rarity} />
                                             </div>
                                         </div>

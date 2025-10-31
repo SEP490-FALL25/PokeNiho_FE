@@ -412,7 +412,7 @@ export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGacha
                                                             />
                                                             <div className="min-w-0">
                                                                 <CardTitle className="text-sm truncate">{item.pokemon.nameTranslations.en}</CardTitle>
-                                                                <p className="text-[11px] text-muted-foreground mt-0.5 truncate">Dex #{item.pokemon.pokedex_number}</p>
+                                                                <p className="text-[11px] text-muted-foreground mt-0.5 truncate">#{item.pokemon.pokedex_number}</p>
                                                             </div>
                                                         </div>
                                                     </CardHeader>
