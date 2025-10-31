@@ -30,8 +30,9 @@ export const useGachaBannerList = (params: { page?: number; limit?: number; star
  * @returns 
  */
 export const useGachaBannerById = (id: number | null) => {
+    const currentLanguage = useSelector(selectCurrentLanguage);
     return useQuery<{ data: IGachaBannerEntity }>({
-        queryKey: ["gachaBanner", id],
+        queryKey: ["gachaBanner", id, currentLanguage],
         queryFn: async () => {
             if (!id) throw new Error("Gacha banner ID is required");
             const response = await gachaService.getGachaBannerById(id);
