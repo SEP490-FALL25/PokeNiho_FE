@@ -95,3 +95,30 @@ export const useUpdateGachaBanner = () => {
     });
 };
 //------------------------End------------------------//
+
+
+
+//---------------------Gacha Item---------------------//
+/**
+ * Handle Delete Gacha Item
+ * @returns useMutation to delete gacha item
+ */
+export const useDeleteGachaItem = () => {
+    const queryClient = useQueryClient();
+    const { t } = useTranslation();
+
+    return useMutation({
+        mutationFn: async (gachaItemId: number) => {
+            const response = await gachaService.deleteGachaItem(gachaItemId);
+            return response.data;
+        },
+        onSuccess: (data: any) => {
+            queryClient.invalidateQueries({ queryKey: ["gachaBanner"] });
+            toast.success(data?.message || t('common.success'));
+        },
+        onError: (error: any) => {
+            toast.error(error?.response?.data?.message || t('common.error'));
+        },
+    });
+};
+//------------------------End------------------------//

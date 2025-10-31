@@ -3,12 +3,14 @@ import { Badge } from "@ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/Card";
 import { Button } from "@ui/Button";
 import { Separator } from "@ui/Separator";
-import { ArrowLeft, Settings, Calendar, TrendingUp, Zap, Coins, Star, Sparkles } from "lucide-react";
+import { ArrowLeft, Settings, Calendar, TrendingUp, Zap, Coins, Star, Sparkles, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { IGachaBannerEntity } from "@models/gacha/entity";
 import { RarityBadge } from "@atoms/BadgeRarity";
 import { useState } from "react";
 import EditGachaDialog from "../EditGachaDialog";
+import AddRandomGachaPokemonDialog from "../AddRandomGachaPokemonDialog";
+import AddHandmadeGachaPokemonDialog from "../AddHandmadeGachaPokemonDialog";
 
 export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGachaBannerEntity }) {
 
@@ -18,6 +20,8 @@ export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGacha
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
+    const [isAddRandomOpen, setIsAddRandomOpen] = useState<boolean>(false);
+    const [isAddManualOpen, setIsAddManualOpen] = useState<boolean>(false);
     //------------------------End------------------------//
 
 
@@ -81,6 +85,24 @@ export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGacha
                                 <Settings className="h-4 w-4 mr-2" />
                                 {t('common.edit')}
                             </Button>
+
+                            {/* Add Pokemon Buttons */}
+                            <div className="flex gap-2">
+                                <Button
+                                    className="bg-primary text-primary-foreground hover:bg-primary/90"
+                                    onClick={() => setIsAddRandomOpen(true)}
+                                >
+                                    <Sparkles className="h-4 w-4 mr-2" />
+                                    {t('configShop.addRandomPokemon')}
+                                </Button>
+                                <Button
+                                    className="bg-secondary text-white hover:bg-secondary/90"
+                                    onClick={() => setIsAddManualOpen(true)}
+                                >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    {t('configShop.addPokemonNotRandom')}
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </CardHeader>
@@ -272,6 +294,8 @@ export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGacha
                 </CardContent>
             </Card>
             <EditGachaDialog isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} bannerData={bannerDetail} />
+            <AddRandomGachaPokemonDialog isOpen={isAddRandomOpen} onClose={() => setIsAddRandomOpen(false)} bannerId={bannerDetail?.id} />
+            <AddHandmadeGachaPokemonDialog isOpen={isAddManualOpen} onClose={() => setIsAddManualOpen(false)} bannerId={bannerDetail?.id} />
         </div>
     );
 }

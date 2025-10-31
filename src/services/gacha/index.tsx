@@ -4,6 +4,7 @@ import { ICreateGachaRequest } from "@models/gacha/request";
 
 
 const gachaService = {
+    //---------------------Gacha Banner---------------------//
     getGachaList: async (params?: IQueryRequest) => {
         const queryParams = new URLSearchParams();
         const qsParts: string[] = [];
@@ -59,6 +60,14 @@ const gachaService = {
     updateGacha: async (id: number, data: ICreateGachaRequest) => {
         return axiosPrivate.put(`/gacha-banner/${id}`, data);
     },
+    //------------------------End------------------------//
+
+
+    //---------------------Gacha Item---------------------//
+    deleteGachaItem: async (gachaItemId: number) => {
+        return axiosPrivate.delete(`/gacha-item/${gachaItemId}`);
+    },
+    //------------------------End------------------------//
 };
 
 export default gachaService;
