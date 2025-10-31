@@ -62,14 +62,13 @@ export const GachaBannerEntitySchema = z.object({
     nameTranslation: z.string(),
     nameTranslations: TranslationInputSchema,
     items: z.array(GachaItemEntitySchema),
+    amount5StarCurrent: z.number(),
+    amount4StarCurrent: z.number(),
+    amount3StarCurrent: z.number(),
+    amount2StarCurrent: z.number(),
+    amount1StarCurrent: z.number(),
 });
 
 export type IGachaBannerEntity = z.infer<typeof GachaBannerEntitySchema>;
 //----------------------End----------------------//
-
-
-
-
-
-
 

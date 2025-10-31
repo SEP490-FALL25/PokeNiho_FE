@@ -255,40 +255,50 @@ export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGacha
                                 <h3 className="text-base font-semibold text-foreground">{t('configGacha.gachaStats')}</h3>
                             </div>
                             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                                <div className="space-y-2 bg-muted/20 p-4 rounded-lg border border-border">
-                                    <div className="flex items-center gap-2">
-                                        <Star className="h-4 w-4 text-muted-foreground" />
-                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('configGacha.amount5Star')}</p>
+                                <div className="p-4 rounded-lg border border-green-200 bg-green-50/60">
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-xs font-semibold text-green-800 uppercase tracking-wide">{t('configGacha.amount5Star')}</p>
+                                        <Star className="h-4 w-4 text-green-700" />
                                     </div>
-                                    <p className="text-base font-semibold text-foreground">{bannerDetail?.amount5Star}</p>
+                                    <p className="mt-2 text-base font-bold text-green-900">
+                                        {bannerDetail?.amount5StarCurrent}/{bannerDetail?.amount5Star}
+                                    </p>
                                 </div>
-                                <div className="space-y-2 bg-muted/20 p-4 rounded-lg border border-border">
-                                    <div className="flex items-center gap-2">
-                                        <Star className="h-4 w-4 text-muted-foreground" />
-                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('configGacha.amount4Star')}</p>
+                                <div className="p-4 rounded-lg border border-emerald-200 bg-emerald-50/60">
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-xs font-semibold text-emerald-800 uppercase tracking-wide">{t('configGacha.amount4Star')}</p>
+                                        <Star className="h-4 w-4 text-emerald-700" />
                                     </div>
-                                    <p className="text-base font-semibold text-foreground">{bannerDetail?.amount4Star}</p>
+                                    <p className="mt-2 text-base font-bold text-emerald-900">
+                                        {bannerDetail?.amount4StarCurrent}/{bannerDetail?.amount4Star}
+                                    </p>
                                 </div>
-                                <div className="space-y-2 bg-muted/20 p-4 rounded-lg border border-border">
-                                    <div className="flex items-center gap-2">
-                                        <Star className="h-4 w-4 text-muted-foreground" />
-                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('configGacha.amount3Star')}</p>
+                                <div className="p-4 rounded-lg border border-blue-200 bg-blue-50/60">
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-xs font-semibold text-blue-800 uppercase tracking-wide">{t('configGacha.amount3Star')}</p>
+                                        <Star className="h-4 w-4 text-blue-700" />
                                     </div>
-                                    <p className="text-base font-semibold text-foreground">{bannerDetail?.amount3Star}</p>
+                                    <p className="mt-2 text-base font-bold text-blue-900">
+                                        {bannerDetail?.amount3StarCurrent}/{bannerDetail?.amount3Star}
+                                    </p>
                                 </div>
-                                <div className="space-y-2 bg-muted/20 p-4 rounded-lg border border-border">
-                                    <div className="flex items-center gap-2">
-                                        <Star className="h-4 w-4 text-muted-foreground" />
-                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('configGacha.amount2Star')}</p>
+                                <div className="p-4 rounded-lg border border-purple-200 bg-purple-50/60">
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-xs font-semibold text-purple-800 uppercase tracking-wide">{t('configGacha.amount2Star')}</p>
+                                        <Star className="h-4 w-4 text-purple-700" />
                                     </div>
-                                    <p className="text-base font-semibold text-foreground">{bannerDetail?.amount2Star}</p>
+                                    <p className="mt-2 text-base font-bold text-purple-900">
+                                        {bannerDetail?.amount2StarCurrent}/{bannerDetail?.amount2Star}
+                                    </p>
                                 </div>
-                                <div className="space-y-2 bg-muted/20 p-4 rounded-lg border border-border">
-                                    <div className="flex items-center gap-2">
-                                        <Star className="h-4 w-4 text-muted-foreground" />
-                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('configGacha.amount1Star')}</p>
+                                <div className="p-4 rounded-lg border border-amber-200 bg-amber-50/60">
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-xs font-semibold text-amber-800 uppercase tracking-wide">{t('configGacha.amount1Star')}</p>
+                                        <Star className="h-4 w-4 text-amber-700" />
                                     </div>
-                                    <p className="text-base font-semibold text-foreground">{bannerDetail?.amount1Star}</p>
+                                    <p className="mt-2 text-base font-bold text-amber-900">
+                                        {bannerDetail?.amount1StarCurrent}/{bannerDetail?.amount1Star}
+                                    </p>
                                 </div>
                             </div>
                         </div>
