@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Button } from '@ui/Button'
+import { Input } from '@ui/Input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ui/Select'
 
 interface PokemonLite {
     id: number
@@ -19,6 +21,9 @@ export default function AddGachaPokemonSidebar({ isOpen, onClose }: Props) {
     const [loading, setLoading] = useState<boolean>(false)
     const [isDragging, setIsDragging] = useState<boolean>(false)
     const [selected, setSelected] = useState<Record<number, boolean>>({})
+    const [search, setSearch] = useState<string>('')
+    const [debouncedSearch, setDebouncedSearch] = useState<string>('')
+    const [rarity, setRarity] = useState<'ALL' | 'COMMON' | 'UNCOMMON' | 'RARE' | 'EPIC' | 'LEGENDARY'>('ALL')
 
     useEffect(() => {
         if (!isOpen) return
@@ -36,6 +41,12 @@ export default function AddGachaPokemonSidebar({ isOpen, onClose }: Props) {
         }, 500)
         return () => clearTimeout(timer)
     }, [isOpen])
+
+    // debounce search
+    useEffect(() => {
+        const t = setTimeout(() => setDebouncedSearch(search.trim().toLowerCase()), 300)
+        return () => clearTimeout(t)
+    }, [search])
 
     if (!isOpen) return null
 
@@ -56,46 +67,74 @@ export default function AddGachaPokemonSidebar({ isOpen, onClose }: Props) {
                         <p className="text-xs text-muted-foreground mt-1">Drag a Pokémon and drop into a rarity column.</p>
                     </div>
                     <div className="p-4 overflow-y-auto">
+                        <div className="mb-3 grid grid-cols-1 gap-2">
+                            <Input
+                                placeholder="Search by name or Dex #"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                isSearch
+                            />
+                            <Select value={rarity} onValueChange={(v) => setRarity(v as any)}>
+                                <SelectTrigger className="bg-background border-input">
+                                    <SelectValue placeholder="Rarity" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-card border-border">
+                                    <SelectItem value="ALL">All Rarities</SelectItem>
+                                    <SelectItem value="COMMON">COMMON</SelectItem>
+                                    <SelectItem value="UNCOMMON">UNCOMMON</SelectItem>
+                                    <SelectItem value="RARE">RARE</SelectItem>
+                                    <SelectItem value="EPIC">EPIC</SelectItem>
+                                    <SelectItem value="LEGENDARY">LEGENDARY</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                         {loading ? (
                             <div className="text-sm text-muted-foreground">Loading...</div>
                         ) : (
                             <div className="grid grid-cols-2 gap-3">
-                                {list.map((p) => {
-                                    const isSelected = !!selected[p.id]
-                                    return (
-                                        <div
-                                            key={p.id}
-                                            className={`flex items-center gap-3 p-2 rounded-lg border transition-colors cursor-grab select-none ${isSelected ? 'border-primary bg-primary/10 ring-1 ring-primary/40' : 'border-border bg-muted/30 hover:bg-muted/40'}`}
-                                            draggable
-                                            onClick={(e) => {
-                                                // toggle selection (avoid starting drag on click)
-                                                e.stopPropagation()
-                                                setSelected((prev) => ({ ...prev, [p.id]: !prev[p.id] }))
-                                            }}
-                                            onDragStart={(e) => {
-                                                // Build payload: if multiple selected, send all selected; else single
-                                                const selectedList = Object.keys(selected).filter((id) => selected[Number(id)]).map((id) => Number(id))
-                                                const payload = (selectedList.length > 0 ? list.filter((x) => selectedList.includes(x.id)) : [p])
-                                                if (payload.length > 1) {
-                                                    e.dataTransfer.setData('application/pokemon-list', JSON.stringify(payload))
-                                                }
-                                                // also set single for compatibility
-                                                e.dataTransfer.setData('application/pokemon', JSON.stringify(p))
-                                                e.dataTransfer.effectAllowed = 'move'
-                                                setIsDragging(true)
-                                            }}
-                                            onDragEnd={() => {
-                                                setIsDragging(false)
-                                            }}
-                                        >
-                                            <img src={p.imageUrl} alt={p.nameTranslations.en} className="w-12 h-12 rounded-md shadow-sm" />
-                                            <div className="min-w-0">
-                                                <div className="text-sm font-medium truncate">{p.nameTranslations.en}</div>
-                                                <div className="text-[11px] text-muted-foreground truncate">Dex #{p.pokedex_number} • {p.rarity}</div>
+                                {list
+                                    .filter((p) => rarity === 'ALL' ? true : p.rarity === rarity)
+                                    .filter((p) => {
+                                        const q = debouncedSearch
+                                        if (!q) return true
+                                        return p.nameTranslations.en.toLowerCase().includes(q) || String(p.pokedex_number).includes(q)
+                                    })
+                                    .map((p) => {
+                                        const isSelected = !!selected[p.id]
+                                        return (
+                                            <div
+                                                key={p.id}
+                                                className={`flex items-center gap-3 p-2 rounded-lg border transition-colors cursor-grab select-none ${isSelected ? 'border-primary bg-primary/10' : 'border-border bg-muted/30 hover:bg-muted/40'}`}
+                                                draggable
+                                                onClick={(e) => {
+                                                    // toggle selection (avoid starting drag on click)
+                                                    e.stopPropagation()
+                                                    setSelected((prev) => ({ ...prev, [p.id]: !prev[p.id] }))
+                                                }}
+                                                onDragStart={(e) => {
+                                                    // Build payload: if multiple selected, send all selected; else single
+                                                    const selectedList = Object.keys(selected).filter((id) => selected[Number(id)]).map((id) => Number(id))
+                                                    const payload = (selectedList.length > 0 ? list.filter((x) => selectedList.includes(x.id)) : [p])
+                                                    if (payload.length > 1) {
+                                                        e.dataTransfer.setData('application/pokemon-list', JSON.stringify(payload))
+                                                    }
+                                                    // also set single for compatibility
+                                                    e.dataTransfer.setData('application/pokemon', JSON.stringify(p))
+                                                    e.dataTransfer.effectAllowed = 'move'
+                                                    setIsDragging(true)
+                                                }}
+                                                onDragEnd={() => {
+                                                    setIsDragging(false)
+                                                }}
+                                            >
+                                                <img src={p.imageUrl} alt={p.nameTranslations.en} className="w-12 h-12 rounded-md shadow-sm" />
+                                                <div className="min-w-0">
+                                                    <div className="text-sm font-medium truncate">{p.nameTranslations.en}</div>
+                                                    <div className="text-[11px] text-muted-foreground truncate">Dex #{p.pokedex_number} • {p.rarity}</div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    )
-                                })}
+                                        )
+                                    })}
                             </div>
                         )}
                     </div>
