@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Button } from '@ui/Button'
 import { Input } from '@ui/Input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ui/Select'
+import { usePreparePokemonList } from '@hooks/useGacha'
 
 interface PokemonLite {
     id: number
@@ -14,9 +15,10 @@ interface PokemonLite {
 interface Props {
     isOpen: boolean
     onClose: () => void
+    gachaBannerId: number
 }
 
-export default function AddGachaPokemonSidebar({ isOpen, onClose }: Props) {
+export default function AddGachaPokemonSidebar({ isOpen, onClose, gachaBannerId }: Props) {
     const [list, setList] = useState<PokemonLite[]>([])
     const [loading, setLoading] = useState<boolean>(false)
     const [isDragging, setIsDragging] = useState<boolean>(false)
@@ -25,22 +27,22 @@ export default function AddGachaPokemonSidebar({ isOpen, onClose }: Props) {
     const [debouncedSearch, setDebouncedSearch] = useState<string>('')
     const [rarity, setRarity] = useState<'ALL' | 'COMMON' | 'UNCOMMON' | 'RARE' | 'EPIC' | 'LEGENDARY'>('ALL')
 
+    const { data: preparePokemonList, isLoading: isPreparePokemonListLoading } = usePreparePokemonList(
+        gachaBannerId,
+        { rarity: rarity === 'ALL' ? undefined : [rarity], nameEn: debouncedSearch, cur: 1, pageSize: 100 }
+    )
+
+
+    // Map API response to list
     useEffect(() => {
-        if (!isOpen) return
-        setLoading(true)
-        // Mock API fetch
-        const timer = setTimeout(() => {
-            setList([
-                { id: 25, imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png', nameTranslations: { en: 'Pikachu' }, pokedex_number: 25, rarity: 'COMMON' },
-                { id: 1, imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png', nameTranslations: { en: 'Bulbasaur' }, pokedex_number: 1, rarity: 'UNCOMMON' },
-                { id: 4, imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png', nameTranslations: { en: 'Charmander' }, pokedex_number: 4, rarity: 'RARE' },
-                { id: 7, imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png', nameTranslations: { en: 'Squirtle' }, pokedex_number: 7, rarity: 'EPIC' },
-                { id: 150, imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/150.png', nameTranslations: { en: 'Mewtwo' }, pokedex_number: 150, rarity: 'LEGENDARY' },
-            ])
-            setLoading(false)
-        }, 500)
-        return () => clearTimeout(timer)
-    }, [isOpen])
+        setLoading(isPreparePokemonListLoading)
+        const results = preparePokemonList?.data?.results as any[] | undefined
+        if (results && Array.isArray(results)) {
+            setList(results as unknown as PokemonLite[])
+        } else if (!isPreparePokemonListLoading) {
+            setList([])
+        }
+    }, [preparePokemonList, isPreparePokemonListLoading])
 
     // debounce search
     useEffect(() => {
