@@ -344,7 +344,8 @@
         "noPokemonFound": "Không tìm thấy Pokémon",
         "dragTip": "Mẹo: Giữ và kéo một Pokémon; các cột sẽ được làm nổi bật khi bạn có thể thả.",
         "selectAll": "Chọn tất cả",
-        "deselectAll": "Bỏ chọn tất cả"
+        "deselectAll": "Bỏ chọn tất cả",
+        "selected": "đã chọn"
     },
     "configGacha.gachaBannerIdRequired": "Gacha banner ID phải ≥ {{min}}",
     "lesson": {

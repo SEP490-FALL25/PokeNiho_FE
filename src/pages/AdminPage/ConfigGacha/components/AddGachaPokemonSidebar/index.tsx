@@ -157,7 +157,14 @@ export default function AddGachaPokemonSidebar({ isOpen, onClose, gachaBannerId 
                             <h3 className="text-base font-semibold tracking-tight">{t('configGacha.addPokemonToGacha')}</h3>
                             <Button variant="outline" onClick={onClose}>{t('common.close')}</Button>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">{t('configGacha.dragPokemonDropDescription')}</p>
+                        <div className="flex items-center justify-between mt-1">
+                            <p className="text-xs text-muted-foreground">{t('configGacha.dragPokemonDropDescription')}</p>
+                            {Object.keys(selected).filter(id => selected[Number(id)]).length > 0 && (
+                                <span className="text-xs font-medium text-primary">
+                                    {Object.keys(selected).filter(id => selected[Number(id)]).length} {t('configGacha.selected')}
+                                </span>
+                            )}
+                        </div>
                     </div>
                     <div className="p-4 overflow-y-auto">
                         <div className="mb-3 grid grid-cols-1 gap-2">
