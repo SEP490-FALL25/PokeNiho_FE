@@ -334,7 +334,15 @@
         "amount3StarMax": "Số lượng 3★ không được vượt quá {{max}}",
         "amount2StarMax": "Số lượng 2★ không được vượt quá {{max}}",
         "amount1StarMax": "Số lượng 1★ không được vượt quá {{max}}",
-        "gachaStats": "Thống kê Gacha"
+        "gachaStats": "Thống kê Gacha",
+        "addPokemonToGacha": "Thêm Pokémon vào Gacha",
+        "dragPokemonDropDescription": "Kéo thả một Pokémon vào cột độ hiếm.",
+        "searchByNameOrDex": "Tìm kiếm theo tên hoặc số Dex #",
+        "rarity": "Độ hiếm",
+        "allRarities": "Tất cả độ hiếm",
+        "loadingMore": "Đang tải thêm...",
+        "noPokemonFound": "Không tìm thấy Pokémon",
+        "dragTip": "Mẹo: Giữ và kéo một Pokémon; các cột sẽ được làm nổi bật khi bạn có thể thả."
     },
     "configGacha.gachaBannerIdRequired": "Gacha banner ID phải ≥ {{min}}",
     "lesson": {

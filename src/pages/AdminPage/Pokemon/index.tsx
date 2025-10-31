@@ -193,7 +193,7 @@ export default function PokemonManagement() {
                                                     <img src={pokemon.imageUrl} alt={pokemon.nameTranslations.en} className="w-20 h-20 rounded-lg bg-gray-200 object-contain" />
                                                     <div>
                                                         <CardTitle className="text-lg text-foreground mb-1">{pokemon.nameJp}</CardTitle>
-                                                        <p className="text-sm text-muted-foreground">{pokemon.nameTranslations.vi}</p>
+                                                        <p className="text-sm text-muted-foreground">{pokemon.nameTranslations.en}</p>
                                                         <div className="flex flex-wrap gap-2 mt-2">
                                                             {pokemon.types.map((type: any) => (
                                                                 <Badge key={type.id} style={{ backgroundColor: type.color_hex, color: 'white', border: 'none' }}>

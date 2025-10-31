@@ -362,7 +362,7 @@ export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGacha
                                         onClick={() => setIsSidebarOpen(true)}
                                     >
                                         <Sparkles className="h-4 w-4 mr-2" />
-                                        Add Pokémon
+                                        {t('configGacha.addPokemonToGacha')}
                                     </Button>
                                 </div>
                             </div>

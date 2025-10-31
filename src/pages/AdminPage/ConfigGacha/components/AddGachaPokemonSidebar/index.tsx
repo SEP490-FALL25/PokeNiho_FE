@@ -6,6 +6,7 @@ import { usePreparePokemonList } from '@hooks/useGacha'
 import { RarityBadge } from '@atoms/BadgeRarity'
 import { Loader2 } from 'lucide-react'
 import { IPokemonLiteEntity } from '@models/pokemon/entity'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
     isOpen: boolean
@@ -14,6 +15,8 @@ interface Props {
 }
 
 export default function AddGachaPokemonSidebar({ isOpen, onClose, gachaBannerId }: Props) {
+    const { t } = useTranslation()
+
     /**
      * UsePreparePokemonList Hook
      */
@@ -121,25 +124,25 @@ export default function AddGachaPokemonSidebar({ isOpen, onClose, gachaBannerId 
                 <div className="h-full grid grid-rows-[auto_1fr_auto]">
                     <div className="px-5 py-4 border-b border-border bg-gradient-to-r from-primary/5 to-transparent">
                         <div className="flex items-center justify-between">
-                            <h3 className="text-base font-semibold tracking-tight">Add Pokémon to Gacha</h3>
-                            <Button variant="outline" onClick={onClose}>Close</Button>
+                            <h3 className="text-base font-semibold tracking-tight">{t('configGacha.addPokemonToGacha')}</h3>
+                            <Button variant="outline" onClick={onClose}>{t('common.close')}</Button>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">Drag a Pokémon and drop into a rarity column.</p>
+                        <p className="text-xs text-muted-foreground mt-1">{t('configGacha.dragPokemonDropDescription')}</p>
                     </div>
                     <div className="p-4 overflow-y-auto">
                         <div className="mb-3 grid grid-cols-1 gap-2">
                             <Input
-                                placeholder="Search by name or Dex #"
+                                placeholder={t('configGacha.searchByNameOrDex')}
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 isSearch
                             />
                             <Select value={rarity} onValueChange={(v) => setRarity(v as any)}>
                                 <SelectTrigger className="bg-background border-input">
-                                    <SelectValue placeholder="Rarity" />
+                                    <SelectValue placeholder={t('configGacha.rarity')} />
                                 </SelectTrigger>
                                 <SelectContent className="bg-card border-border">
-                                    <SelectItem value="ALL">All Rarities</SelectItem>
+                                    <SelectItem value="ALL">{t('configGacha.allRarities')}</SelectItem>
                                     <SelectItem value="COMMON">COMMON</SelectItem>
                                     <SelectItem value="UNCOMMON">UNCOMMON</SelectItem>
                                     <SelectItem value="RARE">RARE</SelectItem>
@@ -149,7 +152,7 @@ export default function AddGachaPokemonSidebar({ isOpen, onClose, gachaBannerId 
                             </Select>
                         </div>
                         {isPreparePokemonListLoading && currentPage === 1 && accumulatedResults.length === 0 ? (
-                            <div className="text-sm text-muted-foreground">Loading...</div>
+                            <div className="text-sm text-muted-foreground">{t('common.loading')}</div>
                         ) : accumulatedResults.length > 0 ? (
                             <div className="grid grid-cols-2 gap-3">
                                 {accumulatedResults.map((p, index) => {
@@ -190,16 +193,16 @@ export default function AddGachaPokemonSidebar({ isOpen, onClose, gachaBannerId 
                                 {isPreparePokemonListLoading && currentPage > 1 && (
                                     <div className="col-span-2 flex items-center justify-center py-4">
                                         <Loader2 className="h-5 w-5 animate-spin text-muted-foreground mr-2" />
-                                        <span className="text-sm text-muted-foreground">Loading more...</span>
+                                        <span className="text-sm text-muted-foreground">{t('configGacha.loadingMore')}</span>
                                     </div>
                                 )}
                             </div>
                         ) : (
-                            <div className="text-sm text-muted-foreground text-center py-8">No Pokémon found</div>
+                            <div className="text-sm text-muted-foreground text-center py-8">{t('configGacha.noPokemonFound')}</div>
                         )}
                     </div>
                     <div className="px-5 py-3 border-t border-border bg-muted/20 text-[11px] text-muted-foreground">
-                        Tip: Hold and drag a Pokémon; columns will highlight when you can drop.
+                        {t('configGacha.dragTip')}
                     </div>
                 </div>
             </div>

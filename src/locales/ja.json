@@ -333,7 +333,15 @@
         "amount3StarMax": "3★数は{{max}}を超えることはできません",
         "amount2StarMax": "2★数は{{max}}を超えることはできません",
         "amount1StarMax": "1★数は{{max}}を超えることはできません",
-        "gachaStats": "ガチャ統計"
+        "gachaStats": "ガチャ統計",
+        "addPokemonToGacha": "ガチャにポケモンを追加",
+        "dragPokemonDropDescription": "ポケモンをドラッグしてレア度カラムにドロップしてください。",
+        "searchByNameOrDex": "名前または図鑑番号で検索",
+        "rarity": "レア度",
+        "allRarities": "すべてのレア度",
+        "loadingMore": "さらに読み込み中...",
+        "noPokemonFound": "ポケモンが見つかりません",
+        "dragTip": "ヒント: ポケモンを保持してドラッグすると、ドロップ可能なカラムが強調表示されます。"
     },
     "configGacha.gachaBannerIdRequired": "ガチャバナーIDは{{min}}以上でなければなりません",
     "lesson": {
