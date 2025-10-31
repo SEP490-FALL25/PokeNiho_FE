@@ -1,6 +1,8 @@
 import z from "zod";
 import { TranslationRequest } from "@models/common/request";
+import { GACHA } from "@constants/gacha";
 
+//-------------------------------------------Gacha Banner Request-------------------------------------------//
 /**
  * Create Gacha Request Schema (i18n)
  */
@@ -37,4 +39,20 @@ export const createCreateGachaSchema = (t: (key: string, opts?: any) => string) 
     }),
 });
 export type ICreateGachaRequest = z.infer<ReturnType<typeof createCreateGachaSchema>>;
-//------------------End------------------//
+//-------------------------------------------End-------------------------------------------//
+
+
+
+//-------------------------------------------Gacha Item Request-------------------------------------------//
+/**
+ * Create Gacha Item Request Schema
+ */
+export const createCreateGachaItemListRequest = (t: (key: string, opts?: any) => string) => z.object({
+    bannerId: z.number().min(1, t('configGacha.gachaBannerIdRequired', { min: 1 } as any)),
+    items: z.array(z.object({
+        starType: z.enum(GACHA.GachaItemRateStarType),
+        pokemons: z.array(z.number()),
+    })),
+});
+export type ICreateGachaItemListRequest = z.infer<ReturnType<typeof createCreateGachaItemListRequest>>;
+//-------------------------------------------End-------------------------------------------//

@@ -1,4 +1,5 @@
 import { at, byUser } from "@models/common/response";
+import { RarityPokemon } from "@constants/pokemon";
 import z from "zod";
 
 /**
@@ -33,4 +34,18 @@ export const PokemonOmitEntitySchema = PokemonEntitySchema.omit({
 });
 
 export type IPokemonOmitEntity = z.infer<typeof PokemonOmitEntitySchema>;
+//------------------------End------------------------//
+
+
+/**
+ * Pokemon Lite Entity Schema
+ */
+export const PokemonLiteEntitySchema = z.object({
+    id: z.number(),
+    imageUrl: z.string(),
+    nameTranslations: z.object({ en: z.string() }),
+    pokedex_number: z.number(),
+    rarity: z.enum(RarityPokemon),
+});
+export type IPokemonLiteEntity = z.infer<typeof PokemonLiteEntitySchema>;
 //------------------------End------------------------//
