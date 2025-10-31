@@ -3,7 +3,7 @@ import { Badge } from "@ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/Card";
 import { Button } from "@ui/Button";
 import { Separator } from "@ui/Separator";
-import { ArrowLeft, Settings, Calendar, TrendingUp, Zap, Coins, Star, Sparkles, Plus } from "lucide-react";
+import { ArrowLeft, Settings, Calendar, TrendingUp, Zap, Coins, Star, Sparkles, Plus, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { IGachaBannerEntity } from "@models/gacha/entity";
 import { RarityBadge } from "@atoms/BadgeRarity";
@@ -11,6 +11,7 @@ import { useState } from "react";
 import EditGachaDialog from "../EditGachaDialog";
 import AddRandomGachaPokemonDialog from "../AddRandomGachaPokemonDialog";
 import AddHandmadeGachaPokemonDialog from "../AddHandmadeGachaPokemonDialog";
+import { useDeleteGachaItem } from "@hooks/useGacha";
 
 export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGachaBannerEntity }) {
 
@@ -22,6 +23,8 @@ export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGacha
     const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
     const [isAddRandomOpen, setIsAddRandomOpen] = useState<boolean>(false);
     const [isAddManualOpen, setIsAddManualOpen] = useState<boolean>(false);
+    const [hoveredItemId, setHoveredItemId] = useState<number | null>(null);
+    const { mutate: deleteGachaItem } = useDeleteGachaItem();
     //------------------------End------------------------//
 
 
@@ -247,7 +250,19 @@ export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGacha
                                         <Card
                                             key={item.id}
                                             className="bg-muted/30 relative group hover:border-primary transition-colors"
+                                            onMouseEnter={() => setHoveredItemId(item.id)}
+                                            onMouseLeave={() => setHoveredItemId(null)}
                                         >
+                                            {hoveredItemId === item.id && (
+                                                <div className="absolute top-2 right-2 flex gap-2 z-10">
+                                                    <button
+                                                        className="w-7 h-7 flex items-center justify-center rounded-full bg-red-500 hover:bg-red-600 transition-colors cursor-pointer"
+                                                        onClick={() => deleteGachaItem(item.id)}
+                                                    >
+                                                        <X className="w-4 h-4 text-white" />
+                                                    </button>
+                                                </div>
+                                            )}
                                             <CardHeader>
                                                 <div className="flex items-center justify-between">
                                                     <div>
