@@ -372,7 +372,10 @@ export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGacha
                                     <div key={rar} className={`rounded-lg border border-dashed min-h-[260px] transition-colors ${dragOverRarity === rar ? 'ring-2 ring-primary/50 bg-primary/5' : ''}`}
                                         {...makeDropHandlers(rar)}
                                     >
-                                        <div className={`px-3 py-2 rounded-t-lg border-b text-xs font-semibold tracking-wide ${getHeaderColor(rar)}`}>{rar}</div>
+                                        <div className={`px-3 py-2 rounded-t-lg border-b text-xs font-semibold tracking-wide flex items-center justify-between ${getHeaderColor(rar)}`}>
+                                            <span>{rar}</span>
+                                            <span className="text-xs font-normal opacity-90">({(itemsByRarity[rar] || []).length})</span>
+                                        </div>
                                         <div className="p-2 space-y-2">
                                             {(itemsByRarity[rar] || []).map((item: any) => (
                                                 <Card

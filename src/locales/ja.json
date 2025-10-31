@@ -343,7 +343,8 @@
         "noPokemonFound": "ポケモンが見つかりません",
         "dragTip": "ヒント: ポケモンを保持してドラッグすると、ドロップ可能なカラムが強調表示されます。",
         "selectAll": "すべて選択",
-        "deselectAll": "すべて選択解除"
+        "deselectAll": "すべて選択解除",
+        "selected": "選択済み"
     },
     "configGacha.gachaBannerIdRequired": "ガチャバナーIDは{{min}}以上でなければなりません",
     "lesson": {
