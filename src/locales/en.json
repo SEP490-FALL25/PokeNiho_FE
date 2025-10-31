@@ -356,12 +356,14 @@
         "gachaStats": "Gacha Statistics",
         "addPokemonToGacha": "Add Pokémon to Gacha",
         "dragPokemonDropDescription": "Drag a Pokémon and drop into a rarity column.",
-        "searchByNameOrDex": "Search by name or Dex #",
+        "searchByName": "Search by name",
         "rarity": "Rarity",
         "allRarities": "All Rarities",
         "loadingMore": "Loading more...",
         "noPokemonFound": "No Pokémon found",
-        "dragTip": "Tip: Hold and drag a Pokémon; columns will highlight when you can drop."
+        "dragTip": "Tip: Hold and drag a Pokémon; columns will highlight when you can drop.",
+        "selectAll": "Select All",
+        "deselectAll": "Deselect All"
     },
     "configGacha.gachaBannerIdRequired": "Gacha banner ID must be ≥ {{min}}",
     "lesson": {
