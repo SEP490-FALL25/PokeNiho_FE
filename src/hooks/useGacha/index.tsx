@@ -48,13 +48,14 @@ export const useGachaBannerById = (id: number | null) => {
  * @param gachaBannerId 
  * @returns 
  */
-export const usePreparePokemonList = (gachaBannerId: number, params?: { rarity?: string[]; types?: number | number[]; nameEn?: string; currentPage?: number; pageSize?: number; page?: number }) => {
+export const usePreparePokemonList = (gachaBannerId: number, params?: { rarity?: string[]; types?: number | number[]; nameEn?: string; currentPage?: number; pageSize?: number; page?: number }, enabled?: boolean) => {
     return useQuery<any>({
         queryKey: ["preparePokemonList", gachaBannerId, params],
         queryFn: async () => {
             const response = await gachaService.getPreparePokemonList(gachaBannerId, params);
             return response.data;
         },
+        enabled: enabled !== false && !!gachaBannerId,
     });
 };
 //------------------------End------------------------//
