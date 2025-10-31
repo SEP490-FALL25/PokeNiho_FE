@@ -55,6 +55,10 @@ const gachaService = {
     createGacha: async (data: ICreateGachaRequest) => {
         return axiosPrivate.post('/gacha-banner', data);
     },
+
+    updateGacha: async (id: number, data: ICreateGachaRequest) => {
+        return axiosPrivate.put(`/gacha-banner/${id}`, data);
+    },
 };
 
 export default gachaService;

@@ -7,6 +7,8 @@ import { ArrowLeft, Settings, Calendar, TrendingUp, Zap, Coins, Star, Sparkles }
 import { useNavigate } from "react-router-dom";
 import { IGachaBannerEntity } from "@models/gacha/entity";
 import { RarityBadge } from "@atoms/BadgeRarity";
+import { useState } from "react";
+import EditGachaDialog from "../EditGachaDialog";
 
 export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGachaBannerEntity }) {
 
@@ -15,6 +17,7 @@ export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGacha
      */
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
     //------------------------End------------------------//
 
 
@@ -73,6 +76,7 @@ export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGacha
                             <Button
                                 variant="outline"
                                 className="bg-blue-500 text-white hover:bg-blue-600 border-blue-500"
+                                onClick={() => setIsEditOpen(true)}
                             >
                                 <Settings className="h-4 w-4 mr-2" />
                                 {t('common.edit')}
@@ -267,6 +271,7 @@ export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGacha
                     </div>
                 </CardContent>
             </Card>
+            <EditGachaDialog isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} bannerData={bannerDetail} />
         </div>
     );
 }
