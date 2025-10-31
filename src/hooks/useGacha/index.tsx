@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { selectCurrentLanguage } from "@redux/features/language/selector";
 import gachaService from "@services/gacha";
 import { IGachaBannerEntity } from "@models/gacha/entity";
-import { ICreateGachaRequest } from "@models/gacha/request";
+import { ICreateGachaItemListRequest, ICreateGachaRequest } from "@models/gacha/request";
 
 /**
  * Handle Gacha Banner List
@@ -136,3 +136,52 @@ export const useDeleteGachaItem = () => {
     });
 };
 //------------------------End------------------------//
+
+
+/**
+ * Handle Create Gacha Item List
+ * @returns useMutation to create gacha item list
+ */
+export const useCreateGachaItemList = () => {
+    const queryClient = useQueryClient();
+    const { t } = useTranslation();
+    return useMutation({
+        mutationFn: async (data: ICreateGachaItemListRequest) => {
+            const response = await gachaService.createGachaItemList(data);
+            return response.data;
+        },
+        onSuccess: (data: any) => {
+            queryClient.invalidateQueries({ queryKey: ["gachaBanner"] });
+            toast.success(data?.message || t('common.success'));
+        },
+        onError: (error: any) => {
+            toast.error(error?.response?.data?.message || t('common.error'));
+        },
+    });
+};
+//------------------------End------------------------//
+
+
+/**
+ * Handle Update Gacha Item List
+ * @returns useMutation to update gacha item list
+ */
+export const useUpdateGachaItemList = () => {
+    const queryClient = useQueryClient();
+    const { t } = useTranslation();
+    return useMutation({
+        mutationFn: async (data: ICreateGachaItemListRequest) => {
+            const response = await gachaService.updateGachaItemList(data);
+            return response.data;
+        },
+        onSuccess: (data: any) => {
+            queryClient.invalidateQueries({ queryKey: ["gachaBanner"] });
+            toast.success(data?.message || t('common.success'));
+        },
+        onError: (error: any) => {
+            toast.error(error?.response?.data?.message || t('common.error'));
+        },
+    });
+};
+//------------------------End------------------------//
+//------------------------------------------------End------------------------------------------------//

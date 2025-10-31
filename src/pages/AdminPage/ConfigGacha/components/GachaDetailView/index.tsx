@@ -7,11 +7,12 @@ import { ArrowLeft, Settings, Calendar, TrendingUp, Zap, Coins, Star, Sparkles, 
 import { useNavigate } from "react-router-dom";
 import { IGachaBannerEntity } from "@models/gacha/entity";
 import { RarityBadge } from "@atoms/BadgeRarity";
-import { useState } from "react";
-import { toast } from "react-toastify";
+import { useEffect, useState } from "react";
 import EditGachaDialog from "../EditGachaDialog";
 import AddGachaPokemonSidebar from "../AddGachaPokemonSidebar";
-import { useDeleteGachaItem } from "@hooks/useGacha";
+import { useDeleteGachaItem, useUpdateGachaItemList } from "@hooks/useGacha";
+import getHeaderColor from "@atoms/HeaderColorRarity";
+import getCardColor from "@atoms/CardColorRarity";
 
 export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGachaBannerEntity }) {
 
@@ -31,28 +32,11 @@ export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGacha
     const [history, setHistory] = useState<Record<string, any[]>[]>([])
     const [historyIndex, setHistoryIndex] = useState<number>(-1)
 
-    const getHeaderColor = (rarity: string) => (
-        rarity === 'COMMON' ? 'bg-green-50 text-green-700 border-green-100' :
-            rarity === 'UNCOMMON' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
-                rarity === 'RARE' ? 'bg-blue-50 text-blue-700 border-blue-100' :
-                    rarity === 'EPIC' ? 'bg-purple-50 text-purple-700 border-purple-100' :
-                        rarity === 'LEGENDARY' ? 'bg-amber-50 text-amber-700 border-amber-100' :
-                            'bg-muted text-foreground border-border'
-    )
-
-    const getCardColor = (rarity: string) => (
-        rarity === 'COMMON' ? 'border-green-200 hover:border-green-400 bg-green-50/40' :
-            rarity === 'UNCOMMON' ? 'border-emerald-200 hover:border-emerald-400 bg-emerald-50/40' :
-                rarity === 'RARE' ? 'border-blue-200 hover:border-blue-400 bg-blue-50/40' :
-                    rarity === 'EPIC' ? 'border-purple-200 hover:border-purple-400 bg-purple-50/40' :
-                        rarity === 'LEGENDARY' ? 'border-amber-200 hover:border-amber-400 bg-amber-50/40' :
-                            'border-border hover:border-primary bg-muted/30'
-    )
 
     /**
      * Initialize grouping
      */
-    useState(() => {
+    useEffect(() => {
         const grouped: Record<string, any[]> = { COMMON: [], UNCOMMON: [], RARE: [], EPIC: [], LEGENDARY: [] }
             ; (bannerDetail?.items || []).forEach((it: any) => {
                 const key = (it?.pokemon?.rarity || 'COMMON') as string
@@ -62,7 +46,7 @@ export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGacha
         setItemsByRarity(grouped)
         setHistory([grouped])
         setHistoryIndex(0)
-    })
+    }, [bannerDetail])
 
     const pushHistory = (nextState: Record<string, any[]>) => {
         const base = history.slice(0, historyIndex + 1)
@@ -85,9 +69,23 @@ export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGacha
         setItemsByRarity(history[idx])
     }
 
-    const handleSave = () => {
+
+    const { mutateAsync: updateGachaItemList } = useUpdateGachaItemList();
+    const handleSave = async () => {
         if (historyIndex !== history.length - 1) return
-        toast.success('Saved draft gacha items')
+        const draft = history[historyIndex]
+        const starTypeToPokemonIds: Record<string, number[]> = {}
+        Object.values(draft).forEach((arr: any) => {
+            (arr || []).forEach((it: any) => {
+                const star = it?.gachaItemRate?.starType || 'THREE'
+                if (!starTypeToPokemonIds[star]) starTypeToPokemonIds[star] = []
+                if (typeof it.pokemonId === 'number') {
+                    starTypeToPokemonIds[star].push(it.pokemonId)
+                }
+            })
+        })
+        const items = Object.entries(starTypeToPokemonIds).map(([starType, pokemons]) => ({ starType, pokemons })) as any
+        await updateGachaItemList({ bannerId: bannerDetail.id, items })
     }
     //------------------------End------------------------//
 
@@ -191,15 +189,6 @@ export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGacha
                             >
                                 <Settings className="h-4 w-4 mr-2" />
                                 {t('common.edit')}
-                            </Button>
-
-                            {/* Open Sidebar to add Pokemon */}
-                            <Button
-                                className="bg-primary text-primary-foreground hover:bg-primary/90"
-                                onClick={() => setIsSidebarOpen(true)}
-                            >
-                                <Sparkles className="h-4 w-4 mr-2" />
-                                Add Pokémon
                             </Button>
                         </div>
                     </div>
@@ -362,6 +351,15 @@ export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGacha
                                     <div className={`ml-3 cursor-pointer ${historyIndex <= 0 ? 'opacity-50 cursor-not-allowed' : ''}`} onClick={handleSave}>
                                         <Save className="h-5 w-5" />
                                     </div>
+
+                                    {/* Open Sidebar to add Pokemon */}
+                                    <Button
+                                        className="bg-primary text-primary-foreground hover:bg-primary/90 ml-3"
+                                        onClick={() => setIsSidebarOpen(true)}
+                                    >
+                                        <Sparkles className="h-4 w-4 mr-2" />
+                                        Add Pokémon
+                                    </Button>
                                 </div>
                             </div>
 
@@ -390,7 +388,11 @@ export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGacha
                                                                     setItemsByRarity(next)
                                                                     pushHistory(next)
                                                                     // try delete on server (if exists)
-                                                                    try { deleteGachaItem(item.id) } catch { }
+                                                                    try {
+                                                                        if (item?.gachaItemRateId && item.gachaItemRateId > 0) {
+                                                                            deleteGachaItem(item.id)
+                                                                        }
+                                                                    } catch { }
                                                                 }}
                                                             >
                                                                 <X className="w-4 h-4 text-white" />

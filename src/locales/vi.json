@@ -336,6 +336,7 @@
         "amount1StarMax": "Số lượng 1★ không được vượt quá {{max}}",
         "gachaStats": "Thống kê Gacha"
     },
+    "configGacha.gachaBannerIdRequired": "Gacha banner ID phải ≥ {{min}}",
     "lesson": {
         "title": "Quản lý bài học",
         "description": "Quản lý tất cả bài học và khóa học trong hệ thống",

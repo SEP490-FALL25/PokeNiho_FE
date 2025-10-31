@@ -1,6 +1,6 @@
 import { axiosPrivate } from "@configs/axios";
 import { IQueryRequest } from "@models/common/request";
-import { ICreateGachaRequest } from "@models/gacha/request";
+import { ICreateGachaItemListRequest, ICreateGachaRequest } from "@models/gacha/request";
 
 
 const gachaService = {
@@ -105,6 +105,14 @@ const gachaService = {
 
 
     //---------------------Gacha Item---------------------//
+    createGachaItemList: async (data: ICreateGachaItemListRequest) => {
+        return axiosPrivate.post('/gacha-item/list', data);
+    },
+
+    updateGachaItemList: async (data: ICreateGachaItemListRequest) => {
+        return axiosPrivate.put(`/gacha-item/list`, data);
+    },
+
     deleteGachaItem: async (gachaItemId: number) => {
         return axiosPrivate.delete(`/gacha-item/${gachaItemId}`);
     },

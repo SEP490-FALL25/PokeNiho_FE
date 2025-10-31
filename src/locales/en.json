@@ -355,6 +355,7 @@
         "amount1StarMax": "1★ amount cannot exceed {{max}}",
         "gachaStats": "Gacha Statistics"
     },
+    "configGacha.gachaBannerIdRequired": "Gacha banner ID must be ≥ {{min}}",
     "lesson": {
         "title": "Lesson Management",
         "description": "Manage all lessons and courses in the system",

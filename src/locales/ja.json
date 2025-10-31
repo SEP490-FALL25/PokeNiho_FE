@@ -335,6 +335,7 @@
         "amount1StarMax": "1★数は{{max}}を超えることはできません",
         "gachaStats": "ガチャ統計"
     },
+    "configGacha.gachaBannerIdRequired": "ガチャバナーIDは{{min}}以上でなければなりません",
     "lesson": {
         "title": "レッスン管理",
         "description": "システム内のすべてのレッスンとコースを管理",
