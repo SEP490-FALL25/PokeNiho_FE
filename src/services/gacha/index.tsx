@@ -53,6 +53,47 @@ const gachaService = {
         return axiosPrivate.get(`/gacha-banner/${id}`);
     },
 
+    getPreparePokemonList: async (
+        gachaBannerId: number,
+        params?: {
+            rarity?: string[];
+            types?: number | number[];
+            nameEn?: string;
+            cur?: number;
+            pageSize?: number;
+        }
+    ) => {
+        const queryParams = new URLSearchParams();
+        const qsParts: string[] = [];
+
+        if (params?.rarity && params.rarity.length > 0) {
+            qsParts.push(`rarity:in=${params.rarity.join('|')}`);
+        }
+
+        if (params?.types !== undefined) {
+            const typesValue = Array.isArray(params.types) ? params.types.join('|') : String(params.types);
+            qsParts.push(`types=${typesValue}`);
+        }
+
+        if (params?.nameEn && params.nameEn.trim() !== '') {
+            qsParts.push(`nameTranslations.en:like=${params.nameEn.trim()}`);
+        }
+
+        if (qsParts.length > 0) {
+            queryParams.append('qs', qsParts.join(','));
+        }
+
+        if (params?.cur !== undefined) {
+            queryParams.append('cur', String(params.cur));
+        }
+        if (params?.pageSize !== undefined) {
+            queryParams.append('pageSize', String(params.pageSize));
+        }
+
+        const qs = queryParams.toString();
+        return axiosPrivate.get(`/gacha-item/prepare-pokemons/${gachaBannerId}${qs ? `?${qs}` : ''}`);
+    },
+
     createGacha: async (data: ICreateGachaRequest) => {
         return axiosPrivate.post('/gacha-banner', data);
     },

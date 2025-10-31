@@ -24,8 +24,6 @@ export const useGachaBannerList = (params: { page?: number; limit?: number; star
 };
 //------------------------End------------------------//
 
-
-
 /**
  * Handle Get Gacha Banner By ID
  * @param id 
@@ -40,6 +38,22 @@ export const useGachaBannerById = (id: number | null) => {
             return response.data;
         },
         enabled: !!id,
+    });
+};
+//------------------------End------------------------//
+
+/**
+ * Handle Get Prepare Pokemon List
+ * @param gachaBannerId 
+ * @returns 
+ */
+export const usePreparePokemonList = (gachaBannerId: number, params?: { rarity?: string[]; types?: number | number[]; nameEn?: string; cur?: number; pageSize?: number; page?: number }) => {
+    return useQuery<any>({
+        queryKey: ["preparePokemonList", gachaBannerId, params],
+        queryFn: async () => {
+            const response = await gachaService.getPreparePokemonList(gachaBannerId, params);
+            return response.data;
+        },
     });
 };
 //------------------------End------------------------//
@@ -98,7 +112,7 @@ export const useUpdateGachaBanner = () => {
 
 
 
-//---------------------Gacha Item---------------------//
+//------------------------------------------------Gacha Item------------------------------------------------//
 /**
  * Handle Delete Gacha Item
  * @returns useMutation to delete gacha item
