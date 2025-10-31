@@ -59,7 +59,7 @@ const gachaService = {
             rarity?: string[];
             types?: number | number[];
             nameEn?: string;
-            cur?: number;
+            currentPage?: number;
             pageSize?: number;
         }
     ) => {
@@ -83,8 +83,8 @@ const gachaService = {
             queryParams.append('qs', qsParts.join(','));
         }
 
-        if (params?.cur !== undefined) {
-            queryParams.append('cur', String(params.cur));
+        if (params?.currentPage !== undefined) {
+            queryParams.append('currentPage', String(params.currentPage));
         }
         if (params?.pageSize !== undefined) {
             queryParams.append('pageSize', String(params.pageSize));

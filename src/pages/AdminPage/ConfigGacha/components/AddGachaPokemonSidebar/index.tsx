@@ -29,7 +29,7 @@ export default function AddGachaPokemonSidebar({ isOpen, onClose, gachaBannerId 
 
     const { data: preparePokemonList, isLoading: isPreparePokemonListLoading } = usePreparePokemonList(
         gachaBannerId,
-        { rarity: rarity === 'ALL' ? undefined : [rarity], nameEn: debouncedSearch, cur: 1, pageSize: 100 }
+        { rarity: rarity === 'ALL' ? undefined : [rarity], nameEn: debouncedSearch, currentPage: 1, pageSize: 100 }
     )
 
 

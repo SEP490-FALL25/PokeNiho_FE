@@ -47,7 +47,7 @@ export const useGachaBannerById = (id: number | null) => {
  * @param gachaBannerId 
  * @returns 
  */
-export const usePreparePokemonList = (gachaBannerId: number, params?: { rarity?: string[]; types?: number | number[]; nameEn?: string; cur?: number; pageSize?: number; page?: number }) => {
+export const usePreparePokemonList = (gachaBannerId: number, params?: { rarity?: string[]; types?: number | number[]; nameEn?: string; currentPage?: number; pageSize?: number; page?: number }) => {
     return useQuery<any>({
         queryKey: ["preparePokemonList", gachaBannerId, params],
         queryFn: async () => {
