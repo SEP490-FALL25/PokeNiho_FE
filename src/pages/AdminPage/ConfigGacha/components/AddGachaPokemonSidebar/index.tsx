@@ -24,15 +24,27 @@ export default function AddGachaPokemonSidebar({ isOpen, onClose, gachaBannerId 
     const [search, setSearch] = useState<string>('')
     const [debouncedSearch, setDebouncedSearch] = useState<string>('')
     const [rarity, setRarity] = useState<'ALL' | 'COMMON' | 'UNCOMMON' | 'RARE' | 'EPIC' | 'LEGENDARY'>('ALL')
-    const { data: preparePokemonList, isLoading: isPreparePokemonListLoading } = usePreparePokemonList(
+    const { data: preparePokemonList, isLoading: isPreparePokemonListLoading, refetch } = usePreparePokemonList(
         gachaBannerId,
         {
             rarity: rarity === 'ALL' ? undefined : [rarity],
             nameEn: debouncedSearch || undefined,
             currentPage,
             pageSize: 15
-        }
+        },
+        isOpen
     )
+    //------------------------End------------------------//
+
+
+    /**
+     * Refetch when sidebar opens
+     */
+    useEffect(() => {
+        if (isOpen && gachaBannerId) {
+            refetch()
+        }
+    }, [isOpen, gachaBannerId, refetch])
     //------------------------End------------------------//
 
 

@@ -13,6 +13,7 @@ import CustomDatePicker from "@ui/DatePicker";
 import { GACHA } from "@constants/gacha";
 import { ROUTES } from "@constants/route";
 import { useNavigate } from "react-router-dom";
+import CreateGachaBannerDialog from "./components/CreateGachaBannerDialog";
 
 export default function ConfigGacha() {
     /**
@@ -237,7 +238,7 @@ export default function ConfigGacha() {
                 </Card>
             </div>
 
-            {/* TODO: Add CreateGachaBannerDialog */}
+            <CreateGachaBannerDialog isOpen={isCreateDialogOpen} onClose={() => setIsCreateDialogOpen(false)} />
         </>
     );
 }

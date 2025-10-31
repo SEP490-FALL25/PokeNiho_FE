@@ -30,8 +30,9 @@ export const useGachaBannerList = (params: { page?: number; limit?: number; star
  * @returns 
  */
 export const useGachaBannerById = (id: number | null) => {
+    const currentLanguage = useSelector(selectCurrentLanguage);
     return useQuery<{ data: IGachaBannerEntity }>({
-        queryKey: ["gachaBanner", id],
+        queryKey: ["gachaBanner", id, currentLanguage],
         queryFn: async () => {
             if (!id) throw new Error("Gacha banner ID is required");
             const response = await gachaService.getGachaBannerById(id);
@@ -47,13 +48,14 @@ export const useGachaBannerById = (id: number | null) => {
  * @param gachaBannerId 
  * @returns 
  */
-export const usePreparePokemonList = (gachaBannerId: number, params?: { rarity?: string[]; types?: number | number[]; nameEn?: string; currentPage?: number; pageSize?: number; page?: number }) => {
+export const usePreparePokemonList = (gachaBannerId: number, params?: { rarity?: string[]; types?: number | number[]; nameEn?: string; currentPage?: number; pageSize?: number; page?: number }, enabled?: boolean) => {
     return useQuery<any>({
         queryKey: ["preparePokemonList", gachaBannerId, params],
         queryFn: async () => {
             const response = await gachaService.getPreparePokemonList(gachaBannerId, params);
             return response.data;
         },
+        enabled: enabled !== false && !!gachaBannerId,
     });
 };
 //------------------------End------------------------//
