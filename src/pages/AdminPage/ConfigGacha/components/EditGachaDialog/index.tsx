@@ -381,7 +381,7 @@ const EditGachaDialog = ({ isOpen, onClose, bannerData }: EditGachaDialogProps) 
                                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                                     variant={errors.precreateBeforeEndDays ? "destructive" : "default"}
                                                     min={1}
-                                                    max={7}
+                                                    max={90}
                                                 />
                                                 {errors.precreateBeforeEndDays && <p className={`text-xs mt-1 ${errors.precreateBeforeEndDays ? 'text-error' : 'text-foreground'}`}>{errors.precreateBeforeEndDays.message as string}</p>}
                                                 <p className="text-xs text-muted-foreground italic">

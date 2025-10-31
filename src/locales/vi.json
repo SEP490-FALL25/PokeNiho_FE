@@ -269,7 +269,7 @@
         "enablePrecreate": "Cho phép tạo lại",
         "enablePrecreateDescription": "Cho phép tạo lại gacha banner trước khi kết thúc",
         "precreateBeforeEndDays": "Số ngày trước kết thúc",
-        "precreateBeforeEndDaysDescription": "Số ngày trước kết thúc để tạo lại gacha banner (1-7 ngày)",
+        "precreateBeforeEndDaysDescription": "Số ngày trước kết thúc để tạo lại gacha banner (1-90 ngày)",
         "isRandomItemAgain": "Danh sách Pokemon ngẫu nhiên",
         "isRandomItemAgainDescription": "Danh sách Pokemon sẽ được random lại khi tạo gacha banner",
         "autoPrecreateSettings": "Cấu hình tự động tạo gacha banner",
