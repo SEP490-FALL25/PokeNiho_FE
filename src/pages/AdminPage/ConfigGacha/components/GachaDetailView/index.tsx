@@ -13,6 +13,7 @@ import AddGachaPokemonSidebar from "../AddGachaPokemonSidebar";
 import { useDeleteGachaItem, useUpdateGachaItemList } from "@hooks/useGacha";
 import getHeaderColor from "@atoms/HeaderColorRarity";
 import getCardColor from "@atoms/CardColorRarity";
+import { RarityToStarTypeMap } from "@constants/gacha";
 
 export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGachaBannerEntity }) {
 
@@ -105,7 +106,9 @@ export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGacha
                 payload.forEach((p) => {
                     const exists = Object.values(next).flat().some((it: any) => it?.pokemonId === p.id)
                     if (!exists) {
-                        const targetRarity = p?.rarity || 'COMMON'
+                        // Use the target column's rarity, not the Pokemon's original rarity
+                        const targetRarity = rarity
+                        const starType = RarityToStarTypeMap[targetRarity] || 'THREE'
                         const newItem = {
                             id: Math.floor(Math.random() * 1e9),
                             bannerId: bannerDetail.id,
@@ -117,7 +120,7 @@ export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGacha
                                 pokedex_number: p.pokedex_number,
                                 rarity: targetRarity,
                             },
-                            gachaItemRate: { id: 0, starType: 'THREE', rate: 1 },
+                            gachaItemRate: { id: 0, starType: starType as any, rate: 1 },
                         }
                         next[targetRarity] = [...(next[targetRarity] || []), newItem]
                     }

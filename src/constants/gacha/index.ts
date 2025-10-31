@@ -13,6 +13,15 @@ export const GachaItemRateStarType = {
     FIVE: "FIVE",
 } as const;
 
+// Mapping from Pokemon Rarity to Gacha StarType
+export const RarityToStarTypeMap: Record<string, string> = {
+    COMMON: "ONE",
+    UNCOMMON: "TWO",
+    RARE: "THREE",
+    EPIC: "FOUR",
+    LEGENDARY: "FIVE",
+};
+
 export const GACHA = {
     GachaBannerStatus,
     GachaItemRateStarType,
