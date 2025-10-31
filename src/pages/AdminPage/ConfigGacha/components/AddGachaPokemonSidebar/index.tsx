@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { Button } from '@ui/Button'
 import { Input } from '@ui/Input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ui/Select'
 import { usePreparePokemonList } from '@hooks/useGacha'
 import { RarityBadge } from '@atoms/BadgeRarity'
+import { Loader2 } from 'lucide-react'
 
 interface PokemonLite {
     id: number
@@ -20,29 +21,70 @@ interface Props {
 }
 
 export default function AddGachaPokemonSidebar({ isOpen, onClose, gachaBannerId }: Props) {
-    const [list, setList] = useState<PokemonLite[]>([])
-    const [loading, setLoading] = useState<boolean>(false)
+    const [accumulatedResults, setAccumulatedResults] = useState<PokemonLite[]>([])
+    console.log('accumulatedResults', accumulatedResults)
+    const [currentPage, setCurrentPage] = useState<number>(1)
     const [selected, setSelected] = useState<Record<number, boolean>>({})
     const [search, setSearch] = useState<string>('')
     const [debouncedSearch, setDebouncedSearch] = useState<string>('')
     const [rarity, setRarity] = useState<'ALL' | 'COMMON' | 'UNCOMMON' | 'RARE' | 'EPIC' | 'LEGENDARY'>('ALL')
+    const observerRef = useRef<IntersectionObserver | null>(null)
 
     const { data: preparePokemonList, isLoading: isPreparePokemonListLoading } = usePreparePokemonList(
         gachaBannerId,
-        { rarity: rarity === 'ALL' ? undefined : [rarity], nameEn: debouncedSearch, currentPage: 1, pageSize: 100 }
+        {
+            rarity: rarity === 'ALL' ? undefined : [rarity],
+            nameEn: debouncedSearch || undefined,
+            currentPage,
+            pageSize: 15
+        }
     )
 
-
-    // Map API response to list
+    // Accumulate results as pages load
     useEffect(() => {
-        setLoading(isPreparePokemonListLoading)
         const results = preparePokemonList?.data?.results as any[] | undefined
-        if (results && Array.isArray(results)) {
-            setList(results as unknown as PokemonLite[])
-        } else if (!isPreparePokemonListLoading) {
-            setList([])
+        if (results && Array.isArray(results) && results.length > 0) {
+            if (currentPage === 1) {
+                setAccumulatedResults(results as unknown as PokemonLite[])
+            } else {
+                setAccumulatedResults(prev => {
+                    const existingIds = new Set(prev.map(p => p.id))
+                    const newResults = results.filter((p: any) => !existingIds.has(p.id))
+                    return [...prev, ...newResults]
+                })
+            }
+        } else if (!isPreparePokemonListLoading && currentPage === 1) {
+            setAccumulatedResults([])
         }
-    }, [preparePokemonList, isPreparePokemonListLoading])
+    }, [preparePokemonList, currentPage, isPreparePokemonListLoading])
+
+    // IntersectionObserver for infinite scroll
+    const lastPokemonElementRef = useCallback((node: HTMLDivElement | null) => {
+        if (observerRef.current) observerRef.current.disconnect()
+        observerRef.current = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting &&
+                preparePokemonList?.data?.pagination?.current &&
+                preparePokemonList?.data?.pagination?.totalPage &&
+                preparePokemonList?.data?.pagination?.current < preparePokemonList?.data?.pagination?.totalPage &&
+                !isPreparePokemonListLoading) {
+                setCurrentPage(prev => prev + 1)
+            }
+        })
+        if (node) observerRef.current.observe(node)
+    }, [preparePokemonList?.data?.pagination, isPreparePokemonListLoading])
+
+    // Reset page and accumulated results when filters change
+    useEffect(() => {
+        setCurrentPage(1)
+        setAccumulatedResults([])
+    }, [debouncedSearch, rarity])
+
+    // Only clear selection when sidebar opens; keep filters and list intact
+    useEffect(() => {
+        if (isOpen) {
+            setSelected({})
+        }
+    }, [isOpen])
 
     // debounce search
     useEffect(() => {
@@ -90,51 +132,54 @@ export default function AddGachaPokemonSidebar({ isOpen, onClose, gachaBannerId 
                                 </SelectContent>
                             </Select>
                         </div>
-                        {loading ? (
+                        {isPreparePokemonListLoading && currentPage === 1 && accumulatedResults.length === 0 ? (
                             <div className="text-sm text-muted-foreground">Loading...</div>
-                        ) : (
+                        ) : accumulatedResults.length > 0 ? (
                             <div className="grid grid-cols-2 gap-3">
-                                {list
-                                    .filter((p) => rarity === 'ALL' ? true : p.rarity === rarity)
-                                    .filter((p) => {
-                                        const q = debouncedSearch
-                                        if (!q) return true
-                                        return p.nameTranslations.en.toLowerCase().includes(q) || String(p.pokedex_number).includes(q)
-                                    })
-                                    .map((p) => {
-                                        const isSelected = !!selected[p.id]
-                                        return (
-                                            <div
-                                                key={p.id}
-                                                className={`flex items-center gap-3 p-2 rounded-lg border transition-colors cursor-grab select-none ${isSelected ? 'border-primary bg-primary/10' : 'border-border bg-muted/30 hover:bg-muted/40'}`}
-                                                draggable
-                                                onClick={(e) => {
-                                                    // toggle selection (avoid starting drag on click)
-                                                    e.stopPropagation()
-                                                    setSelected((prev) => ({ ...prev, [p.id]: !prev[p.id] }))
-                                                }}
-                                                onDragStart={(e) => {
-                                                    // Build payload: if multiple selected, send all selected; else single
-                                                    const selectedList = Object.keys(selected).filter((id) => selected[Number(id)]).map((id) => Number(id))
-                                                    const payload = (selectedList.length > 0 ? list.filter((x) => selectedList.includes(x.id)) : [p])
-                                                    if (payload.length > 1) {
-                                                        e.dataTransfer.setData('application/pokemon-list', JSON.stringify(payload))
-                                                    }
-                                                    // also set single for compatibility
-                                                    e.dataTransfer.setData('application/pokemon', JSON.stringify(p))
-                                                    e.dataTransfer.effectAllowed = 'move'
-                                                }}
-                                            >
-                                                <img src={p.imageUrl} alt={p.nameTranslations.en} className="w-12 h-12 rounded-md shadow-sm" />
-                                                <div className="min-w-0 flex-1">
-                                                    <div className="text-sm font-medium truncate">{p.nameTranslations.en}</div>
-                                                    <div className="text-[11px] text-muted-foreground truncate mb-1">Dex #{p.pokedex_number}</div>
-                                                    <RarityBadge level={p.rarity} />
-                                                </div>
+                                {accumulatedResults.map((p, index) => {
+                                    const isSelected = !!selected[p.id]
+                                    return (
+                                        <div
+                                            key={p.id}
+                                            ref={index === accumulatedResults.length - 1 ? lastPokemonElementRef : null}
+                                            className={`flex items-center gap-3 p-2 rounded-lg border transition-colors cursor-grab select-none ${isSelected ? 'border-primary bg-primary/10' : 'border-border bg-muted/30 hover:bg-muted/40'}`}
+                                            draggable
+                                            onClick={(e) => {
+                                                // toggle selection (avoid starting drag on click)
+                                                e.stopPropagation()
+                                                setSelected((prev) => ({ ...prev, [p.id]: !prev[p.id] }))
+                                            }}
+                                            onDragStart={(e) => {
+                                                // Build payload: if multiple selected, send all selected; else single
+                                                const selectedList = Object.keys(selected).filter((id) => selected[Number(id)]).map((id) => Number(id))
+                                                const payload = (selectedList.length > 0 ? accumulatedResults.filter((x) => selectedList.includes(x.id)) : [p])
+                                                if (payload.length > 1) {
+                                                    e.dataTransfer.setData('application/pokemon-list', JSON.stringify(payload))
+                                                }
+                                                // also set single for compatibility
+                                                e.dataTransfer.setData('application/pokemon', JSON.stringify(p))
+                                                e.dataTransfer.effectAllowed = 'move'
+                                            }}
+                                        >
+                                            <img src={p.imageUrl} alt={p.nameTranslations.en} className="w-12 h-12 rounded-md shadow-sm" />
+                                            <div className="min-w-0 flex-1">
+                                                <div className="text-sm font-medium truncate">{p.nameTranslations.en}</div>
+                                                <div className="text-[11px] text-muted-foreground truncate mb-1">Dex #{p.pokedex_number}</div>
+                                                <RarityBadge level={p.rarity} />
                                             </div>
-                                        )
-                                    })}
+                                        </div>
+                                    )
+                                })}
+                                {/* Loading indicator when loading more pages */}
+                                {isPreparePokemonListLoading && currentPage > 1 && (
+                                    <div className="col-span-2 flex items-center justify-center py-4">
+                                        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground mr-2" />
+                                        <span className="text-sm text-muted-foreground">Loading more...</span>
+                                    </div>
+                                )}
                             </div>
+                        ) : (
+                            <div className="text-sm text-muted-foreground text-center py-8">No Pokémon found</div>
                         )}
                     </div>
                     <div className="px-5 py-3 border-t border-border bg-muted/20 text-[11px] text-muted-foreground">
