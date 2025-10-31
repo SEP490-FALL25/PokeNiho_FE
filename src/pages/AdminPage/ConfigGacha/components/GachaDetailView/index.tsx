@@ -105,6 +105,7 @@ export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGacha
                 payload.forEach((p) => {
                     const exists = Object.values(next).flat().some((it: any) => it?.pokemonId === p.id)
                     if (!exists) {
+                        const targetRarity = p?.rarity || 'COMMON'
                         const newItem = {
                             id: Math.floor(Math.random() * 1e9),
                             bannerId: bannerDetail.id,
@@ -114,11 +115,11 @@ export default function GachaDetailView({ bannerDetail }: { bannerDetail: IGacha
                                 imageUrl: p.imageUrl,
                                 nameTranslations: { en: p.nameTranslations.en },
                                 pokedex_number: p.pokedex_number,
-                                rarity: rarity,
+                                rarity: targetRarity,
                             },
                             gachaItemRate: { id: 0, starType: 'THREE', rate: 1 },
                         }
-                        next[rarity] = [...(next[rarity] || []), newItem]
+                        next[targetRarity] = [...(next[targetRarity] || []), newItem]
                     }
                 })
                 setItemsByRarity(next)
