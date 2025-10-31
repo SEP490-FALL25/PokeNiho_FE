@@ -4,20 +4,20 @@ import { TranslationRequest } from "@models/common/request";
 /**
  * Create Gacha Request Schema (i18n)
  */
-export const createCreateGachaSchema = (t: (key: string) => string) => z.object({
+export const createCreateGachaSchema = (t: (key: string, opts?: any) => string) => z.object({
     startDate: z.string().min(1, t('configGacha.startDateRequired')),
     endDate: z.string().min(1, t('configGacha.endDateRequired')),
     status: z.enum(["PREVIEW", "EXPIRED", "INACTIVE", "ACTIVE"]),
-    hardPity5Star: z.number().min(1, t('configGacha.hardPity')),
+    hardPity5Star: z.number().min(50, t('configGacha.hardPity5StarMin', { min: 50 } as any)).max(300, t('configGacha.hardPity5StarMax', { max: 300 } as any)),
     enablePrecreate: z.boolean(),
-    precreateBeforeEndDays: z.number().min(1, t('configGacha.precreateBeforeEndDaysRequired')).max(90, t('configGacha.precreateBeforeEndDaysDescription')),
+    precreateBeforeEndDays: z.number().min(1, t('configGacha.precreateBeforeEndDaysRequired')).max(90, t('configGacha.precreateBeforeEndDaysMax', { max: 90 } as any)),
     isRandomItemAgain: z.boolean(),
-    costRoll: z.number().min(1, t('configGacha.costRoll')),
-    amount5Star: z.number().min(1, t('configGacha.amount5Star')),
-    amount4Star: z.number().min(1, t('configGacha.amount4Star')),
-    amount3Star: z.number().min(1, t('configGacha.amount3Star')),
-    amount2Star: z.number().min(1, t('configGacha.amount2Star')),
-    amount1Star: z.number().min(1, t('configGacha.amount1Star')),
+    costRoll: z.number().min(1, t('configGacha.costRollRequired')).max(1_000_000, t('configGacha.costRollMax', { max: '1,000,000' } as any)),
+    amount5Star: z.number().min(1, t('configGacha.amount5StarMin', { min: 1 } as any)).max(5, t('configGacha.amount5StarMax', { max: 5 } as any)),
+    amount4Star: z.number().min(1, t('configGacha.amount4StarMin', { min: 1 } as any)).max(20, t('configGacha.amount4StarMax', { max: 20 } as any)),
+    amount3Star: z.number().min(1, t('configGacha.amount3StarMin', { min: 1 } as any)).max(50, t('configGacha.amount3StarMax', { max: 50 } as any)),
+    amount2Star: z.number().min(1, t('configGacha.amount2StarMin', { min: 1 } as any)).max(150, t('configGacha.amount2StarMax', { max: 150 } as any)),
+    amount1Star: z.number().min(1, t('configGacha.amount1StarMin', { min: 1 } as any)).max(150, t('configGacha.amount1StarMax', { max: 150 } as any)),
     nameTranslations: z.array(TranslationRequest).superRefine((translations, ctx) => {
         translations.forEach((translation, index) => {
             if (!translation.value || translation.value.trim().length === 0) {

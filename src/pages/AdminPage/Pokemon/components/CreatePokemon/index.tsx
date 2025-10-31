@@ -200,7 +200,7 @@ const CreatePokemon = ({ isAddDialogOpen, setIsAddDialogOpen, typesData }: Creat
                     <DialogTitle className="text-foreground text-2xl">{t('createPokemon.addNewPokemon')}</DialogTitle>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-4 max-h-[70vh] overflow-y-auto pr-6">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-4 max-h-[70vh] overflow-y-auto pr-6" noValidate>
                     {/* Creation Mode Toggle */}
                     <div className="flex items-center justify-center mb-6">
                         <div className="flex items-center gap-1 rounded-lg bg-muted p-1">

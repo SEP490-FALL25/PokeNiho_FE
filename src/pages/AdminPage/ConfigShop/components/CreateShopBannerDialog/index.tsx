@@ -119,7 +119,7 @@ const CreateShopBannerDialog = ({ isOpen, onClose }: CreateShopBannerDialogProps
                     </DialogTitle>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 py-4">
+                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 py-4" noValidate>
                     {/* Multilingual Input */}
                     <MultilingualInput
                         label={t('configShop.bannerName')}

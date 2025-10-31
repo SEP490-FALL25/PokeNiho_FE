@@ -161,7 +161,7 @@ const CreateDailyQuestDialog = ({
                     </DialogTitle>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 py-4 max-h-[65vh] overflow-y-auto px-1 sm:px-6">
+                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 py-4 max-h-[65vh] overflow-y-auto px-1 sm:px-6" noValidate>
                     {/* Loại điều kiện & Giá trị */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Select Loại điều kiện */}

@@ -151,7 +151,7 @@ const KanjiVocabulary = ({ isAddKanjiDialogOpen, setIsAddKanjiDialogOpen }: Kanj
                             <DialogHeader>
                                 <DialogTitle className="text-2xl font-bold text-gray-800">Thêm Kanji mới</DialogTitle>
                             </DialogHeader>
-                            <form onSubmit={handleSubmit(onSubmit)}>
+                            <form onSubmit={handleSubmit(onSubmit)} noValidate>
                                 <Tabs defaultValue="info" className="w-full">
                                     <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-lg p-1">
                                         <TabsTrigger value="info" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-primary rounded-md">Thông tin</TabsTrigger>

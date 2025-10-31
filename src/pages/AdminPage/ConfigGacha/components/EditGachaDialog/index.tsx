@@ -142,7 +142,7 @@ const EditGachaDialog = ({ isOpen, onClose, bannerData }: EditGachaDialogProps) 
                     </DialogTitle>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 py-4">
+                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 py-4" noValidate>
                     {/* Multilingual Input */}
                     <MultilingualInput
                         label={t('configGacha.bannerName')}
@@ -189,7 +189,7 @@ const EditGachaDialog = ({ isOpen, onClose, bannerData }: EditGachaDialogProps) 
                                 />
                             </div>
                             <input type="hidden" {...register("startDate")} />
-                            {errors.startDate && <p className="text-xs mt-1" style={{ color: 'var(--color-error)' }}>{errors.startDate.message as string}</p>}
+                            {errors.startDate && <p className={`text-xs mt-1 ${errors.startDate ? 'text-error' : 'text-foreground'}`}>{errors.startDate.message as string}</p>}
                         </div>
                         <div className="space-y-1.5">
                             <label htmlFor="endDate" className="text-sm font-medium text-foreground">
@@ -213,7 +213,7 @@ const EditGachaDialog = ({ isOpen, onClose, bannerData }: EditGachaDialogProps) 
                                 />
                             </div>
                             <input type="hidden" {...register("endDate")} />
-                            {errors.endDate && <p className="text-xs mt-1" style={{ color: 'var(--color-error)' }}>{errors.endDate.message as string}</p>}
+                            {errors.endDate && <p className={`text-xs mt-1 ${errors.endDate ? 'text-error' : 'text-foreground'}`}>{errors.endDate.message as string}</p>}
                         </div>
                     </div>
 
@@ -232,9 +232,13 @@ const EditGachaDialog = ({ isOpen, onClose, bannerData }: EditGachaDialogProps) 
                                         type="number"
                                         value={field.value}
                                         onChange={(e) => field.onChange(Number(e.target.value))}
+                                        variant={errors.costRoll ? "destructive" : "default"}
+                                        min={1}
+                                        max={1_000_000}
                                     />
                                 )}
                             />
+                            {errors.costRoll && <p className={`text-xs mt-1 ${errors.costRoll ? 'text-error' : 'text-foreground'}`}>{errors.costRoll.message as string}</p>}
                         </div>
                         <div className="space-y-1.5">
                             <label htmlFor="hardPity5Star" className="text-sm font-medium text-foreground">
@@ -249,9 +253,13 @@ const EditGachaDialog = ({ isOpen, onClose, bannerData }: EditGachaDialogProps) 
                                         type="number"
                                         value={field.value}
                                         onChange={(e) => field.onChange(Number(e.target.value))}
+                                        variant={errors.hardPity5Star ? "destructive" : "default"}
+                                        min={1}
+                                        max={300}
                                     />
                                 )}
                             />
+                            {errors.hardPity5Star && <p className={`text-xs mt-1 ${errors.hardPity5Star ? 'text-error' : 'text-foreground'}`}>{errors.hardPity5Star.message as string}</p>}
                         </div>
                     </div>
 
@@ -262,30 +270,35 @@ const EditGachaDialog = ({ isOpen, onClose, bannerData }: EditGachaDialogProps) 
                             <Controller name="amount5Star" control={control} render={({ field }) => (
                                 <Input id="amount5Star" type="number" value={field.value} onChange={(e) => field.onChange(Number(e.target.value))} />
                             )} />
+                            {errors.amount5Star && <p className={`text-xs mt-1 ${errors.amount5Star ? 'text-error' : 'text-foreground'}`}>{errors.amount5Star.message as string}</p>}
                         </div>
                         <div className="space-y-1.5">
                             <label htmlFor="amount4Star" className="text-sm font-medium text-foreground">{t('configGacha.amount4Star')}</label>
                             <Controller name="amount4Star" control={control} render={({ field }) => (
                                 <Input id="amount4Star" type="number" value={field.value} onChange={(e) => field.onChange(Number(e.target.value))} />
                             )} />
+                            {errors.amount4Star && <p className={`text-xs mt-1 ${errors.amount4Star ? 'text-error' : 'text-foreground'}`}>{errors.amount4Star.message as string}</p>}
                         </div>
                         <div className="space-y-1.5">
                             <label htmlFor="amount3Star" className="text-sm font-medium text-foreground">{t('configGacha.amount3Star')}</label>
                             <Controller name="amount3Star" control={control} render={({ field }) => (
                                 <Input id="amount3Star" type="number" value={field.value} onChange={(e) => field.onChange(Number(e.target.value))} />
                             )} />
+                            {errors.amount3Star && <p className={`text-xs mt-1 ${errors.amount3Star ? 'text-error' : 'text-foreground'}`}>{errors.amount3Star.message as string}</p>}
                         </div>
                         <div className="space-y-1.5">
                             <label htmlFor="amount2Star" className="text-sm font-medium text-foreground">{t('configGacha.amount2Star')}</label>
                             <Controller name="amount2Star" control={control} render={({ field }) => (
                                 <Input id="amount2Star" type="number" value={field.value} onChange={(e) => field.onChange(Number(e.target.value))} />
                             )} />
+                            {errors.amount2Star && <p className={`text-xs mt-1 ${errors.amount2Star ? 'text-error' : 'text-foreground'}`}>{errors.amount2Star.message as string}</p>}
                         </div>
                         <div className="space-y-1.5">
                             <label htmlFor="amount1Star" className="text-sm font-medium text-foreground">{t('configGacha.amount1Star')}</label>
                             <Controller name="amount1Star" control={control} render={({ field }) => (
                                 <Input id="amount1Star" type="number" value={field.value} onChange={(e) => field.onChange(Number(e.target.value))} />
                             )} />
+                            {errors.amount1Star && <p className={`text-xs mt-1 ${errors.amount1Star ? 'text-error' : 'text-foreground'}`}>{errors.amount1Star.message as string}</p>}
                         </div>
                     </div>
 
@@ -370,7 +383,7 @@ const EditGachaDialog = ({ isOpen, onClose, bannerData }: EditGachaDialogProps) 
                                                     min={1}
                                                     max={7}
                                                 />
-                                                {errors.precreateBeforeEndDays && <p className="text-xs mt-1" style={{ color: 'var(--color-error)' }}>{errors.precreateBeforeEndDays.message as string}</p>}
+                                                {errors.precreateBeforeEndDays && <p className={`text-xs mt-1 ${errors.precreateBeforeEndDays ? 'text-error' : 'text-foreground'}`}>{errors.precreateBeforeEndDays.message as string}</p>}
                                                 <p className="text-xs text-muted-foreground italic">
                                                     {t('configGacha.precreateBeforeEndDaysDescription')}
                                                 </p>
