@@ -337,12 +337,14 @@
         "gachaStats": "Thống kê Gacha",
         "addPokemonToGacha": "Thêm Pokémon vào Gacha",
         "dragPokemonDropDescription": "Kéo thả một Pokémon vào cột độ hiếm.",
-        "searchByNameOrDex": "Tìm kiếm theo tên hoặc số Dex #",
+        "searchByName": "Tìm kiếm theo tên",
         "rarity": "Độ hiếm",
         "allRarities": "Tất cả độ hiếm",
         "loadingMore": "Đang tải thêm...",
         "noPokemonFound": "Không tìm thấy Pokémon",
-        "dragTip": "Mẹo: Giữ và kéo một Pokémon; các cột sẽ được làm nổi bật khi bạn có thể thả."
+        "dragTip": "Mẹo: Giữ và kéo một Pokémon; các cột sẽ được làm nổi bật khi bạn có thể thả.",
+        "selectAll": "Chọn tất cả",
+        "deselectAll": "Bỏ chọn tất cả"
     },
     "configGacha.gachaBannerIdRequired": "Gacha banner ID phải ≥ {{min}}",
     "lesson": {

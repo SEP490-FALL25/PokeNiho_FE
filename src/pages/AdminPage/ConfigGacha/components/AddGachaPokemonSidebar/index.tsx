@@ -110,6 +110,24 @@ export default function AddGachaPokemonSidebar({ isOpen, onClose, gachaBannerId 
             setSelected({})
         }
     }, [isOpen])
+
+    // Check if all visible Pokémon are selected
+    const allSelected = accumulatedResults.length > 0 && accumulatedResults.every(p => selected[p.id])
+
+    // Handle Select All / Deselect All
+    const handleSelectAll = () => {
+        if (allSelected) {
+            // Deselect all
+            setSelected({})
+        } else {
+            // Select all visible Pokémon
+            const newSelected: Record<number, boolean> = {}
+            accumulatedResults.forEach(p => {
+                newSelected[p.id] = true
+            })
+            setSelected(newSelected)
+        }
+    }
     //------------------------End------------------------//
 
 
@@ -144,7 +162,7 @@ export default function AddGachaPokemonSidebar({ isOpen, onClose, gachaBannerId 
                     <div className="p-4 overflow-y-auto">
                         <div className="mb-3 grid grid-cols-1 gap-2">
                             <Input
-                                placeholder={t('configGacha.searchByNameOrDex')}
+                                placeholder={t('configGacha.searchByName')}
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 isSearch
@@ -162,6 +180,17 @@ export default function AddGachaPokemonSidebar({ isOpen, onClose, gachaBannerId 
                                     <SelectItem value="LEGENDARY">LEGENDARY</SelectItem>
                                 </SelectContent>
                             </Select>
+                            {accumulatedResults.length > 0 && (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handleSelectAll}
+                                    className="w-full"
+                                >
+                                    {allSelected ? t('configGacha.deselectAll') : t('configGacha.selectAll')}
+                                </Button>
+                            )}
                         </div>
                         {isPreparePokemonListLoading && currentPage === 1 && accumulatedResults.length === 0 ? (
                             <div className="text-sm text-muted-foreground">{t('common.loading')}</div>
