@@ -119,7 +119,7 @@ const CreateRewardDialog = ({ isOpen, onClose, editingReward }: CreateRewardDial
                     </DialogTitle>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4" noValidate>
                     {/* Multilingual Name Input */}
                     <MultilingualInput
                         label={t('reward.name')}

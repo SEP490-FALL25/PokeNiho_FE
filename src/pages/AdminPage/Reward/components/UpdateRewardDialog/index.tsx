@@ -132,7 +132,7 @@ const UpdateRewardDialog = ({ isOpen, onClose, editingReward }: UpdateRewardDial
                     </DialogTitle>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                     {/* Multilingual Name Input */}
                     <MultilingualInput
                         label={t('reward.name')}
