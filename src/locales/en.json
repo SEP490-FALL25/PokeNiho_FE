@@ -81,7 +81,8 @@
         "lessonContent": "Lesson Content",
         "configShop": "Shop Configuration",
         "configGacha": "Gacha Configuration",
-        "testSets": "Test Sets"
+        "testSets": "Test Sets",
+        "test": "Test Management"
     },
     "dailyQuest": {
         "title": "Daily Quest Management",
