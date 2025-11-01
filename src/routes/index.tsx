@@ -25,6 +25,7 @@ const DailyQuestManagement = lazy(() => import("@pages/AdminPage/DailyQuest"))
 const RewardManagement = lazy(() => import("@pages/AdminPage/Reward"))
 const QuestionBankManagement = lazy(() => import("@pages/AdminPage/QuestionBank"))
 const TestSetManagement = lazy(() => import("@pages/AdminPage/TestSetManagement"))
+const TestManagement = lazy(() => import("@pages/AdminPage/TestManagement"))
 const RouterComponent = () => {
     const router = createBrowserRouter([
         //#region Auth routes
@@ -62,6 +63,7 @@ const RouterComponent = () => {
                                 { path: ROUTES.ADMIN.CONFIG_GACHA_BANNER_DETAIL, element: <GachaBannerDetail /> },
                                 { path: ROUTES.ADMIN.QUESTION_BANK, element: <QuestionBankManagement /> },
                                 { path: ROUTES.ADMIN.TESTSET_MANAGEMENT, element: <TestSetManagement /> },
+                                { path: ROUTES.ADMIN.TEST_MANAGEMENT, element: <TestManagement /> },
                             ],
                         },
                     ],

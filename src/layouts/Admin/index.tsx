@@ -1,5 +1,5 @@
 import { Outlet, useLocation, NavLink } from "react-router-dom";
-import { LayoutDashboard, Users, BookOpen, Languages, BarChart3, Settings, LogOut, Menu, Trophy, Package, Brain, Calendar, Gift, LucideIcon, FileText, Layers, Store } from "lucide-react";
+import { LayoutDashboard, Users, BookOpen, Languages, BarChart3, Settings, LogOut, Menu, Trophy, Package, Brain, Calendar, Gift, LucideIcon, FileText, Layers, Store, Book } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@ui/Button";
 import { cn } from "@utils/CN";
@@ -50,6 +50,11 @@ const AdminLayout = () => {
       name: t("navigation.testSets"),
       href: ROUTES.ADMIN.TESTSET_MANAGEMENT,
       icon: Layers,
+    },
+    {
+      name: t("navigation.test"),
+      href: ROUTES.ADMIN.TEST_MANAGEMENT,
+      icon: Book,
     },
     {
       name: t("navigation.vocabulary"),

@@ -1,4 +1,5 @@
 import { axiosPrivate } from "@configs/axios";
+import { QuestionType } from "@constants/questionBank";
 import { TestSetListRequest, TestSetCreateRequest, TestSetQuestionBankLinkMultipleRequest } from "@models/testSet/request";
 import { TestSetListResponseType, TestSetCreateResponseType } from "@models/testSet/response";
 
@@ -44,7 +45,7 @@ const testSetService = {
   // Fetch questions already linked to a TestSet
   getLinkedQuestionBanksByTestSet: async (
     testSetId: number
-  ): Promise<Array<{ id: number; questionJp: string }>> => {
+  ): Promise<Array<{ id: number; questionJp: string; questionType: QuestionType }>> => {
     const response = await axiosPrivate.get(
       `/testset-questionbank/testset/${testSetId}/full`
     );

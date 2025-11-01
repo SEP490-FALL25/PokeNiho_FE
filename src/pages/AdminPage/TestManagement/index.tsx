@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@ui/Button";
 import { Input } from "@ui/Input";
-import { Textarea } from "@ui/Textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@ui/Dialog";
-import testSetService from "@services/testSet";
-import { useTestSet } from "@hooks/useTestSet";
-import { TestSetCreateRequest } from "@models/testSet/request";
 import {
   Select,
   SelectContent,
@@ -28,8 +24,17 @@ import { QuestionType } from "@constants/questionBank";
 import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import { TestCreateRequest } from "@models/test/request";
+import {
+  useCreateTest,
+  useUpdateTest,
+  useLinkQuestionBanks,
+  useGetLinkedQuestionBanks,
+  useDeleteLinkedQuestionBanks,
+  useTest,
+} from "@hooks/useTest";
 
-const TestSetManagement: React.FC = () => {
+const TestManagement: React.FC = () => {
   // Helper function to extract error message from axios error response
   const getErrorMessage = (error: unknown, defaultMessage: string): string => {
     if (error instanceof AxiosError) {
@@ -70,7 +75,7 @@ const TestSetManagement: React.FC = () => {
     return typeof field === "string" ? field : "";
   };
   const {
-    testSets,
+    tests,
     isLoading,
     filters,
     pagination,
@@ -80,17 +85,28 @@ const TestSetManagement: React.FC = () => {
     handleFilterByStatus,
     handlePageChange,
     handlePageSizeChange,
-  } = useTestSet();
+  } = useTest();
   const [saving, setSaving] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isAddQuestionsOpen, setIsAddQuestionsOpen] = useState(false);
   // Linked questions of current test set
-  const [linkedQuestions, setLinkedQuestions] = useState<
-    Array<{ id: number; questionJp: string; questionType: QuestionType }>
-  >([]);
-  const [loadingLinked, setLoadingLinked] = useState(false);
   const [selectedLinkedIds, setSelectedLinkedIds] = useState<number[]>([]);
+  
+  // Test service hooks
+  const createTestMutation = useCreateTest();
+  const updateTestMutation = useUpdateTest();
+  const linkQuestionBanksMutation = useLinkQuestionBanks();
+  const deleteLinkedQuestionBanksMutation = useDeleteLinkedQuestionBanks();
+  const {
+    data: linkedQuestionsData,
+    isLoading: loadingLinked,
+  } = useGetLinkedQuestionBanks(selectedId, { enabled: isDialogOpen && selectedId !== null });
+  
+  const linkedQuestions = (linkedQuestionsData || []).map((q) => ({
+    ...q,
+    questionType: (q.questionType as QuestionType) || "VOCABULARY" as QuestionType,
+  }));
   const [form, setForm] = useState({
     nameVi: "Đề thi từ vựng N3 - Phần 1",
     nameEn: "N3 Vocabulary Test - Part 1",
@@ -100,12 +116,10 @@ const TestSetManagement: React.FC = () => {
       "N3 vocabulary test with 50 basic vocabulary questions in Japanese",
     content:
       "２月１４日は、日本ではバレンタインデーです。キリスト教の特別な日ですが、日本では、女の人が好きな人にチョコレートなどのプレゼントをする日になりました。世界にも同じような日があります。ブラジルでは、６月１２日が「恋人の日」と呼ばれる日です。その日は、男の人も女の人もプレゼントを用意して、恋人におくります。 ブラジルでは、日本のようにチョコレートではなく、写真立てに写真を入れて、プレゼントするそうです。",
-    audioUrl:
-      "https://storage.googleapis.com/pokenihongo-audio/testset-n3-vocab-instruction.mp3",
     price: 50000,
-    levelN: 3,
-    testType: "VOCABULARY" as TestSetCreateRequest["testType"],
-    status: "DRAFT" as TestSetCreateRequest["status"],
+    levelN: 5 as number,
+    testType: "PLACEMENT_TEST_DONE" as TestCreateRequest["testType"],
+    status: "ACTIVE" as TestCreateRequest["status"],
   });
 
   const openCreate = () => {
@@ -116,17 +130,16 @@ const TestSetManagement: React.FC = () => {
       descriptionVi: "",
       descriptionEn: "",
       content: "",
-      audioUrl: "",
       price: 0,
-      levelN: 3,
-      testType: "VOCABULARY",
-      status: "DRAFT",
+      levelN: 5,
+      testType: "PLACEMENT_TEST_DONE",
+      status: "ACTIVE",
     });
     setIsDialogOpen(true);
   };
 
   const openEdit = (id: number) => {
-    const item = testSets.find((t) => t.id === id);
+    const item = tests.find((t) => t.id === id);
     if (!item) return;
     setForm({
       nameVi:
@@ -160,56 +173,34 @@ const TestSetManagement: React.FC = () => {
           "en"
         ),
       content: (item as unknown as Record<string, unknown>).content as string,
-      audioUrl: item.audioUrl || "",
       price: item.price || 0,
-      levelN: item.levelN,
-      testType: item.testType,
+      levelN: item.levelN as number,
+      testType: item.testType as TestCreateRequest["testType"],
       status: item.status,
     });
     setSelectedId(id);
     setIsDialogOpen(true);
   };
 
-  // Load questions already linked to the test set when opening dialog in edit mode
+  // Reset selected linked IDs when dialog closes
   useEffect(() => {
-    const loadLinked = async () => {
-      if (!isDialogOpen || !selectedId) {
-        setLinkedQuestions([]);
-        setSelectedLinkedIds([]);
-        return;
-      }
-      try {
-        setLoadingLinked(true);
-        const list = await testSetService.getLinkedQuestionBanksByTestSet(
-          selectedId
-        );
-        setLinkedQuestions(Array.isArray(list) ? list : []);
-        setSelectedLinkedIds([]);
-      } catch (err) {
-        console.error("Lỗi tải danh sách câu hỏi đã liên kết:", err);
-        toast.error(
-          getErrorMessage(err, "Không thể tải danh sách câu hỏi đã liên kết")
-        );
-        setLinkedQuestions([]);
-        setSelectedLinkedIds([]);
-      } finally {
-        setLoadingLinked(false);
-      }
-    };
-    loadLinked();
-  }, [isDialogOpen, selectedId]);
+    if (!isDialogOpen) {
+      setSelectedLinkedIds([]);
+    }
+  }, [isDialogOpen]);
 
   const handleRemoveLinked = async (id: number) => {
     if (!id) return;
-    try {
-      await testSetService.deleteLinkedQuestionBanksMany([id]);
-      setLinkedQuestions((prev) => prev.filter((q) => q.id !== id));
-      setSelectedLinkedIds((prev) => prev.filter((qId) => qId !== id));
-      toast.success("Đã xóa câu hỏi khỏi test set");
-    } catch (e) {
-      console.error("Lỗi xóa câu hỏi khỏi test set:", e);
-      toast.error(getErrorMessage(e, "Không thể xóa câu hỏi khỏi test set"));
-    }
+    deleteLinkedQuestionBanksMutation.mutate([id], {
+      onSuccess: () => {
+        setSelectedLinkedIds((prev) => prev.filter((qId) => qId !== id));
+        toast.success("Đã xóa câu hỏi khỏi test");
+      },
+      onError: (e) => {
+        console.error("Lỗi xóa câu hỏi khỏi test:", e);
+        toast.error(getErrorMessage(e, "Không thể xóa câu hỏi khỏi test"));
+      },
+    });
   };
 
   const toggleSelectLinked = (id: number) => {
@@ -223,17 +214,16 @@ const TestSetManagement: React.FC = () => {
       toast.error("Hãy chọn ít nhất một câu hỏi để xóa");
       return;
     }
-    try {
-      await testSetService.deleteLinkedQuestionBanksMany(selectedLinkedIds);
-      setLinkedQuestions((prev) =>
-        prev.filter((q) => !selectedLinkedIds.includes(q.id))
-      );
-      toast.success(`Đã xóa ${selectedLinkedIds.length} câu hỏi khỏi test set`);
-      setSelectedLinkedIds([]);
-    } catch (e) {
-      console.error("Lỗi xóa câu hỏi khỏi test set:", e);
-      toast.error(getErrorMessage(e, "Không thể xóa câu hỏi khỏi test set"));
-    }
+    deleteLinkedQuestionBanksMutation.mutate(selectedLinkedIds, {
+      onSuccess: () => {
+        toast.success(`Đã xóa ${selectedLinkedIds.length} câu hỏi khỏi test`);
+        setSelectedLinkedIds([]);
+      },
+      onError: (e) => {
+        console.error("Lỗi xóa câu hỏi khỏi test:", e);
+        toast.error(getErrorMessage(e, "Không thể xóa câu hỏi khỏi test"));
+      },
+    });
   };
 
   const handleSave = async () => {
@@ -250,96 +240,122 @@ const TestSetManagement: React.FC = () => {
           translations: { vi: form.descriptionVi, en: form.descriptionEn },
         },
       ],
-      audioUrl: form.audioUrl,
       price: form.price,
       levelN: form.levelN,
       testType: form.testType,
       status: form.status,
-    } as TestSetCreateRequest;
+    } as TestCreateRequest;
 
     try {
       if (selectedId) {
-        // Update test set
-        try {
-          await testSetService.updateTestSet(selectedId, body);
-        } catch (e) {
-          console.error("Lỗi cập nhật test set:", e);
-          toast.error(getErrorMessage(e, "Cập nhật test set thất bại"));
-          return;
-        }
-
-        // Link selected questions if any on update flow
-        if (selectedQuestionIds.length > 0) {
-          try {
-            await testSetService.linkQuestionBanksMultiple({
-              testSetId: selectedId,
-              questionBankIds: selectedQuestionIds,
-            });
-            setSelectedQuestionIds([]);
-          } catch (e) {
-            console.error("Lỗi liên kết câu hỏi:", e);
-            toast.error(getErrorMessage(e, "Liên kết câu hỏi thất bại"));
-            // Continue to refresh list even if linking fails
+        // Update test
+        updateTestMutation.mutate(
+          { id: selectedId, data: body },
+          {
+            onSuccess: () => {
+              // Link selected questions if any on update flow
+              if (selectedQuestionIds.length > 0) {
+                linkQuestionBanksMutation.mutate(
+                  {
+                    testSetId: selectedId,
+                    questionBankIds: selectedQuestionIds,
+                  },
+                  {
+                    onSuccess: () => {
+                      setSelectedQuestionIds([]);
+                      queryClient.invalidateQueries({ queryKey: ["testset-list"] });
+                      toast.success("Cập nhật thành công");
+                      setIsDialogOpen(false);
+                      setSelectedId(null);
+                      setSaving(false);
+                    },
+                    onError: () => {
+                      // Still close dialog even if linking fails
+                      queryClient.invalidateQueries({ queryKey: ["testset-list"] });
+                      toast.success("Cập nhật thành công");
+                      setIsDialogOpen(false);
+                      setSelectedId(null);
+                      setSaving(false);
+                    },
+                  }
+                );
+              } else {
+                queryClient.invalidateQueries({ queryKey: ["testset-list"] });
+                toast.success("Cập nhật thành công");
+                setIsDialogOpen(false);
+                setSelectedId(null);
+                setSaving(false);
+              }
+            },
+            onError: () => {
+              // Error handled by hook
+              setSaving(false);
+            },
           }
-        }
-
-        // refresh list
-        queryClient.invalidateQueries({ queryKey: ["testset-list"] });
-        toast.success("Cập nhật thành công");
-        setIsDialogOpen(false);
-        setSelectedId(null);
+        );
       } else {
-        // Create test set
-        let created;
-        try {
-          created = await testSetService.createTestSetWithMeanings(body);
-        } catch (e) {
-          console.error("Lỗi tạo test set:", e);
-          toast.error(getErrorMessage(e, "Tạo test set thất bại"));
-          return;
-        }
+        // Create test
+        createTestMutation.mutate(body, {
+          onSuccess: (response) => {
+            const newId = response?.data?.id;
+            if (!newId) {
+              toast.error("Không nhận được ID từ server sau khi tạo");
+              setSaving(false);
+              return;
+            }
 
-        const newId = created?.data?.id;
-        if (!newId) {
-          toast.error("Không nhận được ID từ server sau khi tạo");
-          return;
-        }
-
-        // If admin has pre-selected questions, link them now using new id
-        if (selectedQuestionIds.length > 0) {
-          try {
-            await testSetService.linkQuestionBanksMultiple({
-              testSetId: newId,
-              questionBankIds: selectedQuestionIds,
-            });
-            setSelectedQuestionIds([]);
-          } catch (e) {
-            console.error("Lỗi liên kết câu hỏi:", e);
-            toast.error(
-              getErrorMessage(
-                e,
-                "Tạo test set thành công nhưng liên kết câu hỏi thất bại"
-              )
-            );
-            // Continue even if linking fails
-          }
-        }
-
-        // refresh list to include newly created item
-        queryClient.invalidateQueries({ queryKey: ["testset-list"] });
-        toast.success("Tạo bộ đề thành công");
-
-        // keep dialog open and switch to edit mode for further actions
-        setSelectedId(newId);
-        setIsDialogOpen(true);
-        // open add-questions dialog so admin can tiếp tục thêm
-        setQbForceKey((k) => k + 1);
-        setIsAddQuestionsOpen(true);
+            // If admin has pre-selected questions, link them now using new id
+            if (selectedQuestionIds.length > 0) {
+              linkQuestionBanksMutation.mutate(
+                {
+                  testSetId: newId,
+                  questionBankIds: selectedQuestionIds,
+                },
+                {
+                  onSuccess: () => {
+                    setSelectedQuestionIds([]);
+                    queryClient.invalidateQueries({ queryKey: ["testset-list"] });
+                    toast.success("Tạo bộ đề thành công");
+                    // keep dialog open and switch to edit mode for further actions
+                    setSelectedId(newId);
+                    setIsDialogOpen(true);
+                    // open add-questions dialog so admin can tiếp tục thêm
+                    setQbForceKey((k) => k + 1);
+                    setIsAddQuestionsOpen(true);
+                    setSaving(false);
+                  },
+                  onError: () => {
+                    // Still proceed even if linking fails
+                    queryClient.invalidateQueries({ queryKey: ["testset-list"] });
+                    toast.success("Tạo bộ đề thành công");
+                    setSelectedId(newId);
+                    setIsDialogOpen(true);
+                    setQbForceKey((k) => k + 1);
+                    setIsAddQuestionsOpen(true);
+                    setSaving(false);
+                  },
+                }
+              );
+            } else {
+              queryClient.invalidateQueries({ queryKey: ["testset-list"] });
+              toast.success("Tạo bộ đề thành công");
+              setSelectedId(newId);
+              setIsDialogOpen(true);
+              setQbForceKey((k) => k + 1);
+              setIsAddQuestionsOpen(true);
+              setSaving(false);
+            }
+          },
+          onError: () => {
+            // Error handled by hook
+            setSaving(false);
+          },
+        });
+        return; // Early return since mutation handles the flow
       }
     } catch (e) {
       console.error("Lỗi không xác định:", e);
       toast.error(getErrorMessage(e, "Đã xảy ra lỗi không mong muốn"));
-    } finally {
       setSaving(false);
     }
   };
@@ -390,48 +406,40 @@ const TestSetManagement: React.FC = () => {
     setIsAddQuestionsOpen(true);
   };
 
-  const handleLinkSelected = async () => {
+  const handleLinkSelected = () => {
     if (!selectedId || selectedQuestionIds.length === 0) {
       toast.error("Hãy chọn ít nhất một câu hỏi");
       return;
     }
-    try {
-      await testSetService.linkQuestionBanksMultiple({
+    linkQuestionBanksMutation.mutate(
+      {
         testSetId: selectedId,
         questionBankIds: selectedQuestionIds,
-      });
-      toast.success("Đã thêm câu hỏi vào TestSet");
-      // refresh caches and next-open fetches
-      queryClient.invalidateQueries({ queryKey: ["question-bank-list"] });
-      queryClient.invalidateQueries({ queryKey: ["testset-list"] });
-      // Reload linked questions
-      try {
-        const list = await testSetService.getLinkedQuestionBanksByTestSet(
-          selectedId
-        );
-        setLinkedQuestions(Array.isArray(list) ? list : []);
-        setSelectedLinkedIds([]);
-      } catch (err) {
-        console.error("Lỗi tải lại danh sách câu hỏi:", err);
+      },
+      {
+        onSuccess: () => {
+          toast.success("Đã thêm câu hỏi vào Test");
+          setSelectedQuestionIds([]);
+          setQbForceKey((k) => k + 1);
+          setIsAddQuestionsOpen(false);
+        },
+        onError: () => {
+          // Error handled by hook
+        },
       }
-      setQbForceKey((k) => k + 1);
-      setIsAddQuestionsOpen(false);
-    } catch (e) {
-      console.error("Lỗi liên kết câu hỏi:", e);
-      toast.error(getErrorMessage(e, "Không thể liên kết câu hỏi"));
-    }
+    );
   };
 
   return (
     <>
       <HeaderAdmin
-        title="Quản lý Test Set"
-        description="Quản lý các bộ đề thi"
+        title="Quản lý Test"
+        description="Quản lý các bài kiểm tra"
       />
 
       <div className="p-8 mt-24">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Quản lý Test Set</h2>
+          <h2 className="text-xl font-semibold">Quản lý Test</h2>
           <Button onClick={openCreate}>Thêm mới</Button>
         </div>
 
@@ -444,7 +452,7 @@ const TestSetManagement: React.FC = () => {
               <div className="relative w-full md:flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
-                  placeholder="Tìm kiếm test set..."
+                  placeholder="Tìm kiếm test ..."
                   defaultValue={filters.search || ""}
                   onChange={(e) => handleSearch(e.target.value)}
                   className="pl-9"
@@ -474,7 +482,7 @@ const TestSetManagement: React.FC = () => {
                   handleFilterByTestType(
                     v === "ALL"
                       ? undefined
-                      : (v as TestSetCreateRequest["testType"])
+                      : (v as TestCreateRequest["testType"])
                   )
                 }
               >
@@ -483,13 +491,11 @@ const TestSetManagement: React.FC = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ALL">Tất cả loại</SelectItem>
-                  <SelectItem value="VOCABULARY">VOCABULARY</SelectItem>
-                  <SelectItem value="GRAMMAR">GRAMMAR</SelectItem>
-                  <SelectItem value="KANJI">KANJI</SelectItem>
-                  <SelectItem value="LISTENING">LISTENING</SelectItem>
-                  <SelectItem value="READING">READING</SelectItem>
-                  <SelectItem value="SPEAKING">SPEAKING</SelectItem>
-                  <SelectItem value="GENERAL">GENERAL</SelectItem>
+                  <SelectItem value="PLACEMENT_TEST_DONE">PLACEMENT_TEST_DONE</SelectItem>
+                  <SelectItem value="MATCH_TEST">MATCH_TEST</SelectItem>
+                  <SelectItem value="QUIZ_TEST">QUIZ_TEST</SelectItem>
+                  <SelectItem value="REVIEW_TEST">REVIEW_TEST</SelectItem>
+                  <SelectItem value="PRACTICE_TEST">PRACTICE_TEST</SelectItem>
                 </SelectContent>
               </Select>
               <Select
@@ -498,7 +504,7 @@ const TestSetManagement: React.FC = () => {
                   handleFilterByStatus(
                     v === "ALL"
                       ? undefined
-                      : (v as TestSetCreateRequest["status"])
+                      : (v as TestCreateRequest["status"])
                   )
                 }
               >
@@ -531,14 +537,14 @@ const TestSetManagement: React.FC = () => {
                 </Card>
               ))}
             </div>
-          ) : testSets.length === 0 ? (
+          ) : tests.length === 0 ? (
             <div className="text-center text-gray-500 py-16">
-              Không có test set
+              Không có test
             </div>
           ) : (
             <>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {testSets.map((t) => (
+                {tests.map((t) => (
                   <Card
                     key={t.id}
                     className="hover:border-primary/40 transition-colors cursor-pointer"
@@ -579,7 +585,10 @@ const TestSetManagement: React.FC = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="text-sm text-gray-700 mb-3 line-clamp-3">
-                        {t.content}
+                        {extractText(
+                          (t as unknown as Record<string, unknown>).description,
+                          "vi"
+                        )}
                       </div>
                       <div className="flex items-center justify-between text-sm text-gray-600">
                         <div className="flex items-center gap-1">
@@ -588,7 +597,7 @@ const TestSetManagement: React.FC = () => {
                             ? `${t.price.toLocaleString()} ₫`
                             : "Miễn phí"}
                         </div>
-                        <div>{t.testType}</div>
+                        <div>{t.testType.toUpperCase()}</div>
                         <div>#{t.id}</div>
                       </div>
                     </CardContent>
@@ -629,7 +638,7 @@ const TestSetManagement: React.FC = () => {
           <DialogContent className="max-w-2xl bg-white">
             <DialogHeader>
               <DialogTitle>
-                {selectedId ? "Chỉnh sửa Test Set" : "Tạo Test Set"}
+                {selectedId ? "Chỉnh sửa Test" : "Tạo Test"}
               </DialogTitle>
             </DialogHeader>
 
@@ -676,16 +685,7 @@ const TestSetManagement: React.FC = () => {
                   />
                 </div>
               </div>
-              <label className="text-sm font-medium">Content</label>
-              <Textarea
-                value={form.content}
-                onChange={(e) => setForm({ ...form, content: e.target.value })}
-              />
-              <label className="text-sm font-medium">Audio URL</label>
-              <Input
-                value={form.audioUrl}
-                onChange={(e) => setForm({ ...form, audioUrl: e.target.value })}
-              />
+            
               <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                 <div>
                   <label className="text-sm font-medium">Price</label>
@@ -724,7 +724,7 @@ const TestSetManagement: React.FC = () => {
                     onValueChange={(v) =>
                       setForm({
                         ...form,
-                        testType: v as TestSetCreateRequest["testType"],
+                        testType: v as TestCreateRequest["testType"],
                       })
                     }
                   >
@@ -732,13 +732,11 @@ const TestSetManagement: React.FC = () => {
                       <SelectValue placeholder="Chọn loại" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="VOCABULARY">VOCABULARY</SelectItem>
-                      <SelectItem value="GRAMMAR">GRAMMAR</SelectItem>
-                      <SelectItem value="KANJI">KANJI</SelectItem>
-                      <SelectItem value="LISTENING">LISTENING</SelectItem>
-                      <SelectItem value="READING">READING</SelectItem>
-                      <SelectItem value="SPEAKING">SPEAKING</SelectItem>
-                      <SelectItem value="GENERAL">GENERAL</SelectItem>
+                      <SelectItem value="PLACEMENT_TEST_DONE">Placement test</SelectItem>
+                      <SelectItem value="MATCH_TEST">Match test</SelectItem>
+                      <SelectItem value="QUIZ_TEST">Quiz test</SelectItem>
+                      <SelectItem value="REVIEW_TEST">Review test</SelectItem>
+                      <SelectItem value="PRACTICE_TEST">Practice test</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -749,7 +747,7 @@ const TestSetManagement: React.FC = () => {
                     onValueChange={(v) =>
                       setForm({
                         ...form,
-                        status: v as TestSetCreateRequest["status"],
+                        status: v as TestCreateRequest["status"],
                       })
                     }
                   >
@@ -757,9 +755,9 @@ const TestSetManagement: React.FC = () => {
                       <SelectValue placeholder="Chọn trạng thái" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="DRAFT">DRAFT</SelectItem>
                       <SelectItem value="ACTIVE">ACTIVE</SelectItem>
                       <SelectItem value="INACTIVE">INACTIVE</SelectItem>
+                      <SelectItem value="DRAFT">DRAFT</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -841,8 +839,13 @@ const TestSetManagement: React.FC = () => {
                 >
                   Hủy
                 </Button>
-                <Button onClick={handleSave} disabled={saving}>
-                  {saving ? "Đang lưu..." : "Lưu"}
+                <Button
+                  onClick={handleSave}
+                  disabled={saving || createTestMutation.isPending || updateTestMutation.isPending}
+                >
+                  {saving || createTestMutation.isPending || updateTestMutation.isPending
+                    ? "Đang lưu..."
+                    : "Lưu"}
                 </Button>
               </div>
             </div>
@@ -886,7 +889,7 @@ const TestSetManagement: React.FC = () => {
                     onValueChange={(v) =>
                       setForm({
                         ...form,
-                        testType: v as TestSetCreateRequest["testType"],
+                        testType: v as TestCreateRequest["testType"],
                       })
                     }
                   >
@@ -894,13 +897,11 @@ const TestSetManagement: React.FC = () => {
                       <SelectValue placeholder="Chọn loại" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="VOCABULARY">VOCABULARY</SelectItem>
-                      <SelectItem value="GRAMMAR">GRAMMAR</SelectItem>
-                      <SelectItem value="KANJI">KANJI</SelectItem>
-                      <SelectItem value="LISTENING">LISTENING</SelectItem>
-                      <SelectItem value="READING">READING</SelectItem>
-                      <SelectItem value="SPEAKING">SPEAKING</SelectItem>
-                      <SelectItem value="GENERAL">GENERAL</SelectItem>
+                      <SelectItem value="PLACEMENT_TEST_DONE">Placement test</SelectItem>
+                      <SelectItem value="MATCH_TEST">Match test</SelectItem>
+                      <SelectItem value="QUIZ_TEST">Quiz test</SelectItem>
+                      <SelectItem value="REVIEW_TEST">Review test</SelectItem>
+                      <SelectItem value="PRACTICE_TEST">Practice test</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -965,9 +966,9 @@ const TestSetManagement: React.FC = () => {
                 </Button>
                 <Button
                   onClick={handleLinkSelected}
-                  disabled={selectedQuestionIds.length === 0}
+                  disabled={selectedQuestionIds.length === 0 || linkQuestionBanksMutation.isPending}
                 >
-                  Thêm vào TestSet
+                  {linkQuestionBanksMutation.isPending ? "Đang thêm..." : "Thêm vào Test"}
                 </Button>
               </div>
             </div>
@@ -978,4 +979,4 @@ const TestSetManagement: React.FC = () => {
   );
 };
 
-export default TestSetManagement;
+export default TestManagement;
